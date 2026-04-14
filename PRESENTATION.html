@@ -147,6 +147,46 @@
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .arch-diagram { display: grid; grid-template-columns: 200px 1fr; gap: 0; margin: 2rem 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+    @media (max-width: 768px) { .arch-diagram { grid-template-columns: 1fr; } }
+    .arch-layer { display: contents; }
+    .arch-layer-label { background: var(--surface); padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; }
+    .arch-layer-content { background: var(--surface2); padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    .arch-layer:last-child .arch-layer-label,
+    .arch-layer:last-child .arch-layer-content { border-bottom: none; }
+    .arch-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--border); background: var(--surface); }
+    .arch-chip.ai { border-color: var(--purple); color: var(--purple); background: rgba(168,85,247,0.08); }
+    .arch-chip.browser { border-color: var(--cyan); color: var(--cyan); background: rgba(6,182,212,0.08); }
+    .arch-chip.data { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.08); }
+    .arch-chip.report { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+    .arch-chip.mcp { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.08); }
+    .arch-chip .chip-icon { font-size: 1rem; }
+
+    .ai-callout { background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(239,68,68,0.06)); border: 1px solid rgba(168,85,247,0.3); border-radius: 16px; padding: 2rem; margin: 2rem 0; }
+    .ai-callout h3 { color: var(--purple); margin-bottom: 1rem; }
+    .ai-role-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .ai-role { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .ai-role h4 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .ai-role p { color: var(--muted); font-size: 0.82rem; }
+    .ai-role .role-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; background: rgba(168,85,247,0.15); color: var(--purple); margin-bottom: 0.5rem; }
+
+    .titan-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .titan-header .titan-badge { background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; }
+    .titan-header .titan-meta { color: var(--muted); font-size: 0.9rem; }
+    .titan-header .titan-meta strong { color: var(--text); }
+
+    .finding-card { background: var(--surface); border-radius: 12px; padding: 1.5rem; border-left: 4px solid; margin-bottom: 1rem; }
+    .finding-card.critical { border-color: var(--red); }
+    .finding-card.high { border-color: var(--orange); }
+    .finding-card.medium { border-color: var(--yellow); }
+    .finding-card h4 { font-size: 1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+    .finding-card p { color: var(--muted); font-size: 0.85rem; }
+    .finding-card .evidence { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--muted); background: var(--surface2); border-radius: 6px; padding: 0.5rem 0.75rem; margin-top: 0.5rem; }
+
+    .pass-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.5rem; }
+    .pass-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.82rem; display: flex; align-items: center; gap: 0.5rem; }
+    .pass-item .pass-icon { color: var(--green); font-weight: 700; }
   </style>
 </head>
 <body>
@@ -156,8 +196,10 @@
   <div class="links">
     <a href="#hero">Home</a>
     <a href="#how">How It Works</a>
+    <a href="#arch">Architecture</a>
     <a href="#brain">Knowledge</a>
     <a href="#features">Features</a>
+    <a href="#titan">Enterprise</a>
     <a href="#demo">Demo App</a>
     <a href="#compare">Why Nemesis</a>
   </div>
@@ -181,7 +223,7 @@
     <div class="stat-card fade-in"><div class="value">4-in-1</div><div class="label">Security + QA + Validation + Exploration</div></div>
     <div class="stat-card fade-in"><div class="value">5</div><div class="label">Login Methods Supported</div></div>
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Rules</div></div>
-    <div class="stat-card fade-in"><div class="value">14</div><div class="label">Issues Found in Demo</div></div>
+    <div class="stat-card fade-in"><div class="value">20</div><div class="label">Issues Found (Demo + Enterprise)</div></div>
   </div>
 </section>
 
@@ -286,10 +328,144 @@
   </div>
 </section>
 
+<!-- ARCHITECTURE -->
+<section id="arch">
+  <div class="section-header fade-in">
+    <div class="number">02 / Architecture</div>
+    <h2>How NEMESIS Is Built &mdash; And Where AI Lives</h2>
+    <p>NEMESIS is an MCP (Model Context Protocol) server that runs inside your IDE. The AI model is the brain &mdash; it reads docs, analyzes recon data, generates every test, and decides what to attack. The server provides the hands: a real browser, authentication, crawling, and evidence capture.</p>
+  </div>
+
+  <!-- Layered architecture diagram -->
+  <div class="arch-diagram fade-in">
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--purple);">AI Layer<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Brain</span></div>
+      <div class="arch-layer-content">
+        <div class="arch-chip ai"><span class="chip-icon">&#129302;</span> LLM (Claude / GPT)</div>
+        <div class="arch-chip ai"><span class="chip-icon">&#128218;</span> Doc Understanding</div>
+        <div class="arch-chip ai"><span class="chip-icon">&#128161;</span> Test Plan Generation</div>
+        <div class="arch-chip ai"><span class="chip-icon">&#127919;</span> Payload Design</div>
+        <div class="arch-chip ai"><span class="chip-icon">&#128269;</span> Vulnerability Analysis</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--red);">MCP Protocol<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Interface</span></div>
+      <div class="arch-layer-content">
+        <div class="arch-chip mcp"><span class="chip-icon">&#128640;</span> nemesis_scan</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128065;</span> nemesis_recon</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#9876;</span> nemesis_attack</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128218;</span> nemesis_learn</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#129504;</span> nemesis_knowledge</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--cyan);">Browser Engine<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Hands</span></div>
+      <div class="arch-layer-content">
+        <div class="arch-chip browser"><span class="chip-icon">&#127760;</span> Playwright + Chromium</div>
+        <div class="arch-chip browser"><span class="chip-icon">&#128274;</span> Auth (5 types)</div>
+        <div class="arch-chip browser"><span class="chip-icon">&#128247;</span> Screenshot Capture</div>
+        <div class="arch-chip browser"><span class="chip-icon">&#128736;</span> Form / Cookie / Storage Inspection</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--orange);">Data &amp; Memory<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Memory</span></div>
+      <div class="arch-layer-content">
+        <div class="arch-chip data"><span class="chip-icon">&#128451;</span> URL-Scoped Knowledge Base</div>
+        <div class="arch-chip data"><span class="chip-icon">&#127919;</span> Effective Payloads</div>
+        <div class="arch-chip data"><span class="chip-icon">&#128200;</span> Scan History</div>
+        <div class="arch-chip data"><span class="chip-icon">&#128221;</span> App Profiles</div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--green);">Output<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Reports</span></div>
+      <div class="arch-layer-content">
+        <div class="arch-chip report"><span class="chip-icon">&#128196;</span> HTML Report</div>
+        <div class="arch-chip report"><span class="chip-icon">&#128196;</span> Markdown Report</div>
+        <div class="arch-chip report"><span class="chip-icon">&#128736;</span> SARIF (CI/CD)</div>
+        <div class="arch-chip report"><span class="chip-icon">&#128247;</span> Screenshot Evidence</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Where AI is leveraged callout -->
+  <div class="ai-callout fade-in">
+    <h3>Where AI Is Leveraged</h3>
+    <p style="color: var(--muted); margin-bottom: 1.25rem;">The LLM isn't a bolt-on feature &mdash; it's the core decision-maker at every stage. Here's exactly what the AI does vs. what the tool does:</p>
+    <div class="ai-role-grid">
+      <div class="ai-role">
+        <div class="role-tag">AI decides</div>
+        <h4>Reads &amp; Understands Documentation</h4>
+        <p>The LLM reads your product docs (markdown, text) and extracts routes, features, business rules, tech stack, and user flows. This understanding shapes every test it generates.</p>
+      </div>
+      <div class="ai-role">
+        <div class="role-tag">AI decides</div>
+        <h4>Analyzes Recon Data</h4>
+        <p>After the crawler maps pages, forms, cookies, headers, and browser storage, the LLM analyzes all of it &mdash; identifying what's sensitive, what's misconfigured, and what's worth attacking.</p>
+      </div>
+      <div class="ai-role">
+        <div class="role-tag">AI decides</div>
+        <h4>Generates Every Test &amp; Payload</h4>
+        <p>Zero hardcoded attack patterns. The LLM generates every SQL injection string, every XSS payload, every CORS probe, every functional test &mdash; tailored to the specific app, its tech stack, and its data model.</p>
+      </div>
+      <div class="ai-role">
+        <div class="role-tag">AI decides</div>
+        <h4>Sets Success Indicators</h4>
+        <p>The LLM decides what constitutes a "finding" for each test &mdash; what strings to look for, what status codes matter, what behavior indicates a vulnerability. No static signature database.</p>
+      </div>
+      <div class="ai-role">
+        <div class="role-tag">AI decides</div>
+        <h4>Prioritizes &amp; Triages Results</h4>
+        <p>The LLM assigns severity (critical/high/medium/low) based on real-world impact, not a generic formula. It explains findings in context of your specific application.</p>
+      </div>
+      <div class="ai-role">
+        <div class="role-tag">Tool executes</div>
+        <h4>Browser Automation &amp; Evidence</h4>
+        <p>Playwright drives a real Chromium browser: navigating pages, filling forms, clicking buttons, capturing screenshots. The tool executes what the AI planned &mdash; faithfully and with evidence.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data flow diagram -->
+  <div style="margin-top: 2rem;">
+    <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">Data Flow: One Scan, End to End</h3>
+    <div class="arch-flow fade-in">
+      <div class="arch-node" style="border-color: var(--cyan);">You: URL + Docs + Creds</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">nemesis_scan</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Auth + Crawl</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node highlight" style="border-color: var(--purple);">LLM Analyzes<br><span style="font-size:0.7rem; color:var(--muted);">Docs + Recon + Knowledge</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node highlight" style="border-color: var(--purple);">LLM Generates<br><span style="font-size:0.7rem; color:var(--muted);">Test Plans + Payloads</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">nemesis_attack</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Execute + Screenshot</span></div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="border-color: var(--green);">Reports + Knowledge</div>
+    </div>
+  </div>
+
+  <!-- Tech stack -->
+  <div style="margin-top: 2.5rem;">
+    <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">Tech Stack</h3>
+    <div class="badge-row" style="gap: 0.75rem;">
+      <span class="tech-badge" style="border-color: var(--purple); color: var(--purple);">TypeScript</span>
+      <span class="tech-badge" style="border-color: var(--red); color: var(--red);">MCP SDK</span>
+      <span class="tech-badge" style="border-color: var(--cyan); color: var(--cyan);">Playwright</span>
+      <span class="tech-badge" style="border-color: var(--blue); color: var(--blue);">Chromium</span>
+      <span class="tech-badge" style="border-color: var(--orange); color: var(--orange);">Zod Schemas</span>
+      <span class="tech-badge" style="border-color: var(--green); color: var(--green);">SARIF 2.1.0</span>
+      <span class="tech-badge" style="border-color: var(--yellow); color: var(--yellow);">JSON Knowledge Store</span>
+    </div>
+  </div>
+</section>
+
 <!-- KNOWLEDGE / BRAIN -->
 <section id="brain">
   <div class="section-header fade-in">
-    <div class="number">02 / It Gets Smarter Over Time</div>
+    <div class="number">03 / It Gets Smarter Over Time</div>
     <h2>NEMESIS Remembers What Works</h2>
     <p>Every time NEMESIS tests an app, it saves what it learned. The next scan starts from a smarter baseline &mdash; it knows your app's structure, what tests found issues before, and what passed. Each app has its own separate memory.</p>
   </div>
@@ -339,7 +515,7 @@
 <!-- FEATURES -->
 <section id="features">
   <div class="section-header fade-in">
-    <div class="number">03 / What It Tests</div>
+    <div class="number">04 / What It Tests</div>
     <h2>Four Types of Testing, One Tool</h2>
     <p>Most tools do one thing. NEMESIS replaces your security scanner, your QA tester, your input validation suite, and your exploratory tester &mdash; all in a single run.</p>
   </div>
@@ -418,10 +594,112 @@
   </div>
 </section>
 
+<!-- ENTERPRISE: PROJECT TITAN -->
+<section id="titan">
+  <div class="section-header fade-in">
+    <div class="number">05 / Enterprise App Results</div>
+    <h2>Project Titan &mdash; Real Enterprise App, Real Findings</h2>
+    <p>NEMESIS scanned a production Hyland enterprise document management system &mdash; Angular 19, OIDC authentication through an external Identity Provider, Integration Server backend, CSRF protection. Here's what it found.</p>
+  </div>
+
+  <div class="titan-header fade-in">
+    <div class="titan-badge">PROJECT TITAN</div>
+    <div class="titan-meta">
+      <strong>Angular 19</strong> &bull; OIDC/IDP Auth &bull; Integration Server API &bull; 6 Modules &bull; CSRF Protected
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card fade-in"><div class="value">27</div><div class="label">Tests Executed</div></div>
+    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">6</div><div class="label">Issues Found</div></div>
+    <div class="stat-card fade-in"><div class="value">2</div><div class="label">Critical</div></div>
+    <div class="stat-card fade-in"><div class="value">306s</div><div class="label">Scan Duration</div></div>
+    <div class="stat-card fade-in"><div class="value">21</div><div class="label">Tests Passed</div></div>
+  </div>
+
+  <!-- How it authenticated -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin: 2rem 0;" class="fade-in">
+    <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem;">How NEMESIS Got In</h3>
+    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">Titan uses enterprise OIDC authentication with an external Hyland Identity Provider. NEMESIS handled the entire flow automatically:</p>
+    <div class="arch-flow" style="justify-content: flex-start;">
+      <div class="arch-node" style="font-size: 0.8rem;">Navigate to /home</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--cyan);">Click Login button</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--yellow);">Redirect to IDP</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--orange);">Fill IDP credentials</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--green);">Redirect back to /home</div>
+      <div class="arch-arrow">&rarr;</div>
+      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--green);">Authenticated &check;</div>
+    </div>
+  </div>
+
+  <!-- Findings -->
+  <h3 style="margin-bottom: 1rem; font-size: 1.2rem;" class="fade-in">Vulnerabilities Discovered</h3>
+
+  <div class="finding-card critical fade-in">
+    <h4><span class="severity-badge critical">CRITICAL</span> CORS Reflects Arbitrary Origins with Credentials</h4>
+    <p>The server reflects any <code>Origin</code> header in <code>Access-Control-Allow-Origin</code> while setting <code>Access-Control-Allow-Credentials: true</code>. A malicious website can make authenticated cross-origin requests and read responses &mdash; enabling full session hijacking.</p>
+    <div class="evidence">ACAO: https://evil.com, ACAC: true &mdash; confirmed on both /home and /integrationserver/v2/connection</div>
+  </div>
+
+  <div class="finding-card critical fade-in">
+    <h4><span class="severity-badge critical">CRITICAL</span> CORS on API Endpoint with Credentials</h4>
+    <p>Same origin reflection confirmed on the Integration Server backend API. An attacker's site can call the API with the victim's cookies and read the response, including CSRF tokens and session data.</p>
+    <div class="evidence">fetch("https://project-titan.../v2/connection", {credentials: "include"}) &rarr; response readable from evil.com</div>
+  </div>
+
+  <div class="finding-card high fade-in">
+    <h4><span class="severity-badge high">HIGH</span> CSRF Token Stored in localStorage</h4>
+    <p>The CSRF token (<code>X-IntegrationServer-titan-CSRFToken</code>) is stored in <code>localStorage</code>, making it readable by any JavaScript on the page. Combined with the CORS misconfiguration, an attacker could read this token cross-origin.</p>
+    <div class="evidence">localStorage["X-IntegrationServer-titan-CSRFToken"] = "tDyQUraSqT1b9XC19K3EbSYCEU8z-IcRywb-6IaOYps"</div>
+  </div>
+
+  <div class="finding-card medium fade-in">
+    <h4><span class="severity-badge medium">MEDIUM</span> Username &amp; User ID Exposed in localStorage</h4>
+    <p>The authenticated username (<code>test2</code>) and internal user ID (<code>321Z539_000JN6Y7Z000004</code>) are stored in <code>localStorage</code>, leaking user identity to any script running on the page.</p>
+    <div class="evidence">localStorage["X-IntegrationServer-titan-Username"] = "test2" &bull; localStorage["Ti-titan-UserId"] = "321Z539_000JN6Y7Z000004"</div>
+  </div>
+
+  <!-- What passed -->
+  <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;" class="fade-in">What Passed (21 Tests)</h3>
+  <div class="pass-grid fade-in">
+    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /documents</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /workflow</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /tasks</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /folders</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /capture</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> CSRF enforcement on API</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Path traversal blocked</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> XSS via URL fragments</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> XSS via route params</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> SQL injection via routes</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Null byte injection</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Long string handling</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Special chars in URLs</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Unknown route handling</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Documents module loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Folders module loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Tasks module loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Workflow module loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Capture module loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Capture &amp; Indexing loads</div>
+    <div class="pass-item"><span class="pass-icon">&check;</span> Logout flow works</div>
+  </div>
+
+  <!-- Key takeaway -->
+  <div style="margin-top: 2.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;" class="fade-in">
+    <h3 style="margin-bottom: 0.75rem;">Key Takeaway</h3>
+    <p style="color: var(--muted); font-size: 0.95rem;">NEMESIS found <strong style="color: var(--red);">2 critical CORS misconfigurations</strong> in a production enterprise app &mdash; the kind of vulnerability that enables full account takeover from a malicious website. It also identified sensitive data exposure in browser storage. All of this with <strong style="color: var(--text);">zero configuration, zero scripting, and one prompt</strong>. The AI read the product documentation, understood the OIDC auth flow, authenticated through the external IDP, and designed 27 targeted tests in under 5 minutes.</p>
+  </div>
+</section>
+
 <!-- DEMO APP -->
 <section id="demo">
   <div class="section-header fade-in">
-    <div class="number">04 / See It In Action</div>
+    <div class="number">06 / See It In Action</div>
     <h2>VulnShop &mdash; A Built-In Demo App</h2>
     <p>NEMESIS ships with VulnShop, a deliberately vulnerable demo app so you can see it work immediately. One command launches the app, one prompt runs the full scan.</p>
   </div>
@@ -466,7 +744,7 @@
 <!-- COMPARISON -->
 <section id="compare">
   <div class="section-header fade-in">
-    <div class="number">05 / Why Nemesis</div>
+    <div class="number">07 / Why Nemesis</div>
     <h2>How NEMESIS Compares</h2>
     <p>Traditional tools run the same generic checks on every app. NEMESIS reads your documentation, understands your app, and creates tests tailored to what you actually built. Here's how that stacks up.</p>
   </div>
