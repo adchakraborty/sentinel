@@ -201,7 +201,7 @@
     <a href="#features">Features</a>
     <a href="#titan">Enterprise</a>
     <a href="#demo">Demo App</a>
-    <a href="#compare">Why Nemesis</a>
+    <a href="#compare">vs. Rapid7/AppScan</a>
   </div>
 </nav>
 
@@ -223,7 +223,7 @@
     <div class="stat-card fade-in"><div class="value">4-in-1</div><div class="label">Security + QA + Validation + Exploration</div></div>
     <div class="stat-card fade-in"><div class="value">5</div><div class="label">Login Methods Supported</div></div>
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Rules</div></div>
-    <div class="stat-card fade-in"><div class="value">20</div><div class="label">Issues Found (Demo + Enterprise)</div></div>
+    <div class="stat-card fade-in"><div class="value">23</div><div class="label">Issues Found (Demo + Enterprise)</div></div>
   </div>
 </section>
 
@@ -312,6 +312,72 @@
         <p>Traditional security scanners ship with a static database of thousands of known attack patterns and run them all blindly. NEMESIS ships with <strong>zero</strong>. The AI generates every test, every payload, and every detection rule on the fly &mdash; tailored to the specific app it's testing. This means it can find issues that cookie-cutter scanners miss.</p>
       </div>
     </div>
+  </div>
+
+  <!-- Brief Tech Flow -->
+  <div style="margin-top: 3rem;" class="fade-in">
+    <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">Brief Tech Flow</h3>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">The 10-step pipeline from a single <code style="color: var(--green);">nemesis_scan</code> call to a full report.</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;" class="fade-in">
+    <div class="pipe-step" style="border-color: var(--cyan); padding: 1rem;">
+      <div class="step-num" style="color: var(--cyan);">1</div>
+      <h3 style="font-size: 0.85rem;">User Input</h3>
+      <p style="font-size: 0.72rem;">URL, docs, auth, example data</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--cyan); padding: 1rem;">
+      <div class="step-num" style="color: var(--cyan);">2</div>
+      <h3 style="font-size: 0.85rem;">Authenticate</h3>
+      <p style="font-size: 0.72rem;">Playwright handles IDP/OAuth login</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--cyan); padding: 1rem;">
+      <div class="step-num" style="color: var(--cyan);">3</div>
+      <h3 style="font-size: 0.85rem;">Recon Crawl</h3>
+      <p style="font-size: 0.72rem;">Pages, forms, cookies, headers, storage</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--orange); padding: 1rem;">
+      <div class="step-num" style="color: var(--orange);">4</div>
+      <h3 style="font-size: 0.85rem;">Read Docs</h3>
+      <p style="font-size: 0.72rem;">Extract routes, auth flows, business rules</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--orange); padding: 1rem;">
+      <div class="step-num" style="color: var(--orange);">5</div>
+      <h3 style="font-size: 0.85rem;">Load Knowledge</h3>
+      <p style="font-size: 0.72rem;">Past payloads from nemesis-knowledge.json</p>
+    </div>
+  </div>
+  <div style="text-align: center; color: var(--red); font-size: 1.5rem; margin: 0.25rem 0;">&#8595;</div>
+  <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;" class="fade-in">
+    <div class="pipe-step" style="border-color: var(--purple); padding: 1rem; background: rgba(168,85,247,0.04);">
+      <div class="step-num" style="color: var(--purple);">6</div>
+      <h3 style="font-size: 0.85rem;">AI Reasons</h3>
+      <p style="font-size: 0.72rem;">LLM designs bespoke attack + test plans</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--red); padding: 1rem;">
+      <div class="step-num" style="color: var(--red);">7</div>
+      <h3 style="font-size: 0.85rem;">Execute Attacks</h3>
+      <p style="font-size: 0.72rem;">Playwright runs plans in Chromium</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--red); padding: 1rem;">
+      <div class="step-num" style="color: var(--red);">8</div>
+      <h3 style="font-size: 0.85rem;">Collect Evidence</h3>
+      <p style="font-size: 0.72rem;">Screenshots, console logs, HTTP status</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--orange); padding: 1rem;">
+      <div class="step-num" style="color: var(--orange);">9</div>
+      <h3 style="font-size: 0.85rem;">Save Knowledge</h3>
+      <p style="font-size: 0.72rem;">Effective payloads &rarr; knowledge base</p>
+    </div>
+    <div class="pipe-step" style="border-color: var(--green); padding: 1rem;">
+      <div class="step-num" style="color: var(--green);">10</div>
+      <h3 style="font-size: 0.85rem;">Generate Reports</h3>
+      <p style="font-size: 0.72rem;">HTML, Markdown, SARIF with evidence</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(239,68,68,0.06)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1.25rem;" class="fade-in">
+    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In NEMESIS, all recon, docs, and history feed an LLM that <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
   </div>
 
   <!-- Simple analogy box for executives -->
@@ -510,6 +576,74 @@
       <p>Found a vulnerability on Monday? NEMESIS remembers the exact test that found it. On Tuesday, it starts with that knowledge and builds on it. Close the tool, reopen it next week &mdash; the memory persists.</p>
     </div>
   </div>
+
+  <!-- nemesis-knowledge.json deep-dive -->
+  <div style="margin-top: 3rem;" class="fade-in">
+    <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">Inside <code style="color: var(--red); font-family: 'JetBrains Mono', monospace;">nemesis-knowledge.json</code></h3>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">This local JSON file is NEMESIS's long-term memory. Every scan writes to it. Every future scan reads from it. Think of it as the AI's personal pentester notebook.</p>
+  </div>
+
+  <div class="arch-diagram fade-in" style="grid-template-columns: 180px 1fr;">
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--orange);">scanHistory[]<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">Audit Trail</span></div>
+      <div class="arch-layer-content">
+        <p style="color: var(--muted); font-size: 0.85rem; margin: 0;">Complete record of every scan &mdash; timestamp, pages scanned, attacks executed, findings summary. Currently <strong style="color: var(--text);">11 scans</strong> across 4 targets.</p>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--red);">effectivePayloads[]<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">What Worked</span></div>
+      <div class="arch-layer-content">
+        <p style="color: var(--muted); font-size: 0.85rem; margin: 0;">Every payload that successfully found a vulnerability, tagged by category, target type, and app. Currently <strong style="color: var(--text);">68 payloads</strong> saved. Fed back to the AI on the next scan so it reuses proven attacks.</p>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color: var(--cyan);">appId Scoping<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">Isolation</span></div>
+      <div class="arch-layer-content">
+        <p style="color: var(--muted); font-size: 0.85rem; margin: 0;">Payloads are scoped per target URL. Knowledge for <code>project-titan</code> never bleeds into <code>localhost:3753</code>. Each app gets its own clean context.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;" class="fade-in">
+    <div class="stat-card"><div class="value">11</div><div class="label">Scans Recorded</div></div>
+    <div class="stat-card"><div class="value">68</div><div class="label">Effective Payloads</div></div>
+    <div class="stat-card"><div class="value">4</div><div class="label">Targets Tracked</div></div>
+    <div class="stat-card"><div class="value">10</div><div class="label">Attack Categories</div></div>
+  </div>
+
+  <!-- How knowledge improves over time -->
+  <div class="features" style="margin-top: 1.5rem;">
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--red);">Scan 1</span>
+      <h3>Cold Start</h3>
+      <p>No prior knowledge. AI generates attacks purely from documentation + recon data. Discovers initial vulnerabilities like CORS reflection and storage issues.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(249,115,22,0.15); color: var(--orange);">Scan 5</span>
+      <h3>Warm</h3>
+      <p>40+ effective payloads saved. AI reuses <code style="color: var(--yellow);">Origin: https://evil.com</code> (known to work) and focuses new effort on unexplored attack surfaces.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(34,197,94,0.15); color: var(--green);">Scan 11</span>
+      <h3>Current</h3>
+      <p>68 effective payloads. AI knows exactly which attacks work against each target. Scans are faster, more precise, fewer wasted attempts. Knowledge compounds.</p>
+    </div>
+  </div>
+
+  <!-- Sample payload tags -->
+  <div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;" class="fade-in">
+    <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem;">Effective Payloads for Project Titan (sample)</h4>
+    <div class="badge-row" style="gap: 0.5rem;">
+      <span class="tech-badge" style="border-color: var(--purple); color: var(--purple);">cors: Origin: https://evil.com</span>
+      <span class="tech-badge" style="border-color: var(--cyan); color: var(--cyan);">csrf: no-csrf-header &rarr; 403</span>
+      <span class="tech-badge" style="border-color: var(--orange); color: var(--orange);">storage: CSRFToken in localStorage</span>
+      <span class="tech-badge" style="border-color: var(--orange); color: var(--orange);">storage: Username in localStorage</span>
+      <span class="tech-badge" style="border-color: var(--red); color: var(--red);">auth: /documents unauth &rarr; login</span>
+      <span class="tech-badge" style="border-color: var(--yellow); color: var(--yellow);">traversal: valid-id%00.html</span>
+      <span class="tech-badge" style="border-color: var(--muted); color: var(--muted);">exploratory: /nonexistent-route &rarr; error</span>
+      <span class="tech-badge" style="border-color: var(--green); color: var(--green);">functional: /home &rarr; hy-shell-header</span>
+    </div>
+  </div>
 </section>
 
 <!-- FEATURES -->
@@ -610,10 +744,10 @@
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card fade-in"><div class="value">27</div><div class="label">Tests Executed</div></div>
-    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">6</div><div class="label">Issues Found</div></div>
-    <div class="stat-card fade-in"><div class="value">2</div><div class="label">Critical</div></div>
-    <div class="stat-card fade-in"><div class="value">306s</div><div class="label">Scan Duration</div></div>
+    <div class="stat-card fade-in"><div class="value">30</div><div class="label">Tests Executed</div></div>
+    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">9</div><div class="label">Issues Found</div></div>
+    <div class="stat-card fade-in"><div class="value">4</div><div class="label">High Severity</div></div>
+    <div class="stat-card fade-in"><div class="value">282s</div><div class="label">Scan Duration</div></div>
     <div class="stat-card fade-in"><div class="value">21</div><div class="label">Tests Passed</div></div>
   </div>
 
@@ -744,58 +878,99 @@
 <!-- COMPARISON -->
 <section id="compare">
   <div class="section-header fade-in">
-    <div class="number">07 / Why Nemesis</div>
-    <h2>How NEMESIS Compares</h2>
-    <p>Traditional tools run the same generic checks on every app. NEMESIS reads your documentation, understands your app, and creates tests tailored to what you actually built. Here's how that stacks up.</p>
+    <div class="number">07 / How Nemesis Is Different</div>
+    <h2>NEMESIS vs. Traditional DAST</h2>
+    <p>Tools like <strong style="color:var(--text);">Rapid7 InsightAppSec</strong>, <strong style="color:var(--text);">HCL AppScan</strong>, Burp Suite, and OWASP ZAP are established DAST scanners. They work by firing thousands of pre-built payloads at every input and matching responses against known vulnerability signatures. NEMESIS takes a fundamentally different approach.</p>
+  </div>
+
+  <!-- The core difference callout -->
+  <div style="background: linear-gradient(135deg, rgba(239,68,68,0.06), rgba(249,115,22,0.06)); border: 1px solid rgba(239,68,68,0.25); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem;" class="fade-in">
+    <h3 style="color: var(--red); margin-bottom: 0.75rem;">The Core Difference: AI Reasoning vs. Signature Matching</h3>
+    <div class="analogy-grid">
+      <div>
+        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--text);">Rapid7 / AppScan / Burp / ZAP</strong> ship with a database of thousands of known attack signatures. They crawl your app, fire every payload at every input, and check if the response matches a known vulnerability fingerprint. They don't <em>understand</em> your app &mdash; they just pattern-match.</p>
+      </div>
+      <div>
+        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--red);">NEMESIS</strong> ships with <strong>zero</strong> hardcoded signatures. Instead, an LLM reads your product documentation, studies the recon data, understands your app's business logic, and then <em>designs bespoke attack plans</em> from scratch. It thinks like a penetration tester, not a signature scanner.</p>
+      </div>
+    </div>
   </div>
 
   <table class="comparison fade-in">
     <thead>
       <tr>
         <th>Capability</th>
-        <th>NEMESIS</th>
-        <th>OWASP ZAP</th>
-        <th>Burp Suite</th>
-        <th>Manual Testing</th>
+        <th style="color:var(--red);">NEMESIS</th>
+        <th>Rapid7 InsightAppSec</th>
+        <th>HCL AppScan</th>
+        <th>Burp Suite / ZAP</th>
       </tr>
     </thead>
     <tbody>
-      <tr><td>Setup time</td><td class="highlight">0 config</td><td>Moderate</td><td>Complex</td><td>Days</td></tr>
-      <tr><td>LLM generates tests</td><td class="highlight">100% LLM</td><td class="cross">Hardcoded</td><td class="cross">Hardcoded</td><td class="check">Human</td></tr>
-      <tr><td>Hardcoded patterns</td><td class="highlight">Zero</td><td class="cross">Thousands</td><td class="cross">Thousands</td><td class="check">None</td></tr>
-      <tr><td>Security testing</td><td class="check">Yes</td><td class="check">Yes</td><td class="check">Yes</td><td class="check">Yes</td></tr>
-      <tr><td>Functional / QA testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
-      <tr><td>Input validation testing</td><td class="highlight">Built-in</td><td>Partial</td><td>Partial</td><td class="check">Yes</td></tr>
-      <tr><td>Exploratory testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
-      <tr><td>Reads your docs</td><td class="highlight">docPath param</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
-      <tr><td>Enterprise IDP/OIDC auth</td><td class="highlight">idp-login type</td><td class="cross">Manual</td><td class="cross">Manual</td><td class="check">Yes</td></tr>
-      <tr><td>Auth support</td><td class="highlight">5 types built-in</td><td>Manual config</td><td>Manual config</td><td class="check">Yes</td></tr>
-      <tr><td>Example data input</td><td class="highlight">exampleData param</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
-      <tr><td>Persistent knowledge</td><td class="highlight">Per-URL, cross-session</td><td class="cross">No</td><td>Session only</td><td>Tribal</td></tr>
-      <tr><td>Real browser</td><td class="check">Chromium</td><td>Proxy</td><td>Proxy</td><td class="check">Yes</td></tr>
-      <tr><td>Screenshot evidence</td><td class="check">Automatic</td><td class="cross">No</td><td>Manual</td><td>Manual</td></tr>
-      <tr><td>IDE integration</td><td class="highlight">MCP native</td><td class="cross">No</td><td>Plugin</td><td class="cross">No</td></tr>
-      <tr><td>SARIF / CI output</td><td class="check">Built-in</td><td>Plugin</td><td>Enterprise</td><td class="cross">No</td></tr>
-      <tr><td>Cost</td><td class="highlight">Free / MIT</td><td>Free</td><td>$449+/yr</td><td>$10K+</td></tr>
-      <tr><td>Gets smarter over time</td><td class="highlight">Every run</td><td class="cross">Manual updates</td><td class="cross">Manual updates</td><td>Experience</td></tr>
+      <tr><td>Attack generation</td><td class="highlight">AI generates per-app</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td></tr>
+      <tr><td>Reads product docs</td><td class="highlight">docPath param</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>Business logic testing</td><td class="highlight">AI-driven (IDOR, privilege esc.)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>Learning across scans</td><td class="highlight">Knowledge base persists</td><td class="cross">Each scan independent</td><td class="cross">Each scan independent</td><td class="cross">Session only</td></tr>
+      <tr><td>Browser storage audit</td><td class="highlight">localStorage, sessionStorage, IndexedDB</td><td>Cookies only</td><td>Cookies only</td><td>Cookies only</td></tr>
+      <tr><td>IDP / OAuth / OIDC auth</td><td class="highlight">Native (idp-login)</td><td>Manual macro recording</td><td>Manual macro recording</td><td>Manual macro recording</td></tr>
+      <tr><td>Setup time</td><td class="highlight">Minutes (one call)</td><td class="cross">Hours &mdash; scan policies, auth macros, scope rules</td><td class="cross">Hours &mdash; scan config, exclusions</td><td>Moderate &mdash; proxy config</td></tr>
+      <tr><td>False positive rate</td><td class="highlight">Low (AI validates context)</td><td class="cross">High (signature matching)</td><td class="cross">High (signature matching)</td><td class="cross">Moderate to high</td></tr>
+      <tr><td>Functional + QA testing</td><td class="highlight">Built-in (same run)</td><td class="cross">Security only</td><td class="cross">Security only</td><td class="cross">Security only</td></tr>
+      <tr><td>Exploratory testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>Payloads per scan</td><td class="highlight">30&ndash;50 (precision-targeted)</td><td>10,000+ (brute-force)</td><td>10,000+ (brute-force)</td><td>Thousands</td></tr>
+      <tr><td>Scan duration</td><td class="highlight">~5 minutes</td><td class="cross">2&ndash;8 hours typical</td><td class="cross">1&ndash;6 hours typical</td><td>30 min&ndash;hours</td></tr>
+      <tr><td>Real browser execution</td><td class="check">Chromium (Playwright)</td><td>Headless engine</td><td>Headless engine</td><td>Proxy-based</td></tr>
+      <tr><td>Screenshot evidence</td><td class="check">Automatic per finding</td><td class="cross">No</td><td>Limited</td><td>Manual</td></tr>
+      <tr><td>Example data input</td><td class="highlight">exampleData param</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>IDE integration</td><td class="highlight">MCP native (Cursor/VS Code)</td><td class="cross">Web console only</td><td class="cross">Standalone app</td><td>Plugin</td></tr>
+      <tr><td>SARIF / CI output</td><td class="check">Built-in</td><td class="check">Yes</td><td class="check">Yes</td><td>Plugin</td></tr>
+      <tr><td>Cost</td><td class="highlight">Free / MIT + LLM API costs</td><td class="cross">$10K&ndash;$100K+/yr</td><td class="cross">$10K&ndash;$80K+/yr</td><td>Free (ZAP) / $449+/yr (Burp)</td></tr>
     </tbody>
   </table>
 
-  <div class="features" style="margin-top: 2rem;">
+  <!-- Side-by-side workflow -->
+  <div class="two-col fade-in" style="margin-top: 2.5rem;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;">
+      <h4 style="color: var(--muted); margin-bottom: 1rem;">Rapid7 / AppScan Workflow</h4>
+      <ol style="padding-left: 1.25rem; color: var(--muted); font-size: 0.9rem; line-height: 2;">
+        <li>Configure scan policy (hours)</li>
+        <li>Record auth macro manually</li>
+        <li>Define scope and exclusions</li>
+        <li>Fire 10,000+ generic payloads</li>
+        <li>Wait 2&ndash;8 hours for scan</li>
+        <li>Triage 200+ findings (many false positives)</li>
+        <li>Repeat from scratch next time</li>
+      </ol>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--red); border-radius: 16px; padding: 1.5rem;">
+      <h4 style="color: var(--red); margin-bottom: 1rem;">NEMESIS Workflow</h4>
+      <ol style="padding-left: 1.25rem; color: var(--text); font-size: 0.9rem; line-height: 2;">
+        <li>One call: URL + docs + credentials</li>
+        <li>AI authenticates (even IDP/OAuth)</li>
+        <li>AI reads docs, understands the app</li>
+        <li>AI designs 30 precision attacks</li>
+        <li>Executes in ~5 minutes</li>
+        <li>9 validated findings, low false positives</li>
+        <li>Knowledge base carries forward</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="features" style="margin-top: 2.5rem;">
     <div class="feature-card fade-in">
       <span class="tag ai">Key Advantage</span>
       <h3>Tests Are Custom, Not Generic</h3>
-      <p>Every other scanner ships with a static list of thousands of attack patterns and runs them all blindly. NEMESIS generates every test on the fly, tailored to your specific app. It tests what matters, not everything in a database.</p>
+      <p>Rapid7 and AppScan ship with a static database of thousands of known attack patterns and run them all blindly. NEMESIS generates every test on the fly, tailored to your specific app. It tests what matters, not everything in a database.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag brain">Key Advantage</span>
       <h3>Gets Smarter Over Time</h3>
-      <p>Each scan builds on the last. Successful tests are remembered. Knowledge persists across sessions. Run it today, run it next month &mdash; it picks up right where it left off, with everything it learned before.</p>
+      <p>Each scan builds on the last. Successful tests are remembered. Knowledge persists across sessions. Rapid7 and AppScan start from zero every time &mdash; NEMESIS picks up right where it left off.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag qa">Key Advantage</span>
       <h3>Replaces Four Tools With One</h3>
-      <p>No other single tool does security testing, functional QA, input validation, and exploratory testing in one run. NEMESIS covers all four &mdash; reducing tool sprawl, saving time, and giving you a single source of truth.</p>
+      <p>No DAST tool &mdash; not Rapid7, not AppScan, not Burp &mdash; does security testing, functional QA, input validation, and exploratory testing in one run. NEMESIS covers all four, reducing tool sprawl and giving you a single source of truth.</p>
     </div>
   </div>
 </section>

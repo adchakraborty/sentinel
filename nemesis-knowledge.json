@@ -172,6 +172,25 @@
         "[critical] CORS on API endpoint with credentials: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
         "[medium] Logout flow works correctly: Found \"login\" on page (status 200)"
       ]
+    },
+    {
+      "id": "scan-1775638596795",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-08T08:56:36.795Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 30,
+      "vulnerabilitiesFound": 9,
+      "findings": [
+        "[high] CORS origin reflection with credentials: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
+        "[high] CSRF token in localStorage: Sensitive data found in localStorage: key=\"X-IntegrationServer-titan-CSRFToken\" (Matches sensitive p",
+        "[medium] Username exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[medium] User ID exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[high] Path traversal with null byte injection: Path traversal successful: \"error\" found with payload: https://project-titan.pc.k8s.hyland.io/docume",
+        "[low] Unknown route handling: Found \"not found\" on page (status 200)",
+        "[medium] Integration Server API endpoint probing: Found \"user\" on page (status 200)",
+        "[medium] Open redirect via login redirect: Console errors detected: Unable to perform callback, redirecting to home. Error: Unable to retrieve ",
+        "[high] IDOR via folder ID manipulation: Found \"folder\" on page (status 200)"
+      ]
     }
   ],
   "effectivePayloads": [
@@ -694,6 +713,78 @@
       "successIndicator": "login",
       "appId": "project-titan.pc.k8s.hyland.io",
       "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-CSRFToken",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "CSRFToken",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-Username",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "test2",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "Ti-titan-UserId",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "321Z539",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/documents/view/valid-id%00.html",
+      "category": "traversal",
+      "targetType": "direct-url",
+      "successIndicator": "alert",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/nonexistent-route-12345",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/integrationserver/v2/connection",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "connection",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/view/authentication-confirmation?redirect=https://evil.com",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/folder/1",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "folder",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-08T08:56:36.797Z"
     }
   ],
   "testPlans": []
