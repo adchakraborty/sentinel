@@ -245,7 +245,7 @@ export async function generateAttackPlans(systemPrompt: string, userPrompt: stri
     const raw = await chatCompletion([
       { role: 'system', content: jsonSystemPrompt },
       { role: 'user', content: userPrompt },
-    ], { temperature: 0.4, maxTokens: 16384, jsonMode: true });
+    ], { temperature: 0.2, maxTokens: 16384, jsonMode: true });
 
     const parsed = JSON.parse(raw);
     if (parsed.plans && Array.isArray(parsed.plans)) return parsed.plans;
@@ -262,7 +262,7 @@ export async function generateAttackPlans(systemPrompt: string, userPrompt: stri
   const raw = await chatCompletion([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt },
-  ], { temperature: 0.4, maxTokens: 16384 });
+  ], { temperature: 0.2, maxTokens: 16384 });
 
   return parseLlmJson(raw);
 }

@@ -7,6 +7,7 @@ import { generateHtmlReport, generateMarkdownReport } from '../../src/reporters/
 import { generateSarifReport } from '../../src/reporters/sarif-generator';
 import { generateAttackPlans } from './github-llm';
 import { buildSystemPrompt, buildUserPrompt } from './prompt-builder';
+import { generateBaselineAttacks } from './baseline-attacks';
 import type { NemesisConfig, AttackPlan, AttackResult, NemesisReport, PageMap, Attack } from '../../src/types';
 
 type ProgressPhase = 'recon' | 'planning' | 'attacking' | 'reporting' | 'complete' | 'error';
@@ -102,21 +103,46 @@ export async function runScan(scanConfig: ScanConfig, callbacks: ProgressCallbac
       }
     }
 
-    // Phase 3: LLM generates attack plans
+    // Phase 3a: Generate baseline deterministic attacks from recon
+    const baselinePlans = generateBaselineAttacks(pages, scanConfig.targetUrl, scanConfig.exampleData);
+    const baselineAttackCount = baselinePlans.reduce((s, p) => s + (p.attacks?.length || 0), 0);
+    callbacks.onProgress('planning', `Generated ${baselineAttackCount} baseline attacks from recon data`);
+
+    // Phase 3b: LLM generates additional attack plans
     callbacks.onProgress('planning', 'AI is analyzing recon data and designing attack plans...');
     const systemPrompt = buildSystemPrompt();
     const userPrompt = buildUserPrompt(pages as Parameters<typeof buildUserPrompt>[0], docContent, scanConfig.exampleData);
 
-    let attackPlans: AttackPlan[];
+    let llmPlans: AttackPlan[] = [];
     try {
       const rawPlans = await generateAttackPlans(systemPrompt, userPrompt);
-      attackPlans = rawPlans as AttackPlan[];
-      const totalAttacks = attackPlans.reduce((s, p) => s + (p.attacks?.length || 0), 0);
-      callbacks.onProgress('planning', `AI generated ${attackPlans.length} plans with ${totalAttacks} attacks`);
+      llmPlans = rawPlans as AttackPlan[];
+      const totalAttacks = llmPlans.reduce((s, p) => s + (p.attacks?.length || 0), 0);
+      callbacks.onProgress('planning', `AI generated ${llmPlans.length} plans with ${totalAttacks} attacks`);
     } catch (err) {
-      callbacks.onProgress('error', `LLM error: ${err instanceof Error ? err.message : 'Unknown'}`);
-      throw err;
+      callbacks.onProgress('planning', `LLM error (using baseline attacks only): ${err instanceof Error ? err.message : 'Unknown'}`);
     }
+
+    // Merge: baseline first, then LLM plans (skip LLM attacks that duplicate a baseline category+page)
+    const coveredKeys = new Set<string>();
+    for (const plan of baselinePlans) {
+      for (const atk of plan.attacks) {
+        coveredKeys.add(`${atk.category}::${plan.pageUrl}`);
+      }
+    }
+    const dedupedLlmPlans: AttackPlan[] = [];
+    for (const plan of llmPlans) {
+      const uniqueAttacks = plan.attacks.filter(
+        (atk) => !coveredKeys.has(`${atk.category}::${plan.pageUrl}`),
+      );
+      if (uniqueAttacks.length > 0) {
+        dedupedLlmPlans.push({ ...plan, attacks: uniqueAttacks });
+      }
+    }
+
+    const attackPlans = [...baselinePlans, ...dedupedLlmPlans];
+    const totalPlannedAttacks = attackPlans.reduce((s, p) => s + (p.attacks?.length || 0), 0);
+    callbacks.onProgress('planning', `Total: ${totalPlannedAttacks} attacks (${baselineAttackCount} baseline + ${totalPlannedAttacks - baselineAttackCount} AI-generated)`);
 
     // Phase 4: Execute attacks
     callbacks.onProgress('attacking', 'Executing attack plans in real browser...');
