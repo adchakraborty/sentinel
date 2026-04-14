@@ -85,6 +85,60 @@ export async function chatCompletion(
   throw new Error('Max retries exceeded');
 }
 
+/**
+ * Fix invalid escape sequences that LLMs commonly produce inside JSON strings.
+ * Handles: bare \' , unescaped control chars, and invalid \x sequences.
+ */
+function sanitizeLlmJson(raw: string): string {
+  let result = '';
+  let inString = false;
+  let i = 0;
+
+  while (i < raw.length) {
+    const ch = raw[i];
+
+    if (ch === '"' && (i === 0 || raw[i - 1] !== '\\')) {
+      inString = !inString;
+      result += ch;
+      i++;
+      continue;
+    }
+
+    if (inString && ch === '\\') {
+      const next = raw[i + 1];
+      if (next && '"\\/bfnrtu'.includes(next)) {
+        result += ch + next;
+        i += 2;
+        continue;
+      }
+      result += '\\\\';
+      i++;
+      continue;
+    }
+
+    if (inString && ch === '\n') {
+      result += '\\n';
+      i++;
+      continue;
+    }
+    if (inString && ch === '\r') {
+      result += '\\r';
+      i++;
+      continue;
+    }
+    if (inString && ch === '\t') {
+      result += '\\t';
+      i++;
+      continue;
+    }
+
+    result += ch;
+    i++;
+  }
+
+  return result;
+}
+
 export async function generateAttackPlans(systemPrompt: string, userPrompt: string): Promise<unknown[]> {
   const raw = await chatCompletion([
     { role: 'system', content: systemPrompt },
@@ -105,8 +159,13 @@ export async function generateAttackPlans(systemPrompt: string, userPrompt: stri
   let plans: unknown;
   try {
     plans = JSON.parse(arrayMatch[0]);
-  } catch (parseErr) {
-    throw new Error(`Failed to parse LLM JSON: ${parseErr instanceof Error ? parseErr.message : 'Unknown parse error'}`);
+  } catch {
+    try {
+      const sanitized = sanitizeLlmJson(arrayMatch[0]);
+      plans = JSON.parse(sanitized);
+    } catch (parseErr) {
+      throw new Error(`Failed to parse LLM JSON: ${parseErr instanceof Error ? parseErr.message : 'Unknown parse error'}`);
+    }
   }
 
   if (!Array.isArray(plans)) {
