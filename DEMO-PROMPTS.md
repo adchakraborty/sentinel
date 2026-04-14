@@ -29,7 +29,7 @@ Call nemesis_attack with your plans.
 
 ## Demo 2: Project Titan (Live Enterprise App)
 
-### Step 1 — Scan with IDP login + documentation
+### Step 1 — Scan with IDP login + documentation + example data
 
 ```
 Call nemesis_scan with:
@@ -43,12 +43,31 @@ Call nemesis_scan with:
     loginTrigger: "button[mat-stroked-button]",
     postLoginUrlPattern: "/home"
   }
+  exampleData: {
+    "documentName": "Nemesis Test Doc",
+    "documentDrawer": "Default Drawer",
+    "documentField1": "Test Value 1",
+    "documentField2": "Test Value 2",
+    "folderName": "Nemesis Test Folder",
+    "folderPath": "\\Default Drawer",
+    "folderType": "Default",
+    "taskType": "Document deficiency",
+    "taskTemplate": "Bill",
+    "taskUser": "Murray, Bill (test1)",
+    "taskLocation": "Page with an annotation",
+    "taskStartDate": "4/7/2026",
+    "taskDueDate": "4/12/2026",
+    "taskInstructions": "Review this document for completeness",
+    "taskComments": "Created by Nemesis automated testing"
+  }
   maxPages: 15
   headed: true
 
 Then generate security attacks, functional tests, and exploratory tests covering:
 - All module navigation (Documents, Folders, Tasks, Workflow, Capture, Capture & Indexing)
-- Create Document and Create Folder menu availability
+- Create Document dialog: open it, verify fields (Name, Drawer, Field1-4, Application Plan, version control, workflow queue)
+- Create Folder dialog: open it, verify fields (Name, Path, Type, Application Plan, workflow queue, shortcut)
+- Create Task dialog: open it, verify fields (Task type, Template, Users/group, Location, Start date, Due date, Expedite, Instructions, Comments)
 - Shell navigation, toolbar, profile menu
 - Logout flow
 - CORS configuration audit
@@ -59,8 +78,11 @@ Then call nemesis_attack with your plans.
 ### Step 2 — Input validation & sanitization tests
 
 ```
-The recon is already done from the previous scan. Now generate a focused set of input validation and sanitization tests:
+The recon is already done from the previous scan. Now generate a focused set of input validation and sanitization tests.
 
+Test BOTH route parameters AND form fields:
+
+ROUTE PARAMETER INJECTION:
 - XSS payloads via document and folder route parameters (<script>alert(1)</script>, <img src=x onerror=alert(1)>, <svg onload=alert(1)>)
 - SQL injection via document and folder IDs (' OR '1'='1, UNION SELECT, DROP TABLE)
 - Path traversal via document and folder IDs (../../etc/passwd, double-encoded variants)
@@ -71,6 +93,14 @@ The recon is already done from the previous scan. Now generate a focused set of 
 - Unicode and control characters
 - Invalid/bogus IDs (99999999999, -1, null, undefined, NaN)
 - Deeply nested non-existent routes
+
+FORM FIELD INJECTION (use Create Document and Create Folder dialogs):
+- Open Create Document dialog, enter XSS payload (<script>alert('xss')</script>) in the Name field
+- Open Create Document dialog, enter SQL injection (' OR 1=1 --) in the Name field
+- Open Create Folder dialog, enter path traversal (../../etc/passwd) in the Name field
+- Open Create Folder dialog, enter extremely long string (500+ chars) in the Name field
+- Open Create Document dialog, enter special characters (!@#$%^&*) in Field1 and Field2
+- Open Create Folder dialog, enter null byte (%00) in the Name field
 
 Call nemesis_attack with these validation plans.
 ```
@@ -93,7 +123,20 @@ Call nemesis_scan with:
   }
   exampleData: {
     "documentName": "Nemesis Test Doc",
+    "documentDrawer": "Default Drawer",
+    "documentField1": "Test Value 1",
+    "documentField2": "Test Value 2",
     "folderName": "Nemesis Test Folder",
+    "folderPath": "\\Default Drawer",
+    "folderType": "Default",
+    "taskType": "Document deficiency",
+    "taskTemplate": "Bill",
+    "taskUser": "Murray, Bill (test1)",
+    "taskLocation": "Page with an annotation",
+    "taskStartDate": "4/7/2026",
+    "taskDueDate": "4/12/2026",
+    "taskInstructions": "Review this document for completeness",
+    "taskComments": "Created by Nemesis automated testing",
     "xssPayload": "<script>alert('xss')</script>",
     "sqlPayload": "' OR 1=1 --",
     "specialChars": "!@#$%^&*()_+-=[]{}|;:<>?",
@@ -107,7 +150,9 @@ Then generate a comprehensive test suite covering ALL of the following:
 FUNCTIONAL TESTS:
 - Home page shows all 6 module tiles after login
 - Navigate to each module: Documents, Folders, Tasks, Workflow, Capture, Capture & Indexing
-- Create Document and Create Folder menus are accessible from toolbar
+- Create Document dialog: open via toolbar "Create" menu, fill in Name, Drawer, Field1-4, verify form fields render
+- Create Folder dialog: open via toolbar "Create" menu, fill in Name, Path, Type, verify form fields render
+- Create Task dialog: open via toolbar "Create" menu, fill in Task type, Template, Users, Location, Dates, Instructions, Comments
 - Shell left navigation renders with all module nav items
 - Shell toolbar shows logo, title, and profile menu
 - Logout flow clears session and shows login button
