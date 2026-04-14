@@ -195,7 +195,7 @@ Then in Cursor chat:
 ```
 Call sentinel_scan with:
   targetUrl: http://localhost:3001
-  docPath: ./demo-app/DOCS.md
+  docPath: c:/workspace/nemesis/demo-app/DOCS.md
   exampleData: {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product!", "username": "admin", "password": "admin"}
   headed: true
 
