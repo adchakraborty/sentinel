@@ -191,6 +191,24 @@
         "[medium] Open redirect via login redirect: Console errors detected: Unable to perform callback, redirecting to home. Error: Unable to retrieve ",
         "[high] IDOR via folder ID manipulation: Found \"folder\" on page (status 200)"
       ]
+    },
+    {
+      "id": "scan-1775727473016",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-09T09:37:53.016Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 33,
+      "vulnerabilitiesFound": 8,
+      "findings": [
+        "[high] CSRF token in localStorage: Sensitive data found in localStorage: key=\"X-IntegrationServer-titan-CSRFToken\" (Matches sensitive p",
+        "[medium] Username exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[medium] User ID exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[critical] CORS allows credentials with permissive origin: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
+        "[critical] CORS origin reflection on home page: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
+        "[medium] Logout flow: Found \"login\" on page (status 200)",
+        "[medium] Integration Server API direct access: Found \"user\" on page (status 200)",
+        "[low] Print route without valid document: Found \"not found\" on page (status 200)"
+      ]
     }
   ],
   "effectivePayloads": [
@@ -785,6 +803,70 @@
       "successIndicator": "folder",
       "appId": "project-titan.pc.k8s.hyland.io",
       "discoveredAt": "2026-04-08T08:56:36.797Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-CSRFToken",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "CSRFToken",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-Username",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "test2",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "Ti-titan-UserId",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "321Z539",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/integrationserver/v2/connection",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "connection",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/print/document/invalid",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-09T09:37:53.019Z"
     }
   ],
   "testPlans": []
