@@ -48,7 +48,18 @@ Rules:
 5. For UX: check broken images, dead links, slow loads, unlabeled inputs, content overflow
 6. For input validation: test null bytes, unicode, extremely long strings, special characters, empty required fields
 7. Set severity based on real-world impact
-8. Return ONLY the JSON array, no markdown fences or explanation`;
+8. Return ONLY the JSON array, no markdown fences or explanation
+
+CRITICAL payload and indicator rules:
+9. For IDOR/info-leak attacks: put FULL URLs (e.g. "http://target:3001/api/users/1") in the payloads array. The executor navigates to each payload URL directly.
+10. For SSRF: put the full URL with the SSRF parameter (e.g. "http://target:3001/api/preview?url=http://localhost:3001/api/debug") in payloads.
+11. For traversal: put path payloads like "../../package.json" or "../../../etc/passwd" in payloads. The executor injects them into the URL.
+12. For injection (SQLi): use payloads like "' OR 1=1 --", "' UNION SELECT * FROM users --", "1; DROP TABLE". Use successIndicators like "sql", "error", "syntax", or data that would only appear from a SQL dump.
+13. For XSS: use payloads like "<script>alert(1)</script>", "<img src=x onerror=alert(1)>". The executor checks if the payload is reflected in DOM.
+14. For CORS: put "Origin: https://evil.com" style payloads. The executor sends fetch requests with that origin header.
+15. For auth bypass: put full URLs of protected pages in payloads. The executor visits them in a fresh unauthenticated browser context.
+16. successIndicators should be SHORT, COMMON strings likely to appear in vulnerable responses. Prefer generic terms like "password", "token", "error", "sql", "admin" over app-specific guesses.
+17. Do NOT use backslash escapes in payloads (no \\n, \\t, etc). Use plain text payloads only.`;
 }
 
 export function buildUserPrompt(

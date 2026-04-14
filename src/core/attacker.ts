@@ -111,6 +111,8 @@ export class Attacker {
       steps.push(`Navigate to ${pageUrl}`);
       await page.goto(pageUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
 
+      const bodyBefore = await page.evaluate(() => document.body?.innerText || '');
+
       for (const payload of attack.payloads.slice(0, 5)) {
         steps.push(`Enter payload: ${payload.substring(0, 60)}`);
 
@@ -133,20 +135,45 @@ export class Attacker {
           await page.waitForTimeout(1000);
 
           const bodyText = await page.evaluate(() => document.body?.innerText || '');
+          const bodyHtml = await page.evaluate(() => document.body?.innerHTML || '');
           const bodyLower = bodyText.toLowerCase();
 
           for (const indicator of attack.successIndicators) {
             if (bodyLower.includes(indicator.toLowerCase())) {
               success = true;
               evidence = `Indicator "${indicator}" found in response after payload: ${payload}`;
-
               screenshot = await this.takeScreenshot(page, attack.id, payload);
               steps.push(`VULNERABILITY CONFIRMED: "${indicator}" detected in page`);
               break;
             }
           }
 
-          if (attack.category === 'xss') {
+          if (!success && attack.category === 'injection') {
+            const sqliSignals = [
+              'sql', 'syntax error', 'mysql', 'sqlite', 'postgresql', 'oracle',
+              'unclosed quotation', 'unterminated', 'query', 'database',
+              'table', 'column', 'select', 'union', 'where', 'from',
+              'error in your sql', 'sqlstate', 'odbc', 'jdbc',
+            ];
+            const newContent = bodyLower.replace(bodyBefore.toLowerCase(), '');
+            for (const signal of sqliSignals) {
+              if (newContent.includes(signal) || (bodyLower.includes(signal) && !bodyBefore.toLowerCase().includes(signal))) {
+                success = true;
+                evidence = `SQL injection indicator "${signal}" appeared after payload: ${payload}`;
+                screenshot = await this.takeScreenshot(page, attack.id, payload);
+                steps.push(`VULNERABILITY CONFIRMED: SQL error/data leaked`);
+                break;
+              }
+            }
+            if (!success && payload.includes("' OR") && bodyText.length > bodyBefore.length + 100) {
+              success = true;
+              evidence = `SQL injection likely: response grew significantly (${bodyBefore.length} → ${bodyText.length} chars) after payload: ${payload}`;
+              screenshot = await this.takeScreenshot(page, attack.id, payload);
+              steps.push(`VULNERABILITY CONFIRMED: Response size increase suggests data dump`);
+            }
+          }
+
+          if (!success && attack.category === 'xss') {
             const hasInjectedHtml = await page.evaluate((p) => {
               return document.body?.innerHTML?.includes(p) || false;
             }, payload);
@@ -156,6 +183,29 @@ export class Attacker {
               screenshot = await this.takeScreenshot(page, attack.id, payload);
               steps.push('VULNERABILITY CONFIRMED: Payload reflected in DOM');
               break;
+            }
+            const xssPatterns = ['<script', 'onerror=', 'onload=', 'javascript:', 'alert('];
+            for (const pat of xssPatterns) {
+              if (payload.toLowerCase().includes(pat) && bodyHtml.toLowerCase().includes(pat)) {
+                success = true;
+                evidence = `XSS: payload pattern "${pat}" reflected in page HTML after input: ${payload}`;
+                screenshot = await this.takeScreenshot(page, attack.id, payload);
+                steps.push('VULNERABILITY CONFIRMED: XSS pattern reflected in HTML');
+                break;
+              }
+            }
+          }
+
+          if (!success && attack.category === 'validation') {
+            const errorSignals = ['error', 'exception', 'stack trace', 'internal server', '500', 'unhandled', 'crash'];
+            for (const signal of errorSignals) {
+              if (bodyLower.includes(signal) && !bodyBefore.toLowerCase().includes(signal)) {
+                success = true;
+                evidence = `Input validation failure: "${signal}" appeared after payload: ${payload}`;
+                screenshot = await this.takeScreenshot(page, attack.id, payload);
+                steps.push(`VULNERABILITY CONFIRMED: Application error on malformed input`);
+                break;
+              }
             }
           }
 
@@ -380,6 +430,7 @@ export class Attacker {
 
         try {
           const response = await page.goto(testUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+          const status = response?.status() || 0;
           const bodyText = await page.evaluate(() => document.body?.innerText?.substring(0, 3000) || '');
           const bodyLower = bodyText.toLowerCase();
 
@@ -390,6 +441,31 @@ export class Attacker {
               screenshot = await this.takeScreenshot(page, attack.id, payload);
               steps.push(`VULNERABILITY CONFIRMED: System file content detected`);
               break;
+            }
+          }
+          if (success) break;
+
+          if (!success && status === 200 && bodyText.length > 20) {
+            const fileContentSignals = [
+              /\{[\s\S]*"name"\s*:[\s\S]*"version"\s*:/,
+              /root:.*:0:0/,
+              /\[boot loader\]/i,
+              /\[extensions\]/i,
+              /<\?xml/,
+              /<!DOCTYPE/i,
+              /"dependencies"\s*:\s*\{/,
+              /"scripts"\s*:\s*\{/,
+              /module\.exports/,
+              /require\s*\(/,
+            ];
+            for (const pattern of fileContentSignals) {
+              if (pattern.test(bodyText)) {
+                success = true;
+                evidence = `Path traversal: file content detected (pattern: ${pattern.source}) with payload: ${payload}. Preview: ${bodyText.substring(0, 200)}`;
+                screenshot = await this.takeScreenshot(page, attack.id, payload);
+                steps.push(`VULNERABILITY CONFIRMED: File content exposed via traversal`);
+                break;
+              }
             }
           }
           if (success) break;
@@ -453,6 +529,11 @@ export class Attacker {
             success = true;
             evidence = `CORS origin "${origin}" reflected without credentials (ACAO: ${acao}). Lower risk but still a misconfiguration.`;
             steps.push(`ISSUE FOUND: Origin reflected`);
+            break;
+          } else if (wildcard) {
+            success = true;
+            evidence = `Wildcard CORS (ACAO: *) — any origin can read responses. Misconfiguration if API returns sensitive data.`;
+            steps.push(`ISSUE FOUND: Wildcard CORS allows any origin`);
             break;
           }
         } finally {
@@ -855,6 +936,18 @@ export class Attacker {
                 break;
               }
             }
+            if (!success && status === 200 && bodyText.length > 50) {
+              const ssrfSignals = [/localhost/i, /127\.0\.0\.1/, /0\.0\.0\.0/, /internal/i, /<!doctype/i, /<html/i, /\{.*".*":.*\}/];
+              for (const sig of ssrfSignals) {
+                if (sig.test(bodyText) && payload.includes('localhost') || payload.includes('127.0.0.1')) {
+                  success = true;
+                  evidence = `SSRF: server appears to have fetched internal URL ${payload} — response contains "${sig.source}". Preview: ${bodyText.substring(0, 200)}`;
+                  screenshot = await this.takeScreenshot(page, attack.id, 'ssrf');
+                  steps.push(`VULNERABILITY CONFIRMED: Internal content returned via SSRF`);
+                  break;
+                }
+              }
+            }
             if (success) break;
           }
         } catch { /* timeout or nav error */ }
@@ -901,18 +994,61 @@ export class Attacker {
           }
           if (success) break;
 
-          if (attack.category === 'info-leak' && status === 200 && bodyText.length > 100) {
-            const sensitivePatterns = [/password/i, /api[_-]?key/i, /secret/i, /token/i, /credential/i, /private/i];
-            for (const pattern of sensitivePatterns) {
-              if (pattern.test(bodyText)) {
+          if (status === 200 && bodyText.length > 50) {
+            const sensitivePatterns = [
+              /password/i, /api[_-]?key/i, /secret/i, /token/i, /credential/i,
+              /private/i, /ssn/i, /credit.?card/i, /email.*@/i,
+            ];
+
+            if (attack.category === 'idor') {
+              let isJson = false;
+              try { JSON.parse(bodyText); isJson = true; } catch { /* not json */ }
+              const hasUserData = /("id"|"user"|"name"|"email"|"password"|"role"|"order"|"address")/i.test(bodyText);
+              if (isJson && hasUserData) {
                 success = true;
-                evidence = `Information leak: sensitive data pattern "${pattern.source}" found at ${testUrl}`;
-                screenshot = await this.takeScreenshot(page, attack.id, 'info-leak');
-                steps.push(`VULNERABILITY CONFIRMED: Sensitive data exposed`);
+                evidence = `IDOR: API endpoint ${testUrl} returned user/sensitive data without authorization (status ${status}). Preview: ${bodyText.substring(0, 200)}`;
+                screenshot = await this.takeScreenshot(page, attack.id, 'idor');
+                steps.push(`VULNERABILITY CONFIRMED: Sensitive data accessible via direct object reference`);
                 break;
               }
+              if (hasUserData) {
+                for (const pattern of sensitivePatterns) {
+                  if (pattern.test(bodyText)) {
+                    success = true;
+                    evidence = `IDOR: Sensitive pattern "${pattern.source}" found at ${testUrl} (status ${status})`;
+                    screenshot = await this.takeScreenshot(page, attack.id, 'idor');
+                    steps.push(`VULNERABILITY CONFIRMED: Sensitive data exposed via IDOR`);
+                    break;
+                  }
+                }
+                if (success) break;
+              }
             }
-            if (success) break;
+
+            if (attack.category === 'info-leak') {
+              for (const pattern of sensitivePatterns) {
+                if (pattern.test(bodyText)) {
+                  success = true;
+                  evidence = `Information leak: sensitive data pattern "${pattern.source}" found at ${testUrl} (status ${status}). Preview: ${bodyText.substring(0, 200)}`;
+                  screenshot = await this.takeScreenshot(page, attack.id, 'info-leak');
+                  steps.push(`VULNERABILITY CONFIRMED: Sensitive data exposed`);
+                  break;
+                }
+              }
+              if (success) break;
+
+              const debugPatterns = [/node_modules/i, /stack.*trace/i, /env/i, /debug/i, /config/i, /version.*node/i, /process\.env/i];
+              for (const pattern of debugPatterns) {
+                if (pattern.test(bodyText)) {
+                  success = true;
+                  evidence = `Information leak: debug/config data "${pattern.source}" found at ${testUrl}`;
+                  screenshot = await this.takeScreenshot(page, attack.id, 'info-leak-debug');
+                  steps.push(`VULNERABILITY CONFIRMED: Debug/config information exposed`);
+                  break;
+                }
+              }
+              if (success) break;
+            }
           }
         } catch { /* timeout */ }
       }
