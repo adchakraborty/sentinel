@@ -108,7 +108,7 @@ Call nemesis_attack with these validation plans.
 ---
 
 ## Demo 3: Full Titan Run (Single Prompt — Does Everything)
-
+Add creds before running the actual prompt
 ```
 Call nemesis_scan with:
   targetUrl: https://project-titan.pc.k8s.hyland.io
@@ -116,8 +116,6 @@ Call nemesis_scan with:
   auth: {
     type: "idp-login",
     loginUrl: "https://project-titan.pc.k8s.hyland.io/home",
-    username: "test2",
-    password: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     loginTrigger: "button[mat-stroked-button]",
     postLoginUrlPattern: "/home"
   }
