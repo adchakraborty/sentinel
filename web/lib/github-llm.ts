@@ -86,86 +86,107 @@ export async function chatCompletion(
 }
 
 /**
- * Fix invalid escape sequences that LLMs commonly produce inside JSON strings.
+ * Extract the JSON array substring from raw LLM text.
+ * Handles markdown fences, leading prose, and partial arrays.
  */
-function fixEscapes(raw: string): string {
-  let result = '';
-  let inString = false;
-  let i = 0;
+function extractJsonArray(raw: string): string {
+  let s = raw;
 
-  while (i < raw.length) {
-    const ch = raw[i];
+  const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenceMatch) s = fenceMatch[1].trim();
 
-    if (ch === '"' && (i === 0 || raw[i - 1] !== '\\')) {
-      inString = !inString;
-      result += ch;
-      i++;
-      continue;
-    }
+  const fullArray = s.match(/\[[\s\S]*\]/);
+  if (fullArray) return fullArray[0];
 
-    if (inString && ch === '\\') {
-      const next = raw[i + 1];
-      if (next && '"\\/bfnrtu'.includes(next)) {
-        result += ch + next;
-        i += 2;
-        continue;
-      }
-      result += '\\\\';
-      i++;
-      continue;
-    }
+  const partialArray = s.match(/\[[\s\S]*/);
+  if (partialArray) return partialArray[0];
 
-    if (inString && ch === '\n') { result += '\\n'; i++; continue; }
-    if (inString && ch === '\r') { result += '\\r'; i++; continue; }
-    if (inString && ch === '\t') { result += '\\t'; i++; continue; }
-
-    result += ch;
-    i++;
-  }
-
-  return result;
+  throw new Error(`LLM response did not contain a JSON array. Preview: ${raw.substring(0, 200)}`);
 }
 
 /**
- * Repair structurally broken JSON from LLM output:
- * - Remove trailing commas before ] or }
- * - Close unclosed brackets/braces/strings (truncated output)
- * - Strip JS-style comments
+ * Walk through a JSON string character-by-character, fixing:
+ * - Invalid escape sequences inside strings (e.g. \' \. \x)
+ * - Raw control characters inside strings (newlines, tabs)
+ * - Trailing commas before ] or }
+ * - Unclosed strings, objects, arrays (truncated output)
  */
-function repairJson(raw: string): string {
-  let s = raw;
+function repairLlmJson(raw: string): string {
+  const out: string[] = [];
+  let inString = false;
+  let i = 0;
+  const len = raw.length;
 
-  s = s.replace(/\/\/[^\n]*/g, '');
-  s = s.replace(/\/\*[\s\S]*?\*\//g, '');
+  while (i < len) {
+    const ch = raw[i];
 
-  s = s.replace(/,\s*([\]}])/g, '$1');
+    if (!inString) {
+      if (ch === '"') {
+        inString = true;
+        out.push(ch);
+        i++;
+      } else {
+        out.push(ch);
+        i++;
+      }
+      continue;
+    }
 
-  s = fixEscapes(s);
+    if (ch === '"') {
+      inString = false;
+      out.push(ch);
+      i++;
+      continue;
+    }
 
-  try {
-    JSON.parse(s);
-    return s;
-  } catch { /* continue repairing */ }
+    if (ch === '\\') {
+      const next = i + 1 < len ? raw[i + 1] : '';
+      if ('"\\/bfnrt'.includes(next)) {
+        out.push(ch, next);
+        i += 2;
+        continue;
+      }
+      if (next === 'u') {
+        out.push(ch, next);
+        i += 2;
+        continue;
+      }
+      out.push('\\\\');
+      i++;
+      continue;
+    }
 
-  let openBrackets = 0;
-  let openBraces = 0;
-  let inStr = false;
-  for (let i = 0; i < s.length; i++) {
-    const c = s[i];
-    if (c === '"' && (i === 0 || s[i - 1] !== '\\')) { inStr = !inStr; continue; }
-    if (inStr) continue;
-    if (c === '[') openBrackets++;
-    else if (c === ']') openBrackets--;
-    else if (c === '{') openBraces++;
-    else if (c === '}') openBraces--;
+    if (ch === '\n') { out.push('\\n'); i++; continue; }
+    if (ch === '\r') { out.push('\\r'); i++; continue; }
+    if (ch === '\t') { out.push('\\t'); i++; continue; }
+    const code = ch.charCodeAt(0);
+    if (code < 0x20) { i++; continue; }
+
+    out.push(ch);
+    i++;
   }
 
-  if (inStr) s += '"';
+  let s = out.join('');
+
+  if (inString) s += '"';
 
   s = s.replace(/,\s*([\]}])/g, '$1');
 
-  while (openBraces > 0) { s += '}'; openBraces--; }
-  while (openBrackets > 0) { s += ']'; openBrackets--; }
+  let brackets = 0;
+  let braces = 0;
+  let inStr2 = false;
+  for (let j = 0; j < s.length; j++) {
+    const c = s[j];
+    if (c === '"' && (j === 0 || s[j - 1] !== '\\')) { inStr2 = !inStr2; continue; }
+    if (inStr2) continue;
+    if (c === '[') brackets++;
+    else if (c === ']') brackets--;
+    else if (c === '{') braces++;
+    else if (c === '}') braces--;
+  }
+
+  while (braces > 0) { s += '}'; braces--; }
+  while (brackets > 0) { s += ']'; brackets--; }
 
   s = s.replace(/,\s*([\]}])/g, '$1');
 
@@ -173,58 +194,39 @@ function repairJson(raw: string): string {
 }
 
 /**
- * Try multiple strategies to parse LLM JSON output.
+ * Parse LLM JSON with multiple fallback strategies.
  */
 function parseLlmJson(raw: string): unknown[] {
-  let jsonStr = raw;
-  const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenceMatch) {
-    jsonStr = fenceMatch[1].trim();
+  const jsonStr = extractJsonArray(raw);
+
+  try {
+    const direct = JSON.parse(jsonStr);
+    if (Array.isArray(direct)) return direct;
+  } catch { /* try repair */ }
+
+  try {
+    const repaired = repairLlmJson(jsonStr);
+    const result = JSON.parse(repaired);
+    if (Array.isArray(result)) return result;
+    if (result && typeof result === 'object') return [result];
+  } catch { /* try last resort */ }
+
+  try {
+    const stripped = jsonStr.replace(/[\x00-\x1f]+/g, ' ');
+    const repaired = repairLlmJson(stripped);
+    const result = JSON.parse(repaired);
+    if (Array.isArray(result)) return result;
+    if (result && typeof result === 'object') return [result];
+  } catch (e) {
+    const preview = jsonStr.substring(0, 300).replace(/[\n\r]/g, '\\n');
+    throw new Error(
+      `Failed to parse LLM JSON after all repair attempts. ` +
+      `Error: ${e instanceof Error ? e.message : 'Unknown'}. ` +
+      `Preview: ${preview}`,
+    );
   }
 
-  const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
-  if (!arrayMatch) {
-    const partialArray = jsonStr.match(/\[[\s\S]*/);
-    if (partialArray) {
-      jsonStr = partialArray[0];
-    } else {
-      throw new Error(`LLM response did not contain a JSON array. Response preview: ${raw.substring(0, 200)}`);
-    }
-  } else {
-    jsonStr = arrayMatch[0];
-  }
-
-  const attempts: Array<{ name: string; fn: () => unknown }> = [
-    { name: 'direct', fn: () => JSON.parse(jsonStr) },
-    { name: 'fix-escapes', fn: () => JSON.parse(fixEscapes(jsonStr)) },
-    { name: 'repair', fn: () => JSON.parse(repairJson(jsonStr)) },
-    {
-      name: 'aggressive-repair',
-      fn: () => {
-        let s = jsonStr;
-        s = s.replace(/[\x00-\x1f]/g, (m) => {
-          if (m === '\n') return '\\n';
-          if (m === '\r') return '\\r';
-          if (m === '\t') return '\\t';
-          return '';
-        });
-        return JSON.parse(repairJson(s));
-      },
-    },
-  ];
-
-  let lastErr: Error | null = null;
-  for (const attempt of attempts) {
-    try {
-      const result = attempt.fn();
-      if (Array.isArray(result)) return result;
-      if (result && typeof result === 'object') return [result];
-    } catch (e) {
-      lastErr = e instanceof Error ? e : new Error(String(e));
-    }
-  }
-
-  throw new Error(`Failed to parse LLM JSON: ${lastErr?.message || 'Unknown parse error'}`);
+  throw new Error('Parsed result is not an array or object');
 }
 
 export async function generateAttackPlans(systemPrompt: string, userPrompt: string): Promise<unknown[]> {
