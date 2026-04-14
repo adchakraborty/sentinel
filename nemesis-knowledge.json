@@ -1,0 +1,390 @@
+{
+  "apps": [],
+  "scanHistory": [
+    {
+      "id": "scan-1775560633206",
+      "appId": "localhost:3753",
+      "timestamp": "2026-04-07T11:17:13.206Z",
+      "pagesScanned": 7,
+      "attacksExecuted": 18,
+      "vulnerabilitiesFound": 18,
+      "findings": [
+        "[critical] SQL Injection on search - UNION based: Indicator \"admin\" found in response after payload: ' OR 1=1 --",
+        "[high] Reflected XSS on search query echo: XSS payload reflected in DOM: <script>alert('NEMESIS')</script>",
+        "[low] Search returns correct products for valid query: Found \"Widget A\" after input \"Widget\" (status 200)",
+        "[low] Empty search returns all products: Found \"Widget A\" after input \"\" (status 200)",
+        "[low] Search with extremely long input: Found \"No products found\" after input \"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "[critical] Brute-force login with weak credentials: Login succeeded with admin:admin",
+        "[low] Login with valid credentials redirects to admin: Found \"admin\" after input \"admin:admin\" (status 200)",
+        "[critical] Admin page accessible without authentication: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[high] Wildcard CORS on admin page: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[critical] Path traversal via file viewer: Path traversal successful: \"nemesis\" found with payload: ../../package.json",
+        "[low] File viewer serves valid file: Found \"VulnShop\" on page (status 200)",
+        "[low] File viewer with nonexistent file: Found \"not found\" on page (status 404)",
+        "[high] Stored XSS via feedback name field: Indicator \"<script>alert('XSS-NAME')</script>\" found in response after payload: <script>alert('XSS-N",
+        "[high] Missing CSRF token on feedback form: The feedback POST form has no CSRF token. Combined with SameSite=None cookies, this allows cross-ori",
+        "[medium] No input length validation on feedback: Indicator \"A\" found in response after payload: A",
+        "[low] Feedback form saves and displays entry: Found \"Tester\" after input \"Tester\" (status 200)",
+        "[high] Wildcard CORS on home page: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[medium] Session cookie security check: Found \"VulnShop\" on page (status 200)"
+      ]
+    },
+    {
+      "id": "scan-1775560851518",
+      "appId": "localhost:3970",
+      "timestamp": "2026-04-07T11:20:51.518Z",
+      "pagesScanned": 7,
+      "attacksExecuted": 19,
+      "vulnerabilitiesFound": 7,
+      "findings": [
+        "[medium] CSRF — Login form has no CSRF token: Login form accepts POST without any anti-CSRF token, allowing cross-origin form submission",
+        "[critical] Auth Bypass — Cookie forgery for admin: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[critical] Auth Bypass — Role escalation with fake user: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[high] Path Traversal — Read package.json: Path traversal successful: \"dependencies\" found with payload: ../package.json",
+        "[low] Functional — File viewer default file: Found \"VulnShop\" on page (status 200)",
+        "[medium] CORS — Wildcard origin allows any domain: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[low] Functional — Search with example data Widget: Found \"Widget\" on page (status 200)"
+      ]
+    },
+    {
+      "id": "scan-1775561120111",
+      "appId": "localhost:3970",
+      "timestamp": "2026-04-07T11:25:20.111Z",
+      "pagesScanned": 7,
+      "attacksExecuted": 16,
+      "vulnerabilitiesFound": 6,
+      "findings": [
+        "[low] Product search — Widget: Found \"Widget\" on page (status 200)",
+        "[medium] CSRF — Login form no token: Login form accepts POST with no CSRF token, enabling cross-site request forgery",
+        "[critical] Auth Bypass — Cookie forgery: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[medium] CORS — Wildcard origin: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[high] Path Traversal — File viewer: Path traversal successful: \"dependencies\" found with payload: ../package.json",
+        "[low] File viewer — default readme: Found \"VulnShop\" on page (status 200)"
+      ]
+    },
+    {
+      "id": "scan-1775581183002",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T16:59:43.002Z",
+      "pagesScanned": 1,
+      "attacksExecuted": 24,
+      "vulnerabilitiesFound": 6,
+      "findings": [
+        "[high] Unauthenticated access to protected document routes: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[high] Unauthenticated access to workflow routes: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[high] Unauthenticated access to capture routes: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[high] CORS misconfiguration check: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[medium] CSRF token validation on Integration Server API: Attempt API calls without the X-IntegrationServer-titan-CSRFToken header to verify CSRF protection i",
+        "[medium] Logout flow: Found \"login\" on page (status 200)"
+      ]
+    },
+    {
+      "id": "scan-1775581909391",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T17:11:49.391Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 23,
+      "vulnerabilitiesFound": 3,
+      "findings": [
+        "[low] Shell toolbar shows app title and logo: Found \"Home\" on page (status 200)",
+        "[low] User profile menu is accessible: Found \"user_circle\" on page (status 200)",
+        "[high] CORS allows arbitrary origins with credentials: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon"
+      ]
+    },
+    {
+      "id": "scan-1775582855049",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T17:27:35.049Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 19,
+      "vulnerabilitiesFound": 2,
+      "findings": [
+        "[medium] Null byte injection in document ID: Page returned error status 400",
+        "[low] Non-existent deep nested route: Found \"not found\" on page (status 200)"
+      ]
+    }
+  ],
+  "effectivePayloads": [
+    {
+      "payload": "' OR 1=1 --",
+      "category": "injection",
+      "targetType": "form",
+      "successIndicator": "CREATE TABLE",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.207Z"
+    },
+    {
+      "payload": "<script>alert('NEMESIS')</script>",
+      "category": "xss",
+      "targetType": "form",
+      "successIndicator": "<script>alert('NEMESIS')</script>",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.207Z"
+    },
+    {
+      "payload": "Widget",
+      "category": "functional",
+      "targetType": "form",
+      "successIndicator": "Widget A",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.207Z"
+    },
+    {
+      "payload": "",
+      "category": "exploratory",
+      "targetType": "form",
+      "successIndicator": "Widget A",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.207Z"
+    },
+    {
+      "payload": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "category": "exploratory",
+      "targetType": "form",
+      "successIndicator": "No products found",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "admin:admin",
+      "category": "auth",
+      "targetType": "form",
+      "successIndicator": "admin",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "admin:admin",
+      "category": "functional",
+      "targetType": "form",
+      "successIndicator": "admin",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "../../package.json",
+      "category": "traversal",
+      "targetType": "url-param",
+      "successIndicator": "nemesis",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "<script>alert('XSS-NAME')</script>",
+      "category": "xss",
+      "targetType": "form",
+      "successIndicator": "<script>alert('XSS-NAME')</script>",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "A",
+      "category": "validation",
+      "targetType": "form",
+      "successIndicator": "A",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "Tester",
+      "category": "functional",
+      "targetType": "form",
+      "successIndicator": "Tester",
+      "appId": "localhost:3753",
+      "discoveredAt": "2026-04-07T11:17:13.208Z"
+    },
+    {
+      "payload": "admin",
+      "category": "csrf",
+      "targetType": "form",
+      "successIndicator": "Admin Dashboard",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "auth_user=admin;auth_role=admin",
+      "category": "auth",
+      "targetType": "cookie",
+      "successIndicator": "Welcome, admin",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "auth_user=hacker;auth_role=admin",
+      "category": "auth",
+      "targetType": "cookie",
+      "successIndicator": "Welcome, hacker",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "../package.json",
+      "category": "traversal",
+      "targetType": "url-param",
+      "successIndicator": "dependencies",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "readme.txt",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "VulnShop",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "Origin: http://evil.com",
+      "category": "cors",
+      "targetType": "direct-url",
+      "successIndicator": "access-control-allow-origin",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "Widget",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Widget",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:20:51.519Z"
+    },
+    {
+      "payload": "Widget",
+      "category": "functional",
+      "targetType": "url-param",
+      "successIndicator": "Widget",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "admin",
+      "category": "csrf",
+      "targetType": "form",
+      "successIndicator": "Admin Dashboard",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "auth_user=admin;auth_role=admin",
+      "category": "auth",
+      "targetType": "cookie",
+      "successIndicator": "Welcome",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "Origin: http://evil.com",
+      "category": "cors",
+      "targetType": "direct-url",
+      "successIndicator": "access-control-allow-origin",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "../../../etc/passwd",
+      "category": "traversal",
+      "targetType": "url-param",
+      "successIndicator": "root:",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "readme.txt",
+      "category": "functional",
+      "targetType": "url-param",
+      "successIndicator": "VulnShop",
+      "appId": "localhost:3970",
+      "discoveredAt": "2026-04-07T11:25:20.112Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/documents",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.005Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/workflow",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.005Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/capture",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.005Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.005Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/integrationserver/v2/connection",
+      "category": "csrf",
+      "targetType": "direct-url",
+      "successIndicator": "403",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.005Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T16:59:43.006Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/home",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "hy-shell-header",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:11:49.393Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/home",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "hy-shell-profile-menu",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:11:49.393Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:11:49.393Z"
+    },
+    {
+      "payload": "valid-id%00.html",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "alert",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:27:35.050Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/documents/view/fake/document/fake/page/fake/annotation/fake",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:27:35.050Z"
+    }
+  ],
+  "testPlans": []
+}

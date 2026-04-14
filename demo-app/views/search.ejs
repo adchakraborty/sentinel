@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — VulnShop</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }
+    .nav { background: #1e293b; padding: 1rem 2rem; display: flex; gap: 2rem; align-items: center; }
+    .nav a { color: #e2e8f0; text-decoration: none; font-weight: 500; }
+    .nav .brand { font-size: 1.3rem; font-weight: 800; color: #f97316; }
+    .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+    form { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    input[type="text"] { flex: 1; padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
+    button { padding: 0.75rem 1.5rem; background: #2563eb; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+    .results { margin-top: 1rem; }
+    .product { background: #fff; border-radius: 8px; padding: 1rem; margin: 0.5rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .product h3 { margin-bottom: 0.25rem; }
+    .price { color: #16a34a; font-weight: 700; }
+    .error { background: #fef2f2; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; color: #991b1b; font-family: monospace; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <span class="brand">VulnShop</span>
+    <a href="/">Home</a>
+    <a href="/search?q=">Search</a>
+    <a href="/feedback">Feedback</a>
+    <a href="/admin">Admin</a>
+    <a href="/login">Login</a>
+  </nav>
+  <div class="container">
+    <h1>Product Search</h1>
+    <form method="GET" action="/search">
+      <input type="text" name="q" id="q" value="<%= query %>" placeholder="Search products...">
+      <button type="submit">Search</button>
+    </form>
+
+    <%# VULN: Unescaped output — reflected XSS %>
+    <% if (query) { %>
+      <p>Results for: <%- query %></p>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="error"><%= error %></div>
+    <% } %>
+
+    <div class="results">
+      <% for (const product of results) { %>
+        <div class="product">
+          <h3><%= product.name %></h3>
+          <p><%= product.description %></p>
+          <p class="price">$<%= product.price %></p>
+        </div>
+      <% } %>
+      <% if (results.length === 0 && !error) { %>
+        <p>No products found.</p>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

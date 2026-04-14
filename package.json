@@ -1,0 +1,29 @@
+{
+  "name": "nemesis",
+  "version": "3.0.0",
+  "description": "AI Red Team — LLM-powered security testing, QA, and knowledge-driven scanning via MCP",
+  "type": "module",
+  "bin": {
+    "nemesis": "dist/cli.js",
+    "nemesis-mcp-server": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "demo": "tsx src/cli.ts --demo",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "playwright": "^1.52.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "license": "MIT"
+}

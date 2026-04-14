@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEMESIS — AI Red Team + QA</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a2e;
+      --border: #2a2a3e;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --red: #ef4444;
+      --orange: #f97316;
+      --yellow: #eab308;
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --purple: #a855f7;
+      --cyan: #06b6d4;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,15,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    nav .brand { font-weight: 900; font-size: 1.2rem; color: var(--red); letter-spacing: 0.15em; }
+    nav .links { display: flex; gap: 1.5rem; }
+    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: color 0.2s; }
+    nav .links a:hover { color: var(--text); }
+
+    section { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 6rem 2rem 4rem; max-width: 1200px; margin: 0 auto; }
+
+    .hero { text-align: center; position: relative; }
+    .hero::before { content: ''; position: absolute; top: 50%; left: 50%; width: 700px; height: 700px; background: radial-gradient(circle, rgba(239,68,68,0.08) 0%, transparent 70%); transform: translate(-50%, -50%); pointer-events: none; }
+    .hero h1 { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; letter-spacing: 0.15em; color: var(--red); margin-bottom: 1rem; text-shadow: 0 0 60px rgba(239,68,68,0.3); }
+    .hero .tagline { font-size: clamp(1.2rem, 3vw, 1.8rem); color: var(--muted); font-weight: 300; margin-bottom: 3rem; }
+    .hero .tagline strong { color: var(--text); font-weight: 700; }
+    .hero .one-liner { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--green); margin-bottom: 2rem; }
+    .hero .one-liner .prompt { color: var(--muted); }
+
+    .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 3rem 0; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; transition: transform 0.3s, border-color 0.3s; }
+    .stat-card:hover { transform: translateY(-4px); border-color: var(--red); }
+    .stat-card .value { font-size: 2.5rem; font-weight: 900; background: linear-gradient(135deg, var(--red), var(--orange)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card .label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.25rem; }
+
+    .section-header { margin-bottom: 3rem; }
+    .section-header .number { font-size: 0.85rem; font-weight: 700; color: var(--red); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .section-header h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; }
+    .section-header p { color: var(--muted); font-size: 1.1rem; margin-top: 0.75rem; max-width: 700px; }
+
+    .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin: 2rem 0; }
+    @media (max-width: 900px) { .pipeline { grid-template-columns: 1fr 1fr; } }
+    .pipe-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; position: relative; transition: border-color 0.3s; }
+    .pipe-step:hover { border-color: var(--red); }
+    .pipe-step .step-num { font-size: 0.7rem; font-weight: 700; color: var(--red); letter-spacing: 0.15em; }
+    .pipe-step h3 { font-size: 1.05rem; font-weight: 700; margin: 0.4rem 0; }
+    .pipe-step p { color: var(--muted); font-size: 0.8rem; }
+
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; transition: transform 0.3s, border-color 0.3s; }
+    .feature-card:hover { transform: translateY(-4px); border-color: var(--purple); }
+    .feature-card .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+    .feature-card .tag.ai { background: rgba(168,85,247,0.15); color: var(--purple); }
+    .feature-card .tag.security { background: rgba(239,68,68,0.15); color: var(--red); }
+    .feature-card .tag.dx { background: rgba(6,182,212,0.15); color: var(--cyan); }
+    .feature-card .tag.ci { background: rgba(34,197,94,0.15); color: var(--green); }
+    .feature-card .tag.qa { background: rgba(59,130,246,0.15); color: var(--blue); }
+    .feature-card .tag.brain { background: rgba(249,115,22,0.15); color: var(--orange); }
+    .feature-card .tag.enterprise { background: rgba(234,179,8,0.15); color: var(--yellow); }
+    .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; }
+
+    .attack-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+    .attack-item { background: var(--surface); border-left: 4px solid; border-radius: 0 12px 12px 0; padding: 1rem 1.25rem; }
+    .attack-item.critical { border-color: var(--red); }
+    .attack-item.high { border-color: var(--orange); }
+    .attack-item.medium { border-color: var(--yellow); }
+    .attack-item.qa { border-color: var(--blue); }
+    .attack-item.explore { border-color: var(--purple); }
+    .attack-item h4 { font-weight: 700; margin-bottom: 0.25rem; font-size: 0.95rem; }
+    .attack-item p { color: var(--muted); font-size: 0.8rem; }
+    .severity-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; margin-left: 0.5rem; }
+    .severity-badge.critical { background: var(--red); color: #fff; }
+    .severity-badge.high { background: var(--orange); color: #fff; }
+    .severity-badge.medium { background: var(--yellow); color: #000; }
+    .severity-badge.qa { background: var(--blue); color: #fff; }
+    .severity-badge.explore { background: var(--purple); color: #fff; }
+    .severity-badge.pass { background: var(--green); color: #fff; }
+
+    .code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; overflow-x: auto; margin: 1.5rem 0; line-height: 1.8; }
+    .code-block .comment { color: var(--muted); }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .fn { color: var(--blue); }
+    .code-block .output { color: var(--yellow); }
+    .code-block .vuln { color: var(--red); font-weight: 700; }
+
+    .comparison { width: 100%; border-collapse: collapse; margin: 2rem 0; }
+    .comparison th, .comparison td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    .comparison th { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .comparison .check { color: var(--green); font-weight: 700; }
+    .comparison .cross { color: var(--muted); }
+    .comparison .highlight { color: var(--red); font-weight: 700; }
+    .comparison tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .demo-results { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin: 2rem 0; }
+    .demo-results h3 { font-size: 1.3rem; margin-bottom: 1rem; }
+    .vuln-list { list-style: none; }
+    .vuln-list li { padding: 0.6rem 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; }
+    .vuln-list li:last-child { border-bottom: none; }
+
+    .arch-flow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin: 2rem 0; }
+    .arch-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1.25rem; text-align: center; font-weight: 600; font-size: 0.85rem; }
+    .arch-node.highlight { border-color: var(--red); background: rgba(239,68,68,0.08); }
+    .arch-arrow { color: var(--muted); font-size: 1.5rem; }
+
+    .knowledge-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }
+    @media (max-width: 768px) { .knowledge-flow { grid-template-columns: 1fr 1fr; } }
+    .kb-step { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; }
+    .kb-step .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .kb-step h4 { font-weight: 700; margin-bottom: 0.25rem; }
+    .kb-step p { color: var(--muted); font-size: 0.8rem; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; }
+    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+    .cta { text-align: center; padding: 4rem 0; }
+    .cta h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; margin-bottom: 1rem; }
+    .cta .gradient-text { background: linear-gradient(135deg, var(--red), var(--orange), var(--yellow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cta p { color: var(--muted); font-size: 1.1rem; margin-bottom: 2rem; }
+    .cta .cmd { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 2.5rem; font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--green); }
+
+    .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s, transform 0.6s; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    .badge-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0; }
+    .tech-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">NEMESIS</span>
+  <div class="links">
+    <a href="#hero">Home</a>
+    <a href="#how">How It Works</a>
+    <a href="#brain">Knowledge</a>
+    <a href="#features">Features</a>
+    <a href="#demo">Demo App</a>
+    <a href="#enterprise">Enterprise</a>
+    <a href="#compare">Why Nemesis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <h1>NEMESIS</h1>
+  <p class="tagline">AI Red Team + QA &mdash; <strong>Give it a URL, docs, and creds. It does the rest.</strong></p>
+  <div class="one-liner">
+    <span class="prompt">You:</span> "Scan my app with docs and example data, test everything"
+  </div>
+  <p style="color:var(--muted); max-width:700px; margin:0 auto;">
+    One tool call: URL + documentation path + auth credentials + example data.
+    The LLM reads your docs, authenticates (including IDP/OIDC), crawls, generates security attacks + QA tests + input validation,
+    executes in Chromium, and learns from every run. Zero hardcoded patterns.
+  </p>
+
+  <div class="stats-bar">
+    <div class="stat-card fade-in"><div class="value">5</div><div class="label">MCP Tools</div></div>
+    <div class="stat-card fade-in"><div class="value">10</div><div class="label">Test Categories</div></div>
+    <div class="stat-card fade-in"><div class="value">5</div><div class="label">Auth Types</div></div>
+    <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Patterns</div></div>
+    <div class="stat-card fade-in"><div class="value">66</div><div class="label">Tests Run (Live)</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-header fade-in">
+    <div class="number">01 / How It Works</div>
+    <h2>LLM-in-the-Loop Architecture</h2>
+    <p>The LLM doesn't just trigger scans. It reads docs, plans tests, executes attacks, and learns from results. Every test is generated, not hardcoded.</p>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipe-step fade-in" style="border-color: var(--cyan);">
+      <div class="step-num" style="color: var(--cyan);">STEP 1</div>
+      <h3>nemesis_scan</h3>
+      <p>One call: URL + doc path + auth creds + example data. Reads docs, authenticates (form, IDP/OIDC, cookie, bearer, basic), crawls.</p>
+    </div>
+    <div class="pipe-step fade-in" style="border-color: var(--purple);">
+      <div class="step-num" style="color: var(--purple);">STEP 2 &mdash; THE LLM</div>
+      <h3>LLM Plans</h3>
+      <p>Combines docs + recon + example data + past payloads to generate security attacks, QA tests, input validation, and exploratory tests.</p>
+    </div>
+    <div class="pipe-step fade-in">
+      <div class="step-num">STEP 3</div>
+      <h3>nemesis_attack</h3>
+      <p>Executes all test plans in a real Chromium browser. Captures screenshots and evidence for every finding.</p>
+    </div>
+    <div class="pipe-step fade-in" style="border-color: var(--orange);">
+      <div class="step-num" style="color: var(--orange);">STEP 4</div>
+      <h3>Reports</h3>
+      <p>Markdown, HTML, JSON, SARIF reports. Evidence screenshots. All in ./nemesis-results/.</p>
+    </div>
+    <div class="pipe-step fade-in" style="border-color: var(--green);">
+      <div class="step-num" style="color: var(--green);">STEP 5</div>
+      <h3>Learn &amp; Grow</h3>
+      <p>Effective payloads saved per URL. Next scan starts smarter. Knowledge persists across sessions.</p>
+    </div>
+  </div>
+
+  <div class="arch-flow fade-in">
+    <div class="arch-node">URL + Docs + Auth + Data</div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-node highlight" style="border-color: var(--cyan);">nemesis_scan</div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-node highlight" style="border-color: var(--purple);">LLM (Cursor)</div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-node highlight">nemesis_attack</div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-node">Chromium</div>
+    <div class="arch-arrow">&rarr;</div>
+    <div class="arch-node" style="border-color: var(--green);">Reports + Knowledge</div>
+  </div>
+</section>
+
+<!-- KNOWLEDGE / BRAIN -->
+<section id="brain">
+  <div class="section-header fade-in">
+    <div class="number">02 / The Brain</div>
+    <h2>URL-Scoped Knowledge. It Learns Per App.</h2>
+    <p>Each URL gets its own context: app profile, auth config, effective payloads, scan history. Knowledge persists and grows across sessions.</p>
+  </div>
+
+  <div class="knowledge-flow fade-in">
+    <div class="kb-step">
+      <div class="icon">&#128218;</div>
+      <h4>App Profiles</h4>
+      <p>Tech stacks, routes, capabilities learned from documentation</p>
+    </div>
+    <div class="kb-step">
+      <div class="icon">&#128269;</div>
+      <h4>Scan History</h4>
+      <p>Every scan run with pages, tests, and findings</p>
+    </div>
+    <div class="kb-step">
+      <div class="icon">&#127919;</div>
+      <h4>Effective Payloads</h4>
+      <p>Payloads that actually found real vulnerabilities</p>
+    </div>
+    <div class="kb-step">
+      <div class="icon">&#128203;</div>
+      <h4>Test Plans</h4>
+      <p>Plans derived from docs for repeatable testing</p>
+    </div>
+  </div>
+
+  <div class="features" style="margin-top: 2rem;">
+    <div class="feature-card fade-in">
+      <span class="tag brain">Knowledge</span>
+      <h3>Pass Docs, Auth, and Data</h3>
+      <p>One tool call takes your URL, documentation path, authentication credentials, and example data. NEMESIS reads the docs, logs in, crawls, and returns everything to the LLM.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag brain">Knowledge</span>
+      <h3>URL-Scoped Intelligence</h3>
+      <p>Each app gets its own knowledge context keyed by URL. Effective payloads, scan history, and test plans are stored per-app. Scan app A, then app B &mdash; each has its own memory.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag brain">Knowledge</span>
+      <h3>Grows With Every Run</h3>
+      <p>Effective payloads saved automatically. Past findings inform future tests. Close Cursor, reopen tomorrow &mdash; NEMESIS remembers everything per URL.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-header fade-in">
+    <div class="number">03 / Features</div>
+    <h2>Security + QA + Validation + Exploration</h2>
+    <p>Not just a security scanner. A complete AI testing platform that handles everything from SQLi to form validation to functional smoke tests.</p>
+  </div>
+
+  <div class="features">
+    <div class="feature-card fade-in">
+      <span class="tag security">Security</span>
+      <h3>Penetration Testing</h3>
+      <p>SQL injection, XSS, auth bypass, path traversal, CORS, CSRF, CRLF injection. All in a real browser with screenshot evidence.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag qa">QA Testing</span>
+      <h3>Functional Verification</h3>
+      <p>Does search work? Does login accept valid creds? Do Create Document/Folder/Task dialogs load? The LLM tests functionality like a QA engineer.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag ai">Validation</span>
+      <h3>Input Sanitization</h3>
+      <p>Special characters, null bytes, unicode, extremely long strings, double-encoded payloads. Tests every input surface for proper sanitization.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag ai">Exploratory</span>
+      <h3>Edge Case Discovery</h3>
+      <p>Random inputs, boundary values, deeply nested routes, invalid IDs. The LLM explores like a curious tester finding what nobody thought to test.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag enterprise">Enterprise Auth</span>
+      <h3>IDP / OIDC Login</h3>
+      <p>Built-in support for enterprise IDP flows: click login button &rarr; redirect to external IDP &rarr; fill credentials &rarr; handle consent &rarr; redirect back. Works with Hyland, Okta, Azure AD.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag ci">CI/CD</span>
+      <h3>SARIF + Reports</h3>
+      <p>Markdown, HTML, JSON, and SARIF output. Integrates with GitHub Security tab. Run in CI, see results as alerts.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <h3 style="margin-bottom: 1rem;">Authentication Types</h3>
+    <div class="attack-grid">
+      <div class="attack-item" style="border-color: var(--cyan);">
+        <h4>form-login</h4>
+        <p>Auto-fills username/password on a login form and submits</p>
+      </div>
+      <div class="attack-item" style="border-color: var(--yellow);">
+        <h4>idp-login</h4>
+        <p>Clicks app login button, fills IDP credentials, handles OAuth consent, waits for redirect</p>
+      </div>
+      <div class="attack-item" style="border-color: var(--green);">
+        <h4>cookie</h4>
+        <p>Sets session cookies directly in the browser context</p>
+      </div>
+      <div class="attack-item" style="border-color: var(--purple);">
+        <h4>bearer</h4>
+        <p>Adds Authorization: Bearer header to all requests</p>
+      </div>
+      <div class="attack-item" style="border-color: var(--blue);">
+        <h4>basic</h4>
+        <p>HTTP Basic Authentication with username/password</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <h3 style="margin-bottom: 1rem;">Test Categories</h3>
+    <div class="attack-grid">
+      <div class="attack-item critical"><h4>SQL Injection <span class="severity-badge critical">Critical</span></h4><p>DB-specific payloads tailored to the tech stack</p></div>
+      <div class="attack-item high"><h4>Cross-Site Scripting <span class="severity-badge high">High</span></h4><p>Reflected and stored XSS with DOM verification</p></div>
+      <div class="attack-item critical"><h4>Auth Bypass <span class="severity-badge critical">Critical</span></h4><p>Unauthenticated access + credential brute-force</p></div>
+      <div class="attack-item critical"><h4>Path Traversal <span class="severity-badge critical">Critical</span></h4><p>Directory traversal via URL params and file inputs</p></div>
+      <div class="attack-item high"><h4>CORS / CSRF <span class="severity-badge high">High</span></h4><p>Wildcard origins, missing CSRF tokens, cookie issues</p></div>
+      <div class="attack-item medium"><h4>Input Validation <span class="severity-badge medium">Medium</span></h4><p>Null bytes, CRLF, unicode, long strings, special chars</p></div>
+      <div class="attack-item qa"><h4>Functional Tests <span class="severity-badge qa">QA</span></h4><p>Navigation, dialogs, create operations, search, logout</p></div>
+      <div class="attack-item explore"><h4>Exploratory Tests <span class="severity-badge explore">Explore</span></h4><p>Edge cases, invalid IDs, deep routes, boundary values</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO APP -->
+<section id="demo">
+  <div class="section-header fade-in">
+    <div class="number">04 / Demo App</div>
+    <h2>VulnShop &mdash; Built-In Vulnerable App</h2>
+    <p>NEMESIS ships with VulnShop, a deliberately vulnerable demo app. One command launches it, one prompt scans it.</p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card fade-in"><div class="value">5</div><div class="label">Pages Scanned</div></div>
+    <div class="stat-card fade-in"><div class="value">20+</div><div class="label">Tests Executed</div></div>
+    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">14</div><div class="label">Issues Found</div></div>
+    <div class="stat-card fade-in"><div class="value">8</div><div class="label">Payloads Learned</div></div>
+  </div>
+
+  <div class="demo-results fade-in">
+    <h3>VulnShop Findings (Security + QA)</h3>
+    <ul class="vuln-list">
+      <li><span class="severity-badge critical">CRITICAL</span> SQL Injection on search &mdash; <code>' OR 1=1 --</code></li>
+      <li><span class="severity-badge critical">CRITICAL</span> Auth bypass on /admin &mdash; no authentication required</li>
+      <li><span class="severity-badge critical">CRITICAL</span> Path traversal &mdash; <code>../../etc/passwd</code></li>
+      <li><span class="severity-badge high">HIGH</span> Reflected XSS on search &mdash; <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
+      <li><span class="severity-badge high">HIGH</span> Stored XSS on feedback form</li>
+      <li><span class="severity-badge high">HIGH</span> Wildcard CORS &mdash; <code>Access-Control-Allow-Origin: *</code></li>
+      <li><span class="severity-badge high">HIGH</span> Missing CSRF token on feedback form</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Session cookie without Secure flag</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Search returns correct results for valid queries</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Login redirects to admin on success</li>
+      <li><span class="severity-badge explore">EXPLORE</span> Empty search returns all products</li>
+    </ul>
+  </div>
+
+  <div class="code-block fade-in">
+    <span class="comment"># Launch the demo</span><br>
+    <span class="fn">$</span> npx tsx src/cli.ts --demo<br>
+    <span class="output">&rarr; VulnShop running at http://localhost:3001</span><br><br>
+    <span class="comment"># In Cursor chat &mdash; one prompt does everything</span><br>
+    <span class="string">"Call nemesis_scan with targetUrl http://localhost:3001,<br>
+    &nbsp;&nbsp;docPath ./demo-app/DOCS.md,<br>
+    &nbsp;&nbsp;exampleData {searchQuery: Widget, feedbackName: Tester},<br>
+    &nbsp;&nbsp;headed true. Then generate tests and call nemesis_attack."</span><br><br>
+    <span class="output">&rarr; <span class="vuln">14 issues found</span> | 8 payloads saved to knowledge</span>
+  </div>
+</section>
+
+<!-- ENTERPRISE LIVE APP -->
+<section id="enterprise">
+  <div class="section-header fade-in">
+    <div class="number">05 / Enterprise Proof</div>
+    <h2>Tested Against a Live Enterprise App</h2>
+    <p>We ran NEMESIS against <strong>Hyland Project Titan</strong> &mdash; a production Angular 19 enterprise document management system with OIDC/IDP authentication, Integration Server backend, and CSRF protection.</p>
+  </div>
+
+  <div class="badge-row" style="margin-bottom: 2rem;">
+    <span class="tech-badge">Angular 19</span>
+    <span class="tech-badge">OIDC / IDP Auth</span>
+    <span class="tech-badge">Hyland UI Shell</span>
+    <span class="tech-badge">Angular Material</span>
+    <span class="tech-badge">Integration Server</span>
+    <span class="tech-badge">CSRF Protection</span>
+    <span class="tech-badge">Kubernetes</span>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="stats-bar" style="grid-template-columns: 1fr 1fr;">
+        <div class="stat-card fade-in"><div class="value">66</div><div class="label">Total Tests Run</div></div>
+        <div class="stat-card fade-in"><div class="value">3</div><div class="label">Scan Runs</div></div>
+        <div class="stat-card fade-in"><div class="value">19</div><div class="label">Validation Tests</div></div>
+        <div class="stat-card fade-in"><div class="value">~4m</div><div class="label">Per Scan</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="code-block fade-in" style="margin: 0;">
+        <span class="comment">// Enterprise IDP login &mdash; new auth type</span><br>
+        <span class="fn">nemesis_scan</span>({<br>
+        &nbsp;&nbsp;targetUrl: <span class="string">"https://project-titan.pc.k8s.hyland.io"</span>,<br>
+        &nbsp;&nbsp;docPath: <span class="string">"./docs/PROJECT-TITAN.md"</span>,<br>
+        &nbsp;&nbsp;auth: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;type: <span class="string">"idp-login"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;loginUrl: <span class="string">"...hyland.io/home"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;loginTrigger: <span class="string">"button[mat-stroked-button]"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;username: <span class="string">"test2"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;password: <span class="string">"********"</span><br>
+        &nbsp;&nbsp;}<br>
+        })
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-results fade-in" style="margin-top: 2rem;">
+    <h3>Project Titan &mdash; Real Findings Across 3 Scan Runs</h3>
+    <ul class="vuln-list">
+      <li><span class="severity-badge high">HIGH</span> CORS misconfiguration &mdash; <code>Allow-Credentials: true</code> with broad headers including <code>X-IntegrationServer-Password</code></li>
+      <li><span class="severity-badge medium">MEDIUM</span> <code>idsrv.session</code> cookie missing HttpOnly flag &mdash; accessible to JavaScript</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Shibboleth IDP cookies missing Secure flag &mdash; transmittable over HTTP</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Null byte injection returns 400 error with potential info leak</li>
+      <li><span class="severity-badge pass">PASS</span> XSS via route parameters &mdash; Angular sanitization effective</li>
+      <li><span class="severity-badge pass">PASS</span> SQL injection via API &mdash; properly parameterized queries</li>
+      <li><span class="severity-badge pass">PASS</span> Path traversal &mdash; Angular router blocks filesystem access</li>
+      <li><span class="severity-badge pass">PASS</span> CRLF injection &mdash; properly sanitized</li>
+      <li><span class="severity-badge pass">PASS</span> Double-encoded traversal &mdash; blocked</li>
+      <li><span class="severity-badge pass">PASS</span> Special characters in routes &mdash; graceful handling</li>
+      <li><span class="severity-badge pass">PASS</span> Long string overflow &mdash; no crash</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> All 6 module tiles render after IDP login</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Documents, Folders, Tasks, Workflow, Capture modules load</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Create Document / Create Folder menus accessible</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Shell navigation, toolbar, profile menu working</li>
+      <li><span class="severity-badge qa">FUNCTIONAL</span> Logout flow correctly clears session</li>
+      <li><span class="severity-badge explore">EXPLORE</span> Invalid document/folder IDs handled gracefully</li>
+      <li><span class="severity-badge explore">EXPLORE</span> Deep nested invalid routes show proper 404</li>
+    </ul>
+  </div>
+
+  <div class="features" style="margin-top: 2rem;">
+    <div class="feature-card fade-in">
+      <span class="tag enterprise">Enterprise</span>
+      <h3>IDP/OIDC Authentication</h3>
+      <p>NEMESIS navigates to the app, clicks the Login button, gets redirected to the external IDP, fills credentials, handles OAuth consent, and waits for the redirect back. Fully automated.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag enterprise">Enterprise</span>
+      <h3>Documentation-Driven Testing</h3>
+      <p>We wrote a 400-line product doc from the codebase. NEMESIS read it, understood the routes, auth flow, UI elements, and generated targeted tests for Create Document, Create Folder, Create Task, and more.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag enterprise">Enterprise</span>
+      <h3>Input Validation Suite</h3>
+      <p>19 dedicated validation tests: XSS, SQLi, path traversal, CRLF injection, null bytes, unicode, special characters, long strings, double-encoded payloads. All against a hardened Angular app.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="compare">
+  <div class="section-header fade-in">
+    <div class="number">06 / Why Nemesis</div>
+    <h2>How We're Different</h2>
+    <p>Nemesis isn't another scanner. It's an AI testing platform that reads your docs, authenticates with your IDP, and learns from every run.</p>
+  </div>
+
+  <table class="comparison fade-in">
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>NEMESIS</th>
+        <th>OWASP ZAP</th>
+        <th>Burp Suite</th>
+        <th>Manual Testing</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Setup time</td><td class="highlight">0 config</td><td>Moderate</td><td>Complex</td><td>Days</td></tr>
+      <tr><td>LLM generates tests</td><td class="highlight">100% LLM</td><td class="cross">Hardcoded</td><td class="cross">Hardcoded</td><td class="check">Human</td></tr>
+      <tr><td>Hardcoded patterns</td><td class="highlight">Zero</td><td class="cross">Thousands</td><td class="cross">Thousands</td><td class="check">None</td></tr>
+      <tr><td>Security testing</td><td class="check">Yes</td><td class="check">Yes</td><td class="check">Yes</td><td class="check">Yes</td></tr>
+      <tr><td>Functional / QA testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
+      <tr><td>Input validation testing</td><td class="highlight">Built-in</td><td>Partial</td><td>Partial</td><td class="check">Yes</td></tr>
+      <tr><td>Exploratory testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
+      <tr><td>Reads your docs</td><td class="highlight">docPath param</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
+      <tr><td>Enterprise IDP/OIDC auth</td><td class="highlight">idp-login type</td><td class="cross">Manual</td><td class="cross">Manual</td><td class="check">Yes</td></tr>
+      <tr><td>Auth support</td><td class="highlight">5 types built-in</td><td>Manual config</td><td>Manual config</td><td class="check">Yes</td></tr>
+      <tr><td>Example data input</td><td class="highlight">exampleData param</td><td class="cross">No</td><td class="cross">No</td><td class="check">Yes</td></tr>
+      <tr><td>Persistent knowledge</td><td class="highlight">Per-URL, cross-session</td><td class="cross">No</td><td>Session only</td><td>Tribal</td></tr>
+      <tr><td>Real browser</td><td class="check">Chromium</td><td>Proxy</td><td>Proxy</td><td class="check">Yes</td></tr>
+      <tr><td>Screenshot evidence</td><td class="check">Automatic</td><td class="cross">No</td><td>Manual</td><td>Manual</td></tr>
+      <tr><td>IDE integration</td><td class="highlight">MCP native</td><td class="cross">No</td><td>Plugin</td><td class="cross">No</td></tr>
+      <tr><td>SARIF / CI output</td><td class="check">Built-in</td><td>Plugin</td><td>Enterprise</td><td class="cross">No</td></tr>
+      <tr><td>Cost</td><td class="highlight">Free / MIT</td><td>Free</td><td>$449+/yr</td><td>$10K+</td></tr>
+      <tr><td>Gets smarter over time</td><td class="highlight">Every run</td><td class="cross">Manual updates</td><td class="cross">Manual updates</td><td>Experience</td></tr>
+    </tbody>
+  </table>
+
+  <div class="features" style="margin-top: 2rem;">
+    <div class="feature-card fade-in">
+      <span class="tag ai">Differentiator</span>
+      <h3>Zero Hardcoded Patterns</h3>
+      <p>Every other scanner ships with static payload databases. NEMESIS ships with zero. The LLM generates all payloads, all detection logic, all targeting decisions &mdash; tailored to each app.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag brain">Differentiator</span>
+      <h3>Learns and Grows</h3>
+      <p>Persistent knowledge base that accumulates across runs. Effective payloads remembered. Test plans from docs stored. Every scan makes the next one smarter.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag qa">Differentiator</span>
+      <h3>Security + QA + Validation in One</h3>
+      <p>No other tool does security testing AND functional QA AND input validation AND exploratory testing in a single run. NEMESIS replaces four tools with one.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2><span class="gradient-text">Tested on VulnShop. Proven on Enterprise.</span></h2>
+  <p>From a demo app to a production Angular 19 enterprise system with IDP auth &mdash; NEMESIS handles it all.</p>
+  <div class="cmd">nemesis_scan({ targetUrl, docPath, auth: { type: "idp-login" }, exampleData })</div>
+  <p style="margin-top: 2rem; font-size: 0.85rem;">
+    MIT Licensed &bull; TypeScript &bull; Playwright &bull; MCP Native &bull; URL-Scoped Knowledge &bull; 5 Auth Types &bull; Zero Hardcoded Patterns
+  </p>
+</section>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+</script>
+
+</body>
+</html>
