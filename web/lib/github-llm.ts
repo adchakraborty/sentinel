@@ -33,24 +33,30 @@ async function sleep(ms: number) {
 
 export async function chatCompletion(
   messages: ChatMessage[],
-  options?: { temperature?: number; maxTokens?: number },
+  options?: { temperature?: number; maxTokens?: number; jsonMode?: boolean },
 ): Promise<string> {
   const token = getToken();
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
+      const body: Record<string, unknown> = {
+        model: MODEL,
+        messages,
+        temperature: options?.temperature ?? 0.3,
+        max_tokens: options?.maxTokens ?? 8192,
+      };
+
+      if (options?.jsonMode) {
+        body.response_format = { type: 'json_object' };
+      }
+
       const response = await fetch(GITHUB_MODELS_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          model: MODEL,
-          messages,
-          temperature: options?.temperature ?? 0.3,
-          max_tokens: options?.maxTokens ?? 8192,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.status === 429 && attempt < MAX_RETRIES) {
@@ -230,6 +236,29 @@ function parseLlmJson(raw: string): unknown[] {
 }
 
 export async function generateAttackPlans(systemPrompt: string, userPrompt: string): Promise<unknown[]> {
+  const jsonSystemPrompt = systemPrompt.replace(
+    'Return ONLY the JSON array, no markdown fences or explanation',
+    'Return a JSON object with a single key "plans" containing the array. Example: {"plans": [...]}. No markdown fences.',
+  );
+
+  try {
+    const raw = await chatCompletion([
+      { role: 'system', content: jsonSystemPrompt },
+      { role: 'user', content: userPrompt },
+    ], { temperature: 0.4, maxTokens: 16384, jsonMode: true });
+
+    const parsed = JSON.parse(raw);
+    if (parsed.plans && Array.isArray(parsed.plans)) return parsed.plans;
+    if (Array.isArray(parsed)) return parsed;
+    const values = Object.values(parsed);
+    for (const v of values) {
+      if (Array.isArray(v)) return v;
+    }
+    throw new Error('JSON mode response has no array');
+  } catch (jsonModeErr) {
+    console.error('[SENTINEL] JSON mode failed, falling back to text mode:', jsonModeErr);
+  }
+
   const raw = await chatCompletion([
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt },
