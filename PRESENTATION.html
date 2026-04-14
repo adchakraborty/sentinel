@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SENTINEL — AI Security, Accessibility & QA</title>
+  <title>SENTINEL v1.0.0 — AI Security, Accessibility & QA</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -187,7 +187,7 @@
 <body>
 
 <nav>
-  <span class="brand">SENTINEL</span>
+  <span class="brand">SENTINEL <span style="font-size:0.7rem; font-weight:400; color:var(--muted); letter-spacing:0.05em;">v1.0.0</span></span>
   <div class="links">
     <a href="#hero">Home</a>
     <a href="#how">How It Works</a>
@@ -203,14 +203,19 @@
 <!-- HERO -->
 <section id="hero" class="hero">
   <h1>SENTINEL</h1>
-  <p class="tagline">AI-Powered Security &amp; QA Testing &mdash; <strong>Give it a URL. It does the rest.</strong></p>
+  <p style="font-size:0.85rem; color:var(--muted); letter-spacing:0.2em; text-transform:uppercase; margin-bottom:0.5rem;">Version 1.0.0</p>
+  <p class="tagline">AI-Powered Security &amp; QA Testing &mdash; <strong>Run it from your browser. Give it a URL. It does the rest.</strong></p>
   <div class="one-liner">
-    <span class="prompt">You:</span> "Here's my app, my docs, and my login. Test everything."
+    <span class="prompt">Open http://localhost:3000 &rarr;</span> Enter a URL &rarr; Click "Launch Scan" &rarr; Done.
   </div>
   <p style="color:var(--muted); max-width:700px; margin:0 auto;">
-    SENTINEL reads your product documentation, logs into your app (even through enterprise SSO),
+    SENTINEL is a <strong style="color:var(--text);">web application</strong> you run in your browser. Open the dashboard, enter a target URL, your product docs, and credentials.
+    SENTINEL reads your documentation, logs into your app (even through enterprise SSO),
     explores every page, and then designs and runs security tests, functional checks, and edge-case exploration &mdash;
-    all in a real browser. It learns from every run, so it gets smarter over time. No setup. No scripting. No hardcoded rules.
+    all in a real Chromium browser. It learns from every run, so it gets smarter over time. No IDE required. No scripting. No hardcoded rules.
+  </p>
+  <p style="color:var(--muted); font-size:0.8rem; max-width:600px; margin:1rem auto 0; border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; background:var(--surface);">
+    &#128161; <em>Can also be run via <strong style="color:var(--text);">MCP</strong> on IDEs like Cursor and VS Code for developer-integrated workflows.</em>
   </p>
 
   <div class="stats-bar">
@@ -312,7 +317,7 @@
   <!-- Brief Tech Flow -->
   <div style="margin-top: 3rem;" class="fade-in">
     <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">Brief Tech Flow</h3>
-    <p style="color: var(--muted); margin-bottom: 1.5rem;">The 10-step pipeline from a single <code style="color: var(--green);">sentinel_scan</code> call to a full report.</p>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">The 10-step pipeline from clicking <code style="color: var(--green);">"Launch Scan"</code> in the web dashboard to a full report.</p>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;" class="fade-in">
@@ -372,7 +377,7 @@
   </div>
 
   <div style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(239,68,68,0.06)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1.25rem;" class="fade-in">
-    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In SENTINEL, all recon, docs, and history feed an LLM that <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
+    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In SENTINEL, all recon, docs, and history feed the GitHub Models API (GPT-4o) which <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
   </div>
 
   <!-- Simple analogy box for executives -->
@@ -394,7 +399,7 @@
   <div class="section-header fade-in">
     <div class="number">02 / Architecture</div>
     <h2>How SENTINEL Is Built &mdash; And Where AI Lives</h2>
-    <p>SENTINEL is an MCP (Model Context Protocol) server that runs inside your IDE. The AI model is the brain &mdash; it reads docs, analyzes recon data, generates every test, and decides what to attack. The server provides the hands: a real browser, authentication, crawling, and evidence capture.</p>
+    <p>SENTINEL is a <strong style="color:var(--text);">web application</strong> powered by a Next.js dashboard and the GitHub Models API (GPT-4o). The AI model is the brain &mdash; it reads docs, analyzes recon data, generates every test, and decides what to attack. The server provides the hands: a real browser, authentication, crawling, and evidence capture. <em style="color:var(--muted);">It can also run as an MCP server inside IDEs like Cursor/VS Code.</em></p>
   </div>
 
   <!-- Layered architecture diagram -->
@@ -410,13 +415,13 @@
       </div>
     </div>
     <div class="arch-layer">
-      <div class="arch-layer-label" style="color: var(--red);">MCP Protocol<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Interface</span></div>
+      <div class="arch-layer-label" style="color: var(--red);">Web Dashboard<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Interface</span></div>
       <div class="arch-layer-content">
-        <div class="arch-chip mcp"><span class="chip-icon">&#128640;</span> sentinel_scan</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#128065;</span> sentinel_recon</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#9876;</span> sentinel_attack</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#128218;</span> sentinel_learn</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#129504;</span> sentinel_knowledge</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#127760;</span> Next.js Dashboard</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128640;</span> SSE Scan API</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128200;</span> Real-Time Progress</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128196;</span> Report Downloads</div>
+        <div class="arch-chip" style="border-color: var(--muted); color: var(--muted); background: rgba(100,116,139,0.08);"><span class="chip-icon">&#128268;</span> Also: MCP Server (IDE)</div>
       </div>
     </div>
     <div class="arch-layer">
@@ -492,7 +497,7 @@
     <div class="arch-flow fade-in">
       <div class="arch-node" style="border-color: var(--cyan);">You: URL + Docs + Creds</div>
       <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">sentinel_scan</span></div>
+      <div class="arch-node highlight" style="border-color: var(--red);">Web Server<br><span style="font-size:0.7rem; color:var(--muted);">Scan API</span></div>
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Auth + Crawl</span></div>
       <div class="arch-arrow">&rarr;</div>
@@ -500,7 +505,7 @@
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node highlight" style="border-color: var(--purple);">LLM Generates<br><span style="font-size:0.7rem; color:var(--muted);">Test Plans + Payloads</span></div>
       <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">sentinel_attack</span></div>
+      <div class="arch-node highlight" style="border-color: var(--red);">Web Server<br><span style="font-size:0.7rem; color:var(--muted);">Attack Engine</span></div>
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Execute + Screenshot</span></div>
       <div class="arch-arrow">&rarr;</div>
@@ -512,13 +517,14 @@
   <div style="margin-top: 2.5rem;">
     <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">Tech Stack</h3>
     <div class="badge-row" style="gap: 0.75rem;">
+      <span class="tech-badge" style="border-color: var(--red); color: var(--red);">Next.js 15</span>
       <span class="tech-badge" style="border-color: var(--purple); color: var(--purple);">TypeScript</span>
-      <span class="tech-badge" style="border-color: var(--red); color: var(--red);">MCP SDK</span>
+      <span class="tech-badge" style="border-color: var(--orange); color: var(--orange);">GitHub Models API (GPT-4o)</span>
       <span class="tech-badge" style="border-color: var(--cyan); color: var(--cyan);">Playwright</span>
       <span class="tech-badge" style="border-color: var(--blue); color: var(--blue);">Chromium</span>
-      <span class="tech-badge" style="border-color: var(--orange); color: var(--orange);">Zod Schemas</span>
       <span class="tech-badge" style="border-color: var(--green); color: var(--green);">SARIF 2.1.0</span>
       <span class="tech-badge" style="border-color: var(--yellow); color: var(--yellow);">JSON Knowledge Store</span>
+      <span class="tech-badge" style="border-color: var(--muted); color: var(--muted);">MCP SDK (IDE mode)</span>
     </div>
   </div>
 </section>
@@ -594,7 +600,7 @@
     <div class="arch-layer">
       <div class="arch-layer-label" style="color: var(--cyan);">appId Scoping<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">Isolation</span></div>
       <div class="arch-layer-content">
-        <p style="color: var(--muted); font-size: 0.85rem; margin: 0;">Payloads are scoped per target URL. Knowledge for <code>project-titan</code> never bleeds into <code>localhost:3753</code>. Each app gets its own clean context.</p>
+        <p style="color: var(--muted); font-size: 0.85rem; margin: 0;">Payloads are scoped per target URL. Knowledge for <code>app-a.example.com</code> never bleeds into <code>app-b.example.com</code>. Each app gets its own clean context.</p>
       </div>
     </div>
   </div>
@@ -627,7 +633,7 @@
 
   <!-- Sample payload tags -->
   <div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem;" class="fade-in">
-    <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem;">Effective Payloads for Project Titan (sample)</h4>
+    <h4 style="margin-bottom: 0.75rem; font-size: 0.95rem;">Effective Payloads (sample)</h4>
     <div class="badge-row" style="gap: 0.5rem;">
       <span class="tech-badge" style="border-color: var(--purple); color: var(--purple);">cors: Origin: https://evil.com</span>
       <span class="tech-badge" style="border-color: var(--cyan); color: var(--cyan);">csrf: no-csrf-header &rarr; 403</span>
@@ -698,7 +704,7 @@
     <div class="feature-card fade-in">
       <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--red);">Web Dashboard</span>
       <h3>Beautiful Real-Time UI</h3>
-      <p>No IDE required. Run SENTINEL from a standalone web dashboard &mdash; enter a URL, watch the scan in real-time with live progress, and get an interactive results dashboard with severity cards, risk gauge, category breakdown, and downloadable reports.</p>
+      <p>Run SENTINEL from your browser &mdash; enter a URL, watch the scan in real-time with live progress, and get an interactive results dashboard with severity cards, risk gauge, category breakdown, and downloadable reports. This is the primary way to use SENTINEL.</p>
     </div>
   </div>
 
@@ -754,9 +760,9 @@
 <!-- WEB DASHBOARD -->
 <section id="dashboard">
   <div class="section-header fade-in">
-    <div class="number">05 / Web Dashboard</div>
-    <h2>A Beautiful Web UI &mdash; No IDE Required</h2>
-    <p>SENTINEL now ships with a standalone Next.js web dashboard. Enter a URL, watch the scan in real-time, and get an interactive results page with downloadable reports. Powered by GitHub Models API.</p>
+    <div class="number">05 / Web Dashboard — The Primary Interface</div>
+    <h2>Run SENTINEL From Your Browser</h2>
+    <p>SENTINEL v1.0.0 runs as a standalone Next.js web application. Open the dashboard, enter a URL, watch the scan in real-time, and get an interactive results page with downloadable reports. Powered by GitHub Models API (GPT-4o). No IDE needed.</p>
   </div>
 
   <div class="features">
@@ -767,8 +773,8 @@
     </div>
     <div class="feature-card fade-in">
       <span class="tag" style="background: rgba(168,85,247,0.15); color: var(--purple);">AI-Powered</span>
-      <h3>GitHub Models API</h3>
-      <p>The web dashboard uses GitHub's Models API (GPT-4o) to generate attack plans. Set your GITHUB_TOKEN and the AI handles everything &mdash; no IDE, no MCP server, no configuration.</p>
+      <h3>GitHub Models API (GPT-4o)</h3>
+      <p>SENTINEL uses GitHub's Models API (GPT-4o) to generate attack plans. Set your GITHUB_TOKEN environment variable and the AI handles everything &mdash; no configuration, no API keys to manage.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag" style="background: rgba(34,197,94,0.15); color: var(--green);">Interactive</span>
@@ -849,23 +855,21 @@
     </ul>
   </div>
 
-  <div class="two-col fade-in" style="margin-top: 2rem;">
-    <div class="code-block">
-      <span class="comment"># Option 1: Web Dashboard</span><br>
-      <span class="fn">$</span> cd web &amp;&amp; npm run dev<br>
+  <div class="fade-in" style="margin-top: 2rem;">
+    <div class="code-block" style="max-width: 700px;">
+      <span class="comment"># 1. Start the demo app</span><br>
+      <span class="fn">$</span> cd demo-app &amp;&amp; node server.js<br>
+      <span class="output">&rarr; VulnShop at http://localhost:3001</span><br><br>
+      <span class="comment"># 2. Start the web dashboard</span><br>
+      <span class="fn">$</span> cd web &amp;&amp; npx next dev<br>
       <span class="output">&rarr; Dashboard at http://localhost:3000</span><br><br>
-      <span class="comment"># Open browser, enter URL, click "Start Scan"</span><br>
+      <span class="comment"># 3. Open browser, enter URL, click "Launch Scan"</span><br>
       <span class="comment"># Real-time results stream to the dashboard</span><br>
       <span class="output">&rarr; <span class="vuln">24 issues found</span> across 16 categories</span>
     </div>
-    <div class="code-block">
-      <span class="comment"># Option 2: MCP Server (IDE)</span><br>
-      <span class="fn">$</span> npx tsx src/cli.ts --demo<br>
-      <span class="output">&rarr; VulnShop at http://localhost:3001</span><br><br>
-      <span class="string">"Call sentinel_scan with targetUrl http://localhost:3001,<br>
-      &nbsp;&nbsp;docPath ./demo-app/DOCS.md, headed true.<br>
-      &nbsp;&nbsp;Then generate tests and call sentinel_attack."</span>
-    </div>
+    <p style="color: var(--muted); font-size: 0.8rem; margin-top: 1rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1rem; background: var(--surface); max-width: 700px;">
+      &#128268; <em>Alternatively, SENTINEL can also be run via <strong style="color:var(--text);">MCP</strong> inside Cursor or VS Code for IDE-integrated workflows.</em>
+    </p>
   </div>
 </section>
 
@@ -916,13 +920,13 @@
       <tr><td>Exploratory testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>Accessibility (WCAG)</td><td class="highlight">Built-in (a11y category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>UX / Usability testing</td><td class="highlight">Built-in (ux category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
-      <tr><td>Web dashboard</td><td class="highlight">Standalone Next.js UI</td><td class="check">Web console</td><td class="check">Standalone app</td><td>Plugin</td></tr>
+      <tr><td>Web dashboard</td><td class="highlight">Standalone Next.js UI (primary)</td><td class="check">Web console</td><td class="check">Standalone app</td><td>Plugin</td></tr>
       <tr><td>Payloads per scan</td><td class="highlight">30&ndash;50 (precision-targeted)</td><td>10,000+ (brute-force)</td><td>10,000+ (brute-force)</td><td>Thousands</td></tr>
       <tr><td>Scan duration</td><td class="highlight">~5 minutes</td><td class="cross">2&ndash;8 hours typical</td><td class="cross">1&ndash;6 hours typical</td><td>30 min&ndash;hours</td></tr>
       <tr><td>Real browser execution</td><td class="check">Chromium (Playwright)</td><td>Headless engine</td><td>Headless engine</td><td>Proxy-based</td></tr>
       <tr><td>Screenshot evidence</td><td class="check">Automatic per finding</td><td class="cross">No</td><td>Limited</td><td>Manual</td></tr>
       <tr><td>Example data input</td><td class="highlight">exampleData param</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
-      <tr><td>IDE integration</td><td class="highlight">MCP native (Cursor/VS Code)</td><td class="cross">Web console only</td><td class="cross">Standalone app</td><td>Plugin</td></tr>
+      <tr><td>Primary interface</td><td class="highlight">Web dashboard (+ MCP for IDEs)</td><td class="cross">Web console only</td><td class="cross">Standalone app</td><td>Plugin</td></tr>
       <tr><td>SARIF / CI output</td><td class="check">Built-in</td><td class="check">Yes</td><td class="check">Yes</td><td>Plugin</td></tr>
       <tr><td>Cost</td><td class="highlight">Free / MIT + LLM API costs</td><td class="cross">$10K&ndash;$100K+/yr</td><td class="cross">$10K&ndash;$80K+/yr</td><td>Free (ZAP) / $449+/yr (Burp)</td></tr>
     </tbody>
@@ -943,9 +947,9 @@
       </ol>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--red); border-radius: 16px; padding: 1.5rem;">
-      <h4 style="color: var(--red); margin-bottom: 1rem;">SENTINEL Workflow</h4>
+      <h4 style="color: var(--red); margin-bottom: 1rem;">SENTINEL v1.0.0 Workflow</h4>
       <ol style="padding-left: 1.25rem; color: var(--text); font-size: 0.9rem; line-height: 2;">
-        <li>One call: URL + docs + credentials</li>
+        <li>Open dashboard, enter URL + docs + credentials</li>
         <li>AI authenticates (even IDP/OAuth)</li>
         <li>AI reads docs, understands the app</li>
         <li>AI designs 30 precision attacks</li>
@@ -977,11 +981,12 @@
 
 <!-- CTA -->
 <section class="cta">
-  <h2><span class="gradient-text">One Prompt. Full Security &amp; QA Report.</span></h2>
-  <p>Give it a URL, your docs, and credentials. SENTINEL does the rest.</p>
-  <div class="cmd" style="font-size: 0.9rem;">"Here's my app URL, my docs, and my login. Test everything."</div>
+  <h2><span class="gradient-text">Open Your Browser. Launch a Scan. Get a Full Report.</span></h2>
+  <p>SENTINEL v1.0.0 &mdash; Run it from the web. Give it a URL, your docs, and credentials. It does the rest.</p>
+  <div class="cmd" style="font-size: 0.9rem;">cd web &amp;&amp; npx next dev &rarr; http://localhost:3000</div>
+  <p style="margin-top: 1rem; color: var(--muted); font-size: 0.8rem;"><em>Also available via MCP on Cursor / VS Code</em></p>
   <p style="margin-top: 2rem; font-size: 0.85rem;">
-    Open Source (MIT) &bull; 16 Attack Categories &bull; Web Dashboard &bull; Real Browser Testing &bull; Per-App Memory &bull; Accessibility &amp; UX Testing &bull; API Security &bull; Remediation Guidance &bull; Zero Hardcoded Rules
+    Open Source (MIT) &bull; v1.0.0 &bull; 16 Attack Categories &bull; Web Dashboard &bull; Real Browser Testing &bull; Per-App Memory &bull; Accessibility &amp; UX Testing &bull; API Security &bull; Remediation Guidance &bull; Zero Hardcoded Rules
   </p>
 </section>
 
