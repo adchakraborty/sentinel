@@ -22,7 +22,7 @@ export class Recon {
   async launch(): Promise<void> {
     this.browser = await chromium.launch({
       headless: this.config.headless,
-      args: ['--ignore-certificate-errors', '--disable-web-security'],
+      args: ['--ignore-certificate-errors'],
     });
 
     const contextOptions: Parameters<Browser['newContext']>[0] = {

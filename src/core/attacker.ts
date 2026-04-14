@@ -190,14 +190,13 @@ export class Attacker {
       return this.executeBruteForce(attack, pageUrl);
     }
 
-    const page = await this.context.newPage();
-    try {
-      const freshContext = await this.context.browser()!.newContext({
-        ignoreHTTPSErrors: true,
-      });
-      const cleanPage = await freshContext.newPage();
+    const freshContext = await this.context.browser()!.newContext({
+      ignoreHTTPSErrors: true,
+    });
+    const cleanPage = await freshContext.newPage();
 
-      try {
+    try {
+      {
         for (const targetUrl of attack.payloads.slice(0, 6)) {
           steps.push(`Access ${targetUrl} without any authentication`);
           const response = await cleanPage.goto(targetUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
@@ -253,11 +252,9 @@ export class Attacker {
             }
           }
         }
-      } finally {
-        await freshContext.close();
       }
     } finally {
-      await page.close();
+      await freshContext.close();
     }
 
     return {
@@ -586,68 +583,42 @@ export class Attacker {
     try {
       const page = await this.context.newPage();
       try {
-        steps.push(`Send state-changing request to ${targetUrl} without CSRF token`);
+        steps.push(`Send state-changing POST to ${targetUrl} without CSRF token`);
 
-        const response = await page.request.fetch(targetUrl, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const postResponse = await page.request.fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          data: '{}',
         });
 
-        const status = response.status();
-        steps.push(`Response status: ${status}`);
+        const postStatus = postResponse.status();
+        steps.push(`POST response status: ${postStatus}`);
 
-        if (status === 403 || status === 401) {
-          evidence = `CSRF protection is active — server returned ${status} when CSRF token was omitted`;
-          steps.push(`CSRF protection verified: ${status} response`);
-        } else if (status >= 200 && status < 300) {
-          const csrfHeaders = Object.keys(response.headers()).filter((h) =>
-            h.toLowerCase().includes('csrf') || h.toLowerCase().includes('xsrf'),
-          );
+        if (postStatus === 403 || postStatus === 401) {
+          evidence = `CSRF protection is active — POST without token returned ${postStatus}`;
+          steps.push(`CSRF protection verified: ${postStatus} response`);
+        } else if (postStatus >= 200 && postStatus < 300) {
+          const deleteResponse = await page.request.fetch(targetUrl, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const deleteStatus = deleteResponse.status();
+          steps.push(`DELETE without CSRF token returned: ${deleteStatus}`);
 
-          if (csrfHeaders.length > 0) {
-            steps.push(`CSRF-related headers found: ${csrfHeaders.join(', ')}`);
-
-            const deleteResponse = await page.request.fetch(targetUrl, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-            });
-            const deleteStatus = deleteResponse.status();
-            steps.push(`State-changing DELETE without CSRF token returned: ${deleteStatus}`);
-
-            if (deleteStatus === 403 || deleteStatus === 401) {
-              evidence = `CSRF protection is active — GET returned ${status} but DELETE without token returned ${deleteStatus}`;
-              steps.push(`CSRF protection verified on state-changing methods`);
-            } else if (deleteStatus >= 200 && deleteStatus < 300) {
-              success = true;
-              evidence = `Possible CSRF vulnerability — DELETE without CSRF token returned ${deleteStatus}`;
-              steps.push(`VULNERABILITY CONFIRMED: State-changing request accepted without CSRF token`);
-            } else {
-              evidence = `CSRF check inconclusive — DELETE returned ${deleteStatus}`;
-            }
+          if (deleteStatus === 403 || deleteStatus === 401) {
+            evidence = `CSRF partially enforced — POST returned ${postStatus} but DELETE returned ${deleteStatus}`;
+            steps.push(`CSRF protection verified on DELETE`);
+          } else if (deleteStatus >= 200 && deleteStatus < 300) {
+            success = true;
+            evidence = `Possible CSRF vulnerability — both POST (${postStatus}) and DELETE (${deleteStatus}) accepted without CSRF token`;
+            steps.push(`VULNERABILITY CONFIRMED: State-changing requests accepted without CSRF token`);
           } else {
-            const postResponse = await page.request.fetch(targetUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              data: '{}',
-            });
-            const postStatus = postResponse.status();
-            steps.push(`POST without CSRF token returned: ${postStatus}`);
-
-            if (postStatus === 403 || postStatus === 401) {
-              evidence = `CSRF protection is active — POST without token returned ${postStatus}`;
-              steps.push(`CSRF protection verified`);
-            } else if (postStatus >= 200 && postStatus < 300) {
-              success = true;
-              evidence = `Possible CSRF vulnerability — POST without CSRF token returned ${postStatus}`;
-              steps.push(`VULNERABILITY CONFIRMED: State-changing request accepted without CSRF token`);
-            } else {
-              evidence = `CSRF check inconclusive — POST returned ${postStatus}`;
-            }
+            success = true;
+            evidence = `Possible CSRF vulnerability — POST without CSRF token returned ${postStatus}`;
+            steps.push(`VULNERABILITY CONFIRMED: POST accepted without CSRF token`);
           }
         } else {
-          evidence = `CSRF check inconclusive — server returned ${status}`;
+          evidence = `CSRF check inconclusive — POST returned ${postStatus}`;
         }
       } finally {
         await page.close();
@@ -843,7 +814,23 @@ export class Attacker {
 }
 
 function injectPayloadIntoUrl(url: string, payload: string): string {
+  if (payload.startsWith('http://') || payload.startsWith('https://')) {
+    return payload;
+  }
+
   const u = new URL(url);
+
+  if (payload.includes('..') || payload.startsWith('/') || payload.startsWith('%')) {
+    const segments = u.pathname.replace(/\/$/, '').split('/');
+    if (segments.length > 1) {
+      segments[segments.length - 1] = payload;
+    } else {
+      segments.push(payload);
+    }
+    u.pathname = segments.join('/');
+    return u.toString();
+  }
+
   if (u.searchParams.toString()) {
     const firstKey = u.searchParams.keys().next().value;
     if (firstKey) u.searchParams.set(firstKey, payload);

@@ -2,6 +2,7 @@ import { spawn, ChildProcess, execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as http from 'http';
+import * as net from 'net';
 
 let demoProcess: ChildProcess | null = null;
 
@@ -91,5 +92,9 @@ function waitForHealthy(url: string, timeoutMs: number): Promise<void> {
 }
 
 export function findFreePort(): number {
-  return 3001 + Math.floor(Math.random() * 1000);
+  const srv = net.createServer();
+  srv.listen(0, '127.0.0.1');
+  const port = (srv.address() as net.AddressInfo).port;
+  srv.close();
+  return port;
 }

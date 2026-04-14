@@ -17,9 +17,9 @@ export function generateSarifReport(report: NemesisReport): string {
         tool: {
           driver: {
             name: 'NEMESIS',
-            version: '1.0.0',
+            version: '3.0.0',
             informationUri: 'https://github.com/nemesis-security/nemesis',
-            semanticVersion: '1.0.0',
+            semanticVersion: '3.0.0',
             rules,
           },
         },
@@ -114,6 +114,10 @@ function categoryName(cat: string): string {
     validation: 'Input Validation',
     cors: 'CORS Misconfiguration',
     csrf: 'Cross-Site Request Forgery',
+    storage: 'Browser Storage Exposure',
+    dos: 'Denial of Service',
+    functional: 'Functional Test Failure',
+    exploratory: 'Exploratory Test Finding',
   };
   return names[cat] || cat;
 }
@@ -127,6 +131,10 @@ function categoryDescription(cat: string): string {
     validation: 'Application does not properly validate input boundaries and types',
     cors: 'Application returns overly permissive CORS headers',
     csrf: 'Application does not protect state-changing operations with CSRF tokens',
+    storage: 'Sensitive data (tokens, credentials, PII) exposed in browser localStorage or sessionStorage',
+    dos: 'Application is vulnerable to resource exhaustion or denial of service',
+    functional: 'Application feature does not behave as expected per documentation',
+    exploratory: 'Unexpected behavior discovered during edge-case exploration',
   };
   return descs[cat] || `Security vulnerability: ${cat}`;
 }

@@ -38,8 +38,8 @@ Call nemesis_scan with:
   auth: {
     type: "idp-login",
     loginUrl: "https://project-titan.pc.k8s.hyland.io/home",
-    username: "test2",
-    password: "ImageNow!ImageNow!",
+    username: "<YOUR_USERNAME>",
+    password: "<YOUR_PASSWORD>",
     loginTrigger: "button[mat-stroked-button]",
     postLoginUrlPattern: "/home"
   }
@@ -109,7 +109,7 @@ Call nemesis_attack with these validation plans.
 ---
 
 ## Demo 3: Full Titan Run (Single Prompt — Does Everything)
-Add creds before running the actual prompt
+**Add your credentials to the auth block before running.**
 ```
 Call nemesis_scan with:
   targetUrl: https://project-titan.pc.k8s.hyland.io

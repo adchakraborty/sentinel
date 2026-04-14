@@ -51,7 +51,125 @@ let activeStartedAt: string = '';
 let activeDocContent: string = '';
 let activeExampleData: Record<string, string> = {};
 let demoLaunched = false;
+let scanInProgress = false;
 let kb: KnowledgeBase = loadKnowledge();
+
+/**
+ * Run recon and assemble the MCP response content.
+ * Shared by both nemesis_recon and nemesis_scan to avoid duplication.
+ */
+async function runReconAndBuildResponse(opts: {
+  targetUrl: string;
+  maxPages?: number;
+  headed?: boolean;
+  auth?: NemesisConfig['auth'];
+  docPath?: string;
+  exampleData?: Record<string, string>;
+}): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
+  if (scanInProgress) {
+    return { content: [{ type: 'text' as const, text: 'Error: A scan is already in progress. Wait for it to finish before starting another.' }] };
+  }
+  scanInProgress = true;
+
+  try {
+    activeDocContent = '';
+    if (opts.docPath) {
+      try {
+        const resolvedPath = path.resolve(opts.docPath);
+        activeDocContent = fs.readFileSync(resolvedPath, 'utf-8');
+        console.error(`[nemesis] Read documentation: ${resolvedPath} (${activeDocContent.length} chars)`);
+      } catch (e) {
+        console.error(`[nemesis] Could not read doc at ${opts.docPath}: ${e instanceof Error ? e.message : e}`);
+      }
+    }
+
+    activeExampleData = opts.exampleData || {};
+    activeStartedAt = new Date().toISOString();
+    activeConfig = {
+      targetUrl: opts.targetUrl,
+      maxPages: opts.maxPages || 10,
+      headless: !opts.headed,
+      timeout: 15000,
+      screenshotDir: './nemesis-results/screenshots',
+      outputDir: './nemesis-results',
+      auth: opts.auth || undefined,
+    };
+
+    const { pages, recon } = await runRecon(activeConfig);
+    activeRecon = recon;
+    activePages = pages;
+
+    const reconSummary = pages.map((p) => ({
+      url: p.url,
+      title: p.title,
+      forms: p.forms.map((f) => ({
+        action: f.action, method: f.method, selector: f.selector,
+        inputs: f.inputs.map((i) => ({ name: i.name, type: i.type, selector: i.selector, placeholder: i.placeholder, label: i.label })),
+      })),
+      standaloneInputs: p.inputs.map((i) => ({ name: i.name, type: i.type, selector: i.selector, placeholder: i.placeholder, label: i.label })),
+      cookies: p.cookies,
+      storage: p.storage,
+      headers: p.headers,
+      internalLinks: p.links.filter((l) => l.isInternal).map((l) => ({ href: l.href, text: l.text })),
+    }));
+
+    kb = loadKnowledge();
+    const urlKnowledge = getKnowledgeForUrl(kb, opts.targetUrl);
+
+    const content: Array<{ type: 'text'; text: string }> = [];
+
+    const instructions = [
+      `# NEMESIS Scan — ${opts.targetUrl}`,
+      ``,
+      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
+      opts.auth ? `**Auth:** ${opts.auth.type}${opts.auth.username ? ` as ${opts.auth.username}` : ''}` : '',
+      opts.docPath ? `**Docs:** ${opts.docPath}` : '',
+      ``,
+      `## Your Task`,
+      ``,
+      `1. Read the documentation below (if provided)`,
+      `2. Analyze the recon data — every form, input, cookie, header, and browser storage entry`,
+      `3. Generate test plans:`,
+      `   - **Security attacks**: SQLi, XSS, auth bypass, path traversal, CORS, CSRF, browser storage vulnerabilities`,
+      `   - **Functional tests**: Use the example data to verify features work correctly`,
+      `   - **Exploratory tests**: Edge cases, boundary values, random inputs`,
+      `4. Call **nemesis_attack** with your plans`,
+    ];
+    content.push({ type: 'text' as const, text: instructions.filter(Boolean).join('\n') });
+
+    if (activeDocContent) {
+      content.push({ type: 'text' as const, text: `## Application Documentation\n\n---\n\n${activeDocContent}\n\n---` });
+    }
+
+    if (Object.keys(activeExampleData).length > 0) {
+      content.push({ type: 'text' as const, text: `## Example Data\n\n\`\`\`json\n${JSON.stringify(activeExampleData, null, 2)}\n\`\`\`` });
+    }
+
+    if (urlKnowledge.app || urlKnowledge.scans.length > 0 || urlKnowledge.payloads.length > 0) {
+      const kbParts = [`## Past Knowledge for ${opts.targetUrl}\n`];
+      if (urlKnowledge.app) kbParts.push(`**App:** ${urlKnowledge.app.name} | **Tech:** ${urlKnowledge.app.techStack.join(', ')}`);
+      if (urlKnowledge.scans.length > 0) {
+        const latest = urlKnowledge.scans[urlKnowledge.scans.length - 1];
+        kbParts.push(`**Last scan:** ${latest.timestamp} — ${latest.vulnerabilitiesFound} issues in ${latest.attacksExecuted} tests`);
+      }
+      if (urlKnowledge.payloads.length > 0) {
+        kbParts.push(`\n**Effective payloads (reuse these):**`);
+        for (const p of urlKnowledge.payloads.slice(-10)) {
+          kbParts.push(`- [${p.category}] \`${p.payload.slice(0, 80)}\` → "${p.successIndicator}"`);
+        }
+      }
+      content.push({ type: 'text' as const, text: kbParts.join('\n') });
+    }
+
+    content.push({ type: 'text' as const, text: JSON.stringify(reconSummary, null, 2) });
+
+    return { content };
+  } catch (e) {
+    scanInProgress = false;
+    if (activeRecon) { await activeRecon.close().catch(() => {}); activeRecon = null; }
+    throw e;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════
 // TOOL 1: nemesis_recon
@@ -87,124 +205,9 @@ After calling this, YOU (the LLM) must:
       demoLaunched = true;
     }
 
-    // Read documentation file if provided
-    activeDocContent = '';
-    if (docPath) {
-      try {
-        const resolvedPath = path.resolve(docPath);
-        activeDocContent = fs.readFileSync(resolvedPath, 'utf-8');
-        console.error(`[nemesis] Read documentation: ${resolvedPath} (${activeDocContent.length} chars)`);
-      } catch (e) {
-        console.error(`[nemesis] Could not read doc at ${docPath}: ${e instanceof Error ? e.message : e}`);
-      }
-    }
-
-    activeExampleData = exampleData || {};
-
-    activeStartedAt = new Date().toISOString();
-    activeConfig = {
-      targetUrl: actualUrl,
-      maxPages: maxPages || 10,
-      headless: !headed,
-      timeout: 15000,
-      screenshotDir: './nemesis-results/screenshots',
-      outputDir: './nemesis-results',
-      auth: auth || undefined,
-    };
-
-    const { pages, recon } = await runRecon(activeConfig);
-    activeRecon = recon;
-    activePages = pages;
-
-    const reconSummary = pages.map((p) => ({
-      url: p.url,
-      title: p.title,
-      forms: p.forms.map((f) => ({
-        action: f.action,
-        method: f.method,
-        selector: f.selector,
-        inputs: f.inputs.map((i) => ({
-          name: i.name, type: i.type, selector: i.selector,
-          placeholder: i.placeholder, label: i.label,
-        })),
-      })),
-      standaloneInputs: p.inputs.map((i) => ({
-        name: i.name, type: i.type, selector: i.selector,
-        placeholder: i.placeholder, label: i.label,
-      })),
-      cookies: p.cookies,
-      storage: p.storage,
-      headers: p.headers,
-      internalLinks: p.links.filter((l) => l.isInternal).map((l) => ({ href: l.href, text: l.text })),
-    }));
-
-    // Get URL-scoped knowledge
-    kb = loadKnowledge();
-    const urlKnowledge = getKnowledgeForUrl(kb, actualUrl);
-
-    const content: Array<{ type: 'text'; text: string }> = [];
-
-    // Main instructions
-    const instructions = [
-      `# NEMESIS Recon Complete`,
-      ``,
-      `**Target:** ${actualUrl}`,
-      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
-      auth ? `**Auth:** ${auth.type}${auth.username ? ` as ${auth.username}` : ''}` : '',
-      ``,
-      `## What To Do Next`,
-      ``,
-      `Analyze the recon data and generate test plans. You can create:`,
-      `- **Security attacks** (injection, xss, auth, traversal, cors, csrf, storage)`,
-      `- **Functional tests** (does search work? does login accept valid creds? does form save data?)`,
-      `- **Exploratory tests** (random inputs, edge cases, boundary values)`,
-      ``,
-      `Then call **nemesis_attack** with your plans.`,
-    ];
-    content.push({ type: 'text' as const, text: instructions.filter(Boolean).join('\n') });
-
-    // Documentation content
-    if (activeDocContent) {
-      content.push({
-        type: 'text' as const,
-        text: `## Application Documentation\n\nThe following documentation was provided. Use it to understand the app and generate smarter, more targeted tests:\n\n---\n\n${activeDocContent}\n\n---`,
-      });
-    }
-
-    // Example data
-    if (Object.keys(activeExampleData).length > 0) {
-      content.push({
-        type: 'text' as const,
-        text: `## Example Data for Testing\n\nUse these values for functional tests:\n\n${JSON.stringify(activeExampleData, null, 2)}`,
-      });
-    }
-
-    // URL-scoped knowledge from past runs
-    if (urlKnowledge.app || urlKnowledge.scans.length > 0 || urlKnowledge.payloads.length > 0) {
-      const kbParts = [`## Knowledge for ${actualUrl} (from past runs)\n`];
-      if (urlKnowledge.app) {
-        kbParts.push(`**App:** ${urlKnowledge.app.name} | **Tech:** ${urlKnowledge.app.techStack.join(', ')} | **Routes:** ${urlKnowledge.app.routes.join(', ')}`);
-      }
-      if (urlKnowledge.scans.length > 0) {
-        const latest = urlKnowledge.scans[urlKnowledge.scans.length - 1];
-        kbParts.push(`**Last scan:** ${latest.timestamp} — ${latest.vulnerabilitiesFound} issues found in ${latest.attacksExecuted} tests`);
-      }
-      if (urlKnowledge.payloads.length > 0) {
-        kbParts.push(`\n**Effective payloads from past runs** (use these — they worked before):`);
-        for (const p of urlKnowledge.payloads.slice(-10)) {
-          kbParts.push(`- [${p.category}] ${p.targetType}: \`${p.payload.slice(0, 80)}\` → indicator: "${p.successIndicator}"`);
-        }
-      }
-      if (urlKnowledge.plans.length > 0) {
-        kbParts.push(`\n**Stored test plans:** ${urlKnowledge.plans.map((p) => p.name).join(', ')}`);
-      }
-      content.push({ type: 'text' as const, text: kbParts.join('\n') });
-    }
-
-    // Recon data
-    content.push({ type: 'text' as const, text: JSON.stringify(reconSummary, null, 2) });
-
-    return { content };
+    return runReconAndBuildResponse({
+      targetUrl: actualUrl, maxPages, headed, auth: auth || undefined, docPath, exampleData,
+    });
   },
 );
 
@@ -339,6 +342,7 @@ After results come back, effective payloads and scan records are saved to the kn
       activeConfig = null;
       activeDocContent = '';
       activeExampleData = {};
+      scanInProgress = false;
       if (demoLaunched) { await stopDemoApp(); demoLaunched = false; }
     }
   },
@@ -498,101 +502,9 @@ This tool combines nemesis_recon + doc reading + knowledge lookup into one step.
     headed: z.boolean().optional().describe('Show browser visibly'),
   },
   async ({ targetUrl, docPath, auth, exampleData, maxPages, headed }) => {
-    let actualUrl = targetUrl;
-
-    activeDocContent = '';
-    if (docPath) {
-      try {
-        const resolvedPath = path.resolve(docPath);
-        activeDocContent = fs.readFileSync(resolvedPath, 'utf-8');
-        console.error(`[nemesis] Read documentation: ${resolvedPath} (${activeDocContent.length} chars)`);
-      } catch (e) {
-        console.error(`[nemesis] Could not read doc at ${docPath}: ${e instanceof Error ? e.message : e}`);
-      }
-    }
-
-    activeExampleData = exampleData || {};
-
-    activeStartedAt = new Date().toISOString();
-    activeConfig = {
-      targetUrl: actualUrl,
-      maxPages: maxPages || 10,
-      headless: !headed,
-      timeout: 15000,
-      screenshotDir: './nemesis-results/screenshots',
-      outputDir: './nemesis-results',
-      auth: auth || undefined,
-    };
-
-    const { pages, recon } = await runRecon(activeConfig);
-    activeRecon = recon;
-    activePages = pages;
-
-    const reconSummary = pages.map((p) => ({
-      url: p.url,
-      title: p.title,
-      forms: p.forms.map((f) => ({
-        action: f.action, method: f.method, selector: f.selector,
-        inputs: f.inputs.map((i) => ({ name: i.name, type: i.type, selector: i.selector, placeholder: i.placeholder, label: i.label })),
-      })),
-      standaloneInputs: p.inputs.map((i) => ({ name: i.name, type: i.type, selector: i.selector, placeholder: i.placeholder, label: i.label })),
-      cookies: p.cookies,
-      storage: p.storage,
-      headers: p.headers,
-      internalLinks: p.links.filter((l) => l.isInternal).map((l) => ({ href: l.href, text: l.text })),
-    }));
-
-    kb = loadKnowledge();
-    const urlKnowledge = getKnowledgeForUrl(kb, actualUrl);
-
-    const content: Array<{ type: 'text'; text: string }> = [];
-
-    const instructions = [
-      `# NEMESIS Scan — ${actualUrl}`,
-      ``,
-      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
-      auth ? `**Auth:** ${auth.type}${auth.username ? ` as ${auth.username}` : ''}` : '',
-      docPath ? `**Docs:** ${docPath}` : '',
-      ``,
-      `## Your Task`,
-      ``,
-      `1. Read the documentation below (if provided)`,
-      `2. Analyze the recon data — every form, input, cookie, header, and browser storage entry`,
-      `3. Generate test plans:`,
-      `   - **Security attacks**: SQLi, XSS, auth bypass, path traversal, CORS, CSRF, browser storage vulnerabilities`,
-      `   - **Functional tests**: Use the example data to verify features work correctly`,
-      `   - **Exploratory tests**: Edge cases, boundary values, random inputs`,
-      `4. Call **nemesis_attack** with your plans`,
-    ];
-    content.push({ type: 'text' as const, text: instructions.filter(Boolean).join('\n') });
-
-    if (activeDocContent) {
-      content.push({ type: 'text' as const, text: `## Application Documentation\n\n---\n\n${activeDocContent}\n\n---` });
-    }
-
-    if (Object.keys(activeExampleData).length > 0) {
-      content.push({ type: 'text' as const, text: `## Example Data\n\n\`\`\`json\n${JSON.stringify(activeExampleData, null, 2)}\n\`\`\`` });
-    }
-
-    if (urlKnowledge.app || urlKnowledge.scans.length > 0 || urlKnowledge.payloads.length > 0) {
-      const kbParts = [`## Past Knowledge for ${actualUrl}\n`];
-      if (urlKnowledge.app) kbParts.push(`**App:** ${urlKnowledge.app.name} | **Tech:** ${urlKnowledge.app.techStack.join(', ')}`);
-      if (urlKnowledge.scans.length > 0) {
-        const latest = urlKnowledge.scans[urlKnowledge.scans.length - 1];
-        kbParts.push(`**Last scan:** ${latest.timestamp} — ${latest.vulnerabilitiesFound} issues in ${latest.attacksExecuted} tests`);
-      }
-      if (urlKnowledge.payloads.length > 0) {
-        kbParts.push(`\n**Effective payloads (reuse these):**`);
-        for (const p of urlKnowledge.payloads.slice(-10)) {
-          kbParts.push(`- [${p.category}] \`${p.payload.slice(0, 80)}\` → "${p.successIndicator}"`);
-        }
-      }
-      content.push({ type: 'text' as const, text: kbParts.join('\n') });
-    }
-
-    content.push({ type: 'text' as const, text: JSON.stringify(reconSummary, null, 2) });
-
-    return { content };
+    return runReconAndBuildResponse({
+      targetUrl, maxPages, headed, auth: auth || undefined, docPath, exampleData,
+    });
   },
 );
 
@@ -605,3 +517,12 @@ main().catch((e) => {
   console.error('NEMESIS MCP server error:', e);
   process.exit(1);
 });
+
+async function cleanup() {
+  console.error('[nemesis] Shutting down...');
+  if (activeRecon) { await activeRecon.close().catch(() => {}); activeRecon = null; }
+  if (demoLaunched) { await stopDemoApp(); demoLaunched = false; }
+  process.exit(0);
+}
+process.on('SIGTERM', cleanup);
+process.on('SIGINT', cleanup);

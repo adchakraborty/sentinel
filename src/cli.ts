@@ -74,6 +74,8 @@ AUTH TYPES
 ══════════
 
   form-login   Browser logs in via a form (provide loginUrl, username, password)
+  idp-login    Clicks app login button, fills IDP credentials, handles OAuth consent
+               (provide loginUrl, username, password, loginTrigger, postLoginUrlPattern)
   cookie       Set cookies directly (provide cookies: {"name": "value"})
   bearer       Authorization: Bearer <token> header
   basic        HTTP Basic Auth (username + password)

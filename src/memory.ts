@@ -2,8 +2,8 @@
  * Persistent scan knowledge for NEMESIS (`./nemesis-knowledge.json` by default).
  * Path: env `NEMESIS_KNOWLEDGE_PATH`, else `./nemesis-knowledge.json` under `process.cwd()`.
  */
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { dirname, resolve, join } from 'node:path';
 
 const DEFAULT_KNOWLEDGE_RELATIVE_PATH = './nemesis-knowledge.json';
 
@@ -244,13 +244,34 @@ export function loadKnowledge(): KnowledgeBase {
   }
 }
 
+const MAX_SCAN_HISTORY = 50;
+const MAX_EFFECTIVE_PAYLOADS = 100;
+const MAX_TEST_PLANS = 30;
+
+function pruneKnowledgeBase(kb: KnowledgeBase): void {
+  if (kb.scanHistory.length > MAX_SCAN_HISTORY) {
+    kb.scanHistory = kb.scanHistory.slice(-MAX_SCAN_HISTORY);
+  }
+  if (kb.effectivePayloads.length > MAX_EFFECTIVE_PAYLOADS) {
+    kb.effectivePayloads = kb.effectivePayloads.slice(-MAX_EFFECTIVE_PAYLOADS);
+  }
+  if (kb.testPlans.length > MAX_TEST_PLANS) {
+    kb.testPlans = kb.testPlans.slice(-MAX_TEST_PLANS);
+  }
+}
+
 /**
  * Persist the full knowledge base to disk (creates parent directories if needed).
+ * Uses atomic write (write to temp file, then rename) to prevent corruption.
  */
 export function saveKnowledge(kb: KnowledgeBase): void {
+  pruneKnowledgeBase(kb);
   const filePath = resolvedKnowledgePath();
-  mkdirSync(dirname(filePath), { recursive: true });
-  writeFileSync(filePath, `${JSON.stringify(kb, null, 2)}\n`, 'utf8');
+  const dir = dirname(filePath);
+  mkdirSync(dir, { recursive: true });
+  const tmpPath = join(dir, `.nemesis-knowledge-${Date.now()}.tmp`);
+  writeFileSync(tmpPath, `${JSON.stringify(kb, null, 2)}\n`, 'utf8');
+  renameSync(tmpPath, filePath);
 }
 
 export function addAppProfile(kb: KnowledgeBase, profile: AppProfile): void {

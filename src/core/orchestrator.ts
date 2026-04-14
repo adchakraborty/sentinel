@@ -37,7 +37,13 @@ export async function runRecon(config: NemesisConfig): Promise<{ pages: PageMap[
   const recon = new Recon(config);
   await recon.launch();
 
-  const pages = await recon.crawl();
+  let pages: PageMap[];
+  try {
+    pages = await recon.crawl();
+  } catch (e) {
+    await recon.close();
+    throw e;
+  }
 
   const totalForms = pages.reduce((s, p) => s + p.forms.length, 0);
   const totalInputs = pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0);

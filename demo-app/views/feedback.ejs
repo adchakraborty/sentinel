@@ -49,7 +49,7 @@
     <h2 style="margin-bottom: 0.75rem;">Recent Feedback</h2>
     <% for (const entry of entries) { %>
       <div class="entry">
-        <strong><%= entry.name %></strong>
+        <strong><%- entry.name %></strong>
         <p><%= entry.message %></p>
         <p class="meta"><%= entry.created_at %></p>
       </div>
