@@ -212,7 +212,7 @@
     SENTINEL is a <strong style="color:var(--text);">web application</strong> you run in your browser. Open the dashboard, enter a target URL, your product docs, and credentials.
     SENTINEL reads your documentation, logs into your app (even through enterprise SSO),
     explores every page, and then designs and runs security tests, functional checks, and edge-case exploration &mdash;
-    all in a real Chromium browser. It learns from every run, so it gets smarter over time. No IDE required. No scripting. No hardcoded rules.
+    all in a real Chromium browser. It learns from every run, so it gets smarter over time. No IDE required. No scripting. Baseline + AI attacks.
   </p>
   <p style="color:var(--muted); font-size:0.8rem; max-width:600px; margin:1rem auto 0; border:1px solid var(--border); border-radius:8px; padding:0.6rem 1rem; background:var(--surface);">
     &#128161; <em>Can also be run via <strong style="color:var(--text);">MCP</strong> on IDEs like Cursor and VS Code for developer-integrated workflows.</em>
@@ -222,7 +222,7 @@
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Setup Required</div></div>
     <div class="stat-card fade-in"><div class="value">16</div><div class="label">Attack Categories</div></div>
     <div class="stat-card fade-in"><div class="value">5</div><div class="label">Login Methods Supported</div></div>
-    <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Rules</div></div>
+    <div class="stat-card fade-in"><div class="value">2</div><div class="label">Layers: Baseline + AI</div></div>
     <div class="stat-card fade-in"><div class="value">4</div><div class="label">Report Formats (HTML, MD, JSON, SARIF)</div></div>
   </div>
 </section>
@@ -249,8 +249,8 @@
     </div>
     <div class="pipe-step fade-in" style="border-color: var(--orange);">
       <div class="step-num" style="color: var(--orange);">STEP 3</div>
-      <h3>AI Designs the Tests</h3>
-      <p>Using what it learned from your docs and the crawl, the AI creates a tailored test plan: security attacks, functional checks, input validation, and edge-case exploration &mdash; specific to your app.</p>
+      <h3>Baseline + AI Design Tests</h3>
+      <p>First, SENTINEL generates <strong>baseline attacks</strong> from recon data &mdash; SQLi, XSS, CORS, IDOR, SSRF, traversal, and more on every input and API endpoint it found. Then the AI adds <strong>app-specific attacks</strong> tailored to your routes, tech stack, and business logic.</p>
     </div>
     <div class="pipe-step fade-in">
       <div class="step-num">STEP 4</div>
@@ -270,7 +270,7 @@
     <div class="arch-arrow">&rarr;</div>
     <div class="arch-node highlight" style="border-color: var(--cyan);">Read &amp; Explore</div>
     <div class="arch-arrow">&rarr;</div>
-    <div class="arch-node highlight" style="border-color: var(--purple);">AI Plans Tests</div>
+    <div class="arch-node highlight" style="border-color: var(--purple);">Baseline + AI Plans</div>
     <div class="arch-arrow">&rarr;</div>
     <div class="arch-node highlight">Run in Browser</div>
     <div class="arch-arrow">&rarr;</div>
@@ -293,8 +293,8 @@
       </div>
       <div class="feature-card fade-in">
         <span class="tag" style="background: rgba(249,115,22,0.15); color: var(--orange);">Step 3</span>
-        <h3>AI Creates a Custom Test Plan</h3>
-        <p>Unlike traditional scanners that run the same generic checks on every app, SENTINEL builds a test plan <strong>specific to your application</strong>. It knows your routes, your forms, your data model &mdash; so it tests what matters. Security attacks, functional smoke tests, input validation, and edge cases are all generated fresh.</p>
+        <h3>Baseline + AI Test Plans</h3>
+        <p>SENTINEL uses a <strong>two-layer approach</strong>. First, it generates <strong>baseline attacks</strong> directly from recon data &mdash; deterministic SQLi, XSS, CORS, IDOR, SSRF, traversal, auth bypass, CSRF, accessibility, and UX checks on every input and API endpoint discovered. Then the AI adds <strong>app-specific attacks</strong> tailored to your routes, tech stack, and business logic. Baseline ensures consistent coverage; AI adds depth.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag ai">Step 4</span>
@@ -308,8 +308,8 @@
       </div>
       <div class="feature-card fade-in">
         <span class="tag brain">The Key Difference</span>
-        <h3>No Hardcoded Patterns</h3>
-        <p>Traditional security scanners ship with a static database of thousands of known attack patterns and run them all blindly. SENTINEL ships with <strong>zero</strong>. The AI generates every test, every payload, and every detection rule on the fly &mdash; tailored to the specific app it's testing. This means it can find issues that cookie-cutter scanners miss.</p>
+        <h3>Two Layers: Baseline + AI</h3>
+        <p>Traditional scanners ship with a static database of thousands of generic attack patterns and run them all blindly. SENTINEL takes a smarter approach: <strong>baseline attacks</strong> are generated deterministically from your app's actual recon data (every input, every API endpoint, every form), ensuring consistent coverage. Then the <strong>AI layer</strong> adds bespoke attacks tailored to your specific tech stack and business logic &mdash; finding issues that neither generic scanners nor static baselines would catch.</p>
       </div>
     </div>
   </div>
@@ -351,8 +351,8 @@
   <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;" class="fade-in">
     <div class="pipe-step" style="border-color: var(--purple); padding: 1rem; background: rgba(168,85,247,0.04);">
       <div class="step-num" style="color: var(--purple);">6</div>
-      <h3 style="font-size: 0.85rem;">AI Reasons</h3>
-      <p style="font-size: 0.72rem;">LLM designs bespoke attack + test plans</p>
+      <h3 style="font-size: 0.85rem;">Baseline + AI</h3>
+      <p style="font-size: 0.72rem;">Deterministic baseline attacks + LLM-designed bespoke plans</p>
     </div>
     <div class="pipe-step" style="border-color: var(--red); padding: 1rem;">
       <div class="step-num" style="color: var(--red);">7</div>
@@ -377,7 +377,7 @@
   </div>
 
   <div style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(239,68,68,0.06)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1.25rem;" class="fade-in">
-    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In SENTINEL, all recon, docs, and history feed the GitHub Models API (GPT-4o) which <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
+    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In SENTINEL, recon data first generates <strong>baseline attacks</strong> &mdash; deterministic SQLi, XSS, CORS, IDOR, SSRF, traversal, and more on every discovered input and API endpoint. Then the GitHub Models API (GPT-4o) <em>reasons</em> about what else to test &mdash; adding app-specific attacks the baseline can't generate. The AI knows this app uses CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. Baseline ensures consistency; AI adds intelligence.</p>
   </div>
 
   <!-- Simple analogy box for executives -->
@@ -388,7 +388,7 @@
         <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--text);">Traditional scanners</strong> are like a locksmith who tries the same 10,000 keys on every door. Most don't fit. It's slow, noisy, and misses custom locks.</p>
       </div>
       <div>
-        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--red);">SENTINEL</strong> is like hiring a security expert who reads the building blueprints first, understands how each door works, and then picks only the right tools for each lock. Faster, smarter, and more thorough.</p>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--red);">SENTINEL</strong> is like hiring a security team: one expert systematically checks every door and window (baseline), while another reads the building blueprints and picks specialized tools for the custom locks (AI). Together, they're faster, smarter, and more thorough &mdash; and they never miss the basics.</p>
       </div>
     </div>
   </div>
@@ -456,27 +456,27 @@
   <!-- Where AI is leveraged callout -->
   <div class="ai-callout fade-in">
     <h3>Where AI Is Leveraged</h3>
-    <p style="color: var(--muted); margin-bottom: 1.25rem;">The LLM isn't a bolt-on feature &mdash; it's the core decision-maker at every stage. Here's exactly what the AI does vs. what the tool does:</p>
+    <p style="color: var(--muted); margin-bottom: 1.25rem;">SENTINEL uses a two-layer approach: <strong style="color: var(--cyan);">baseline attacks</strong> from recon data ensure consistent coverage, while the <strong style="color: var(--purple);">AI layer</strong> adds app-specific intelligence. Here's how each layer contributes:</p>
     <div class="ai-role-grid">
+      <div class="ai-role">
+        <div class="role-tag" style="background: rgba(6,182,212,0.15); color: var(--cyan);">Baseline</div>
+        <h4>Deterministic Attacks from Recon</h4>
+        <p>The baseline engine generates attacks directly from crawl data: SQLi and XSS on every text input, CORS probes, IDOR on API endpoints, SSRF on preview/proxy URLs, path traversal, auth bypass, CSRF on forms, accessibility audits, and UX checks. These run every scan, ensuring consistent results.</p>
+      </div>
       <div class="ai-role">
         <div class="role-tag">AI decides</div>
         <h4>Reads &amp; Understands Documentation</h4>
-        <p>The LLM reads your product docs (markdown, text) and extracts routes, features, business rules, tech stack, and user flows. This understanding shapes every test it generates.</p>
+        <p>The LLM reads your product docs (markdown, text) and extracts routes, features, business rules, tech stack, and user flows. This understanding shapes the app-specific tests it generates.</p>
       </div>
       <div class="ai-role">
         <div class="role-tag">AI decides</div>
-        <h4>Analyzes Recon Data</h4>
-        <p>After the crawler maps pages, forms, cookies, headers, and browser storage, the LLM analyzes all of it &mdash; identifying what's sensitive, what's misconfigured, and what's worth attacking.</p>
-      </div>
-      <div class="ai-role">
-        <div class="role-tag">AI decides</div>
-        <h4>Generates Every Test &amp; Payload</h4>
-        <p>Zero hardcoded attack patterns. The LLM generates every SQL injection string, every XSS payload, every CORS probe, every functional test &mdash; tailored to the specific app, its tech stack, and its data model.</p>
+        <h4>Generates App-Specific Attacks</h4>
+        <p>Beyond the baseline, the LLM generates bespoke attacks tailored to your specific app &mdash; custom payloads for your tech stack, business logic tests, and edge cases that a deterministic engine can't anticipate.</p>
       </div>
       <div class="ai-role">
         <div class="role-tag">AI decides</div>
         <h4>Sets Success Indicators</h4>
-        <p>The LLM decides what constitutes a "finding" for each test &mdash; what strings to look for, what status codes matter, what behavior indicates a vulnerability. No static signature database.</p>
+        <p>The LLM decides what constitutes a "finding" for each AI-generated test. The baseline uses heuristic detection &mdash; pattern matching for SQL errors, XSS reflection, sensitive data exposure, and file content signatures.</p>
       </div>
       <div class="ai-role">
         <div class="role-tag">AI decides</div>
@@ -486,7 +486,7 @@
       <div class="ai-role">
         <div class="role-tag">Tool executes</div>
         <h4>Browser Automation &amp; Evidence</h4>
-        <p>Playwright drives a real Chromium browser: navigating pages, filling forms, clicking buttons, capturing screenshots. The tool executes what the AI planned &mdash; faithfully and with evidence.</p>
+        <p>Playwright drives a real Chromium browser: navigating pages, filling forms, clicking buttons, capturing screenshots. Both baseline and AI attacks execute in the same real browser &mdash; faithfully and with evidence.</p>
       </div>
     </div>
   </div>
@@ -503,7 +503,7 @@
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node highlight" style="border-color: var(--purple);">LLM Analyzes<br><span style="font-size:0.7rem; color:var(--muted);">Docs + Recon + Knowledge</span></div>
       <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node highlight" style="border-color: var(--purple);">LLM Generates<br><span style="font-size:0.7rem; color:var(--muted);">Test Plans + Payloads</span></div>
+      <div class="arch-node highlight" style="border-color: var(--purple);">Baseline + AI<br><span style="font-size:0.7rem; color:var(--muted);">Deterministic + Bespoke Plans</span></div>
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node highlight" style="border-color: var(--red);">Web Server<br><span style="font-size:0.7rem; color:var(--muted);">Attack Engine</span></div>
       <div class="arch-arrow">&rarr;</div>
@@ -889,7 +889,7 @@
         <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--text);">Rapid7 / AppScan / Burp / ZAP</strong> ship with a database of thousands of known attack signatures. They crawl your app, fire every payload at every input, and check if the response matches a known vulnerability fingerprint. They don't <em>understand</em> your app &mdash; they just pattern-match.</p>
       </div>
       <div>
-        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--red);">SENTINEL</strong> ships with <strong>zero</strong> hardcoded signatures. Instead, an LLM reads your product documentation, studies the recon data, understands your app's business logic, and then <em>designs bespoke attack plans</em> from scratch. It thinks like a penetration tester, not a signature scanner.</p>
+        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--red);">SENTINEL</strong> uses a two-layer approach. <strong>Baseline attacks</strong> are generated deterministically from your app's actual recon data &mdash; every input, every API endpoint, every form gets tested with targeted payloads. Then the <strong>AI layer</strong> (GPT-4o) reads your documentation, studies the recon, and <em>designs bespoke attack plans</em> for your specific business logic. Baseline ensures consistency; AI adds intelligence.</p>
       </div>
     </div>
   </div>
@@ -905,7 +905,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Attack generation</td><td class="highlight">AI generates per-app</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td></tr>
+      <tr><td>Attack generation</td><td class="highlight">Baseline from recon + AI per-app</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td></tr>
       <tr><td>Attack categories</td><td class="highlight">16 (incl. SSRF, IDOR, a11y, UX)</td><td>OWASP Top 10</td><td>OWASP Top 10</td><td>OWASP Top 10</td></tr>
       <tr><td>Reads product docs</td><td class="highlight">docPath param</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>Business logic testing</td><td class="highlight">AI-driven (IDOR, privilege esc.)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
@@ -921,7 +921,7 @@
       <tr><td>Accessibility (WCAG)</td><td class="highlight">Built-in (a11y category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>UX / Usability testing</td><td class="highlight">Built-in (ux category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>Web dashboard</td><td class="highlight">Standalone Next.js UI (primary)</td><td class="check">Web console</td><td class="check">Standalone app</td><td>Plugin</td></tr>
-      <tr><td>Payloads per scan</td><td class="highlight">30&ndash;50 (precision-targeted)</td><td>10,000+ (brute-force)</td><td>10,000+ (brute-force)</td><td>Thousands</td></tr>
+      <tr><td>Payloads per scan</td><td class="highlight">30&ndash;60 (baseline + AI targeted)</td><td>10,000+ (brute-force)</td><td>10,000+ (brute-force)</td><td>Thousands</td></tr>
       <tr><td>Scan duration</td><td class="highlight">~5 minutes</td><td class="cross">2&ndash;8 hours typical</td><td class="cross">1&ndash;6 hours typical</td><td>30 min&ndash;hours</td></tr>
       <tr><td>Real browser execution</td><td class="check">Chromium (Playwright)</td><td>Headless engine</td><td>Headless engine</td><td>Proxy-based</td></tr>
       <tr><td>Screenshot evidence</td><td class="check">Automatic per finding</td><td class="cross">No</td><td>Limited</td><td>Manual</td></tr>
@@ -952,7 +952,7 @@
         <li>Open dashboard, enter URL + docs + credentials</li>
         <li>AI authenticates (even IDP/OAuth)</li>
         <li>AI reads docs, understands the app</li>
-        <li>AI designs 30 precision attacks</li>
+        <li>Baseline + AI design 30+ precision attacks</li>
         <li>Executes in ~5 minutes</li>
         <li>9 validated findings, low false positives</li>
         <li>Knowledge base carries forward</li>
@@ -963,8 +963,8 @@
   <div class="features" style="margin-top: 2.5rem;">
     <div class="feature-card fade-in">
       <span class="tag ai">Key Advantage</span>
-      <h3>Tests Are Custom, Not Generic</h3>
-      <p>Rapid7 and AppScan ship with a static database of thousands of known attack patterns and run them all blindly. SENTINEL generates every test on the fly, tailored to your specific app. It tests what matters, not everything in a database.</p>
+      <h3>Baseline + AI, Not Blind Signatures</h3>
+      <p>Rapid7 and AppScan ship with a static database of thousands of known attack patterns and run them all blindly. SENTINEL generates baseline attacks from your actual recon data (every input, every API endpoint), then the AI adds app-specific tests. It tests what matters, consistently and intelligently.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag brain">Key Advantage</span>
@@ -986,7 +986,7 @@
   <div class="cmd" style="font-size: 0.9rem;">cd web &amp;&amp; npx next dev &rarr; http://localhost:3000</div>
   <p style="margin-top: 1rem; color: var(--muted); font-size: 0.8rem;"><em>Also available via MCP on Cursor / VS Code</em></p>
   <p style="margin-top: 2rem; font-size: 0.85rem;">
-    Open Source (MIT) &bull; v1.0.0 &bull; 16 Attack Categories &bull; Web Dashboard &bull; Real Browser Testing &bull; Per-App Memory &bull; Accessibility &amp; UX Testing &bull; API Security &bull; Remediation Guidance &bull; Zero Hardcoded Rules
+    Open Source (MIT) &bull; v1.0.0 &bull; 16 Attack Categories &bull; Web Dashboard &bull; Real Browser Testing &bull; Baseline + AI Attacks &bull; Per-App Memory &bull; Accessibility &amp; UX Testing &bull; API Security &bull; Remediation Guidance
   </p>
 </section>
 
