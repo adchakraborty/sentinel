@@ -117,7 +117,7 @@ Call nemesis_scan with:
     type: "idp-login",
     loginUrl: "https://project-titan.pc.k8s.hyland.io/home",
     username: "test2",
-    password: "ImageNow!ImageNow!",
+    password: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     loginTrigger: "button[mat-stroked-button]",
     postLoginUrlPattern: "/home"
   }
