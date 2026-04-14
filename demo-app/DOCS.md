@@ -21,7 +21,7 @@ The experience is intentionally lightweight: no payment processing, no inventory
 | Runtime | Node.js |
 | HTTP framework | Express.js |
 | Templates | EJS (server-rendered HTML) |
-| Database | SQLite via `better-sqlite3` (in-memory database) |
+| Database | SQLite via `sql.js` (in-memory WASM database) |
 | Request bodies | `application/x-www-form-urlencoded` and JSON (middleware enabled) |
 | Static assets | Served from the `public/` directory |
 | Session / identity hints | `cookie-parser`; authentication state carried in HTTP cookies |

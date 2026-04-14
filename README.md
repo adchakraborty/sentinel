@@ -2,160 +2,186 @@
 
 **Give it a URL. Get a full security, accessibility, and QA report.**
 
-SENTINEL is an AI-powered testing platform with a beautiful web dashboard AND MCP server integration. It crawls your app, reads your documentation, authenticates with your credentials (including enterprise SSO), generates security attacks, accessibility audits, UX checks, and QA tests, executes them in a real Chromium browser, and learns from every run. Powered by GitHub Models API (GPT-4o).
+SENTINEL is an AI-powered testing platform with a beautiful web dashboard AND MCP server integration. It crawls your app, reads your documentation, generates security attacks, accessibility audits, UX checks, and QA tests, executes them in a real Chromium browser, and learns from every run. Powered by GitHub Models API (GPT-4o).
 
 **Zero hardcoded patterns. 16 attack categories. Web dashboard + IDE integration. The AI is the brain.**
 
 ---
 
-## What Makes It Different
+## Runbook — Demo in 2 Minutes
 
-| Traditional DAST (Rapid7, AppScan, Burp) | SENTINEL |
-|------------------------------------------|---------|
-| Hours of scan policy configuration | One natural language prompt |
-| 10,000+ generic signature-based payloads | 30-50 precision AI-generated tests |
-| Security only | Security + Functional QA + Input Validation + Exploratory |
-| Manual auth macro recording | Native SSO/OIDC/OAuth — automated |
-| Starts from zero every scan | Persistent per-app knowledge base |
-| 2-8 hour scan times | ~5 minutes |
-| $10K-$100K+/year | Free / MIT |
+### Prerequisites
+
+| Requirement | How to check | Install |
+|-------------|-------------|---------|
+| **Node.js 24+** | `node --version` | [nodejs.org](https://nodejs.org) |
+| **Chromium for Playwright** | (installed below) | `npx playwright install chromium` |
+| **GITHUB_TOKEN** env var | `echo %GITHUB_TOKEN%` (Windows) | See [Token Setup](#1-github-token-setup) below |
 
 ---
 
-## Quick Start (60 seconds)
+### 1. GitHub Token Setup
+
+SENTINEL uses the **GitHub Models API** (GPT-4o) for AI-powered test generation. You need a GitHub token with `models:read` scope.
+
+**Get a token:**
+1. Go to https://github.com/settings/tokens → **Generate new token (classic)**
+2. Check the **`models:read`** scope
+3. Copy the token
+
+**Set it as a system environment variable (Windows):**
+
+```powershell
+# PowerShell (permanent — survives restarts)
+[System.Environment]::SetEnvironmentVariable('GITHUB_TOKEN', 'ghp_your_token_here', 'User')
+
+# Then restart your terminal / IDE for it to take effect
+```
+
+**Verify:**
+
+```powershell
+echo $env:GITHUB_TOKEN
+# Should print your token
+```
+
+---
+
+### 2. Install Dependencies
 
 ```bash
-# 1. Install
-cd nemesis && npm install && npx playwright install chromium && npm run build
+# From the project root
+npm install
+npx playwright install chromium
 
-# 2. Launch the demo app
-npx tsx src/cli.ts --demo
+# Install demo app dependencies
+cd demo-app && npm install && cd ..
 
-# 3. In Cursor/VSCode chat, paste:
+# Install web dashboard dependencies
+cd web && npm install && cd ..
 ```
-
-```
-Call nemesis_scan with:
-  targetUrl: http://localhost:3001
-  docPath: ./demo-app/DOCS.md
-  exampleData: {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product"}
-  headed: true
-
-Then generate security attacks, functional tests, and exploratory tests.
-Call nemesis_attack with your plans.
-```
-
-### What happens next:
-1. SENTINEL reads your product docs and understands the app
-2. Opens a real Chromium browser, crawls every page
-3. AI designs custom attack plans (SQL injection, XSS, auth bypass, SSRF, IDOR, and more)
-4. Executes tests in the browser — clicking, typing, submitting — with screenshot evidence
-5. Delivers reports (HTML, Markdown, SARIF) with remediation recommendations
-6. Saves effective payloads to the knowledge base for smarter future scans
 
 ---
 
-## Attack Categories
+### 3. Build
+
+```bash
+# Build the core TypeScript
+npm run build
+
+# Build the web dashboard (optional — dev mode works fine for demos)
+cd web && npx next build && cd ..
+```
+
+---
+
+### 4. Run the Demo
+
+Open **two terminals**:
+
+**Terminal 1 — Start the demo app (VulnShop):**
+
+```bash
+cd demo-app
+node server.js
+```
+
+You should see:
+```
+SENTINEL Demo App (VulnShop) running on http://localhost:3001
+```
+
+**Terminal 2 — Start the web dashboard:**
+
+```bash
+cd web
+npx next dev
+```
+
+You should see:
+```
+▲ Next.js 15.x
+- Local: http://localhost:3000
+✓ Ready
+```
+
+---
+
+### 5. Run a Scan
+
+1. Open **http://localhost:3000** in your browser
+2. Fill in the form:
+
+| Field | Value |
+|-------|-------|
+| **Target URL** | `http://localhost:3001` |
+| **Documentation** | `./demo-app/DOCS.md` |
+| **Example Data** | See JSON below |
+| **Auth** | (leave as "None" — VulnShop has no auth requirement for scanning) |
+
+**Example Data JSON** — paste this into the "Example Data" field:
+
+```json
+{"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product!", "username": "admin", "password": "admin", "productCategory": "widgets", "userId": "1", "orderId": "1", "email": "test@example.com"}
+```
+
+This tells SENTINEL what kind of data to use when filling forms and testing APIs:
+
+| Key | Purpose | Used by |
+|-----|---------|---------|
+| `searchQuery` | Text to type into the product search box | `/search?q=Widget` |
+| `feedbackName` | Name to submit in the feedback form | `POST /feedback` |
+| `feedbackMessage` | Message to submit in the feedback form | `POST /feedback` |
+| `username` | Login username to try | `POST /login` |
+| `password` | Login password to try | `POST /login` |
+| `productCategory` | Category filter for product API | `/api/products?category=widgets` |
+| `userId` | User ID for IDOR testing | `/api/users/1` |
+| `orderId` | Order ID for IDOR testing | `/api/orders/1` |
+| `email` | Email for validation endpoint | `POST /api/validate-email` |
+
+3. Click **Launch Scan**
+4. Watch the real-time timeline as SENTINEL:
+   - Crawls the app and discovers pages/forms
+   - Sends recon data to GPT-4o to generate attack plans
+   - Executes attacks in a real Chromium browser
+   - Reports findings with severity, evidence, CWE, and remediation
+
+5. When complete, download reports (HTML, Markdown, SARIF, JSON)
+
+---
+
+### 6. What SENTINEL Tests (16 Categories)
 
 | Category | What It Tests | Severity |
 |----------|--------------|----------|
 | **injection** | SQL/NoSQL injection via forms and API params | Critical |
-| **xss** | Reflected and stored cross-site scripting with DOM verification | High |
-| **auth** | Authentication bypass, unauthenticated access, brute-force | Critical |
-| **traversal** | Directory traversal via URL params and file inputs | Critical |
-| **ssrf** | Server-side request forgery — making the server fetch internal URLs | Critical |
-| **idor** | Insecure direct object references — accessing other users' data | High |
-| **info-leak** | Debug endpoints, verbose errors, exposed credentials/API keys | High |
-| **redirect** | Open redirects to arbitrary external domains | Medium |
-| **cors** | Wildcard origins, origin reflection with credentials | High |
-| **csrf** | Missing CSRF tokens on state-changing operations | High |
-| **storage** | Sensitive data in localStorage/sessionStorage (tokens, PII, API keys) | Medium |
-| **validation** | Null bytes, CRLF, unicode, long strings, special characters | Medium |
-| **functional** | Does search work? Does login accept valid creds? Do dialogs render? | QA |
-| **exploratory** | Edge cases, boundary values, invalid IDs, deep routes | Explore |
+| **xss** | Reflected and stored cross-site scripting | High |
+| **auth** | Authentication bypass, unauthenticated access | Critical |
+| **traversal** | Directory traversal via URL params | Critical |
+| **ssrf** | Server-side request forgery | Critical |
+| **idor** | Insecure direct object references | High |
+| **info-leak** | Debug endpoints, exposed credentials | High |
+| **redirect** | Open redirects to external domains | Medium |
+| **cors** | Wildcard origins, credential exposure | High |
+| **csrf** | Missing CSRF tokens | High |
+| **storage** | Sensitive data in browser storage | Medium |
+| **validation** | Input validation bypass, special chars | Medium |
+| **dos** | Regex DoS, resource exhaustion | Medium |
+| **accessibility** | WCAG violations — alt text, labels, headings, skip links, lang attr | Medium |
+| **ux** | Broken images, dead links, slow loads, overflow | Low |
+| **functional** | Feature correctness — search, login, forms | QA |
+| **exploratory** | Edge cases, boundary values, deep routes | Explore |
 
 ---
 
-## Authentication Types
+### 7. Alternative: Run via MCP in Cursor/VSCode
 
-| Type | What It Does | Parameters |
-|------|-------------|------------|
-| `form-login` | Browser fills login form and submits | `loginUrl`, `username`, `password`, optional selectors |
-| `idp-login` | Clicks login button, fills IDP credentials, handles OAuth consent | `loginUrl`, `username`, `password`, `loginTrigger`, `postLoginUrlPattern` |
-| `cookie` | Sets cookies directly in the browser | `cookies: {"session": "abc123"}` |
-| `bearer` | Adds `Authorization: Bearer <token>` header | `token` |
-| `basic` | HTTP Basic Authentication | `username`, `password` |
-| `none` | No authentication (default) | — |
-
----
-
-## Scanning Your Own App
-
-```
-Call nemesis_scan with:
-  targetUrl: http://localhost:3000
-  docPath: ./path/to/your/API-DOCS.md
-  auth: {
-    type: "form-login",
-    loginUrl: "http://localhost:3000/login",
-    username: "admin",
-    password: "secret"
-  }
-  exampleData: {
-    "searchQuery": "test item",
-    "newUserName": "john",
-    "newUserEmail": "john@example.com"
-  }
-
-Then generate tests and call nemesis_attack.
-```
-
----
-
-## Reports
-
-Every scan produces four report formats:
-
-```
-nemesis-results/
-├── SENTINEL-REPORT.md        # Markdown with Mermaid attack surface diagram
-├── SENTINEL-REPORT.html      # Visual HTML report with severity cards + remediation
-├── nemesis-results.json     # Machine-readable JSON
-├── nemesis-results.sarif    # SARIF 2.1.0 for GitHub Security tab / CI
-└── screenshots/             # Evidence screenshots per finding
-```
-
-Reports include:
-- Executive summary with risk score
-- Severity breakdown (Critical / High / Medium / Low)
-- Attack surface visualization (Mermaid flowchart)
-- Per-finding evidence, reproduction steps, and CWE references
-- **Remediation recommendations** for every vulnerability category
-- Category breakdown table
-
----
-
-## Knowledge Base
-
-SENTINEL maintains a persistent knowledge base (`nemesis-knowledge.json`) **scoped by URL**:
-
-- **App Profiles** — Name, tech stack, routes, auth config, example data
-- **Scan History** — Every scan with results (per URL)
-- **Effective Payloads** — Payloads that found real issues (per URL, reused in future scans)
-- **Test Plans** — Plans from documentation (per URL)
-
-Knowledge is automatically loaded, updated, and persisted across sessions. Each app gets its own isolated context.
-
----
-
-## MCP Setup
-
-Add to your `mcp.json` (user-level or workspace):
+Add to your `.cursor/mcp.json`:
 
 ```json
 {
   "servers": {
-    "nemesis": {
+    "sentinel": {
       "type": "stdio",
       "command": "node",
       "args": ["C:/workspace/nemesis/dist/index.js"]
@@ -164,54 +190,105 @@ Add to your `mcp.json` (user-level or workspace):
 }
 ```
 
----
+Then in Cursor chat:
 
-## MCP Tools
+```
+Call sentinel_scan with:
+  targetUrl: http://localhost:3001
+  docPath: ./demo-app/DOCS.md
+  exampleData: {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product!", "username": "admin", "password": "admin"}
+  headed: true
+
+Then generate security attacks, functional tests, and exploratory tests.
+Call sentinel_attack with your plans.
+```
+
+### MCP Tools
 
 | Tool | Purpose |
 |------|---------|
-| **`nemesis_scan`** | Full pipeline: crawl + read docs + load knowledge. **Recommended entry point.** |
-| `nemesis_recon` | Crawl only (for manual control) |
-| `nemesis_attack` | Execute LLM-generated test plans |
-| `nemesis_learn` | Store app profiles, auth, example data, test plans from docs |
-| `nemesis_knowledge` | Query the knowledge base (optionally scoped to a URL) |
+| **`sentinel_scan`** | Full pipeline: crawl + read docs + load knowledge. **Recommended.** |
+| `sentinel_recon` | Crawl only (manual control) |
+| `sentinel_attack` | Execute AI-generated test plans |
+| `sentinel_learn` | Store app knowledge from documentation |
+| `sentinel_knowledge` | Query the knowledge base |
+
+---
+
+### 8. Scanning Your Own App
+
+```
+Target URL:     https://your-app.com
+Documentation:  ./path/to/your/API-DOCS.md  (optional but improves results)
+Example Data:   {"searchQuery": "test", "username": "admin", "password": "secret"}
+Auth Type:      form-login
+Login URL:      https://your-app.com/login
+Username:       admin
+Password:       your-password
+```
+
+**Auth types:** `none`, `form-login`, `basic`, `bearer`, `cookie`
+
+---
+
+### 9. Reports
+
+Every scan produces four report formats, downloadable from the dashboard:
+
+| Format | Use case |
+|--------|----------|
+| **HTML** | Visual report with severity cards, remediation, evidence |
+| **Markdown** | Paste into PRs, wikis, docs |
+| **SARIF** | GitHub Security tab, CI/CD integration |
+| **JSON** | Machine-readable for automation |
+
+Reports include: executive summary, risk score, severity breakdown, per-finding evidence, reproduction steps, CWE references, and remediation recommendations.
+
+---
+
+### Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `GITHUB_TOKEN not found` | Set it as a system env var and restart your terminal |
+| `Cannot find chromium` | Run `npx playwright install chromium` |
+| Demo app won't start | Check port 3001 isn't in use: `netstat -ano \| findstr :3001` |
+| Web dashboard won't start | Check port 3000 isn't in use |
+| `better-sqlite3` build error | We use `sql.js` (pure WASM) — run `cd demo-app && npm install` |
+| Build fails with Tailwind error | `cd web && rm -rf node_modules package-lock.json && npm install` |
 
 ---
 
 ## Architecture
 
 ```
-src/
-├── index.ts              # MCP server — 5 tools
-├── types.ts              # Shared types (14 attack categories)
-├── cli.ts                # CLI with demo instructions
-├── launcher.ts           # Demo app lifecycle
-├── memory.ts             # URL-scoped persistent knowledge base
-├── core/
-│   ├── recon.ts          # Browser crawler with 5 auth types + storage inspection
-│   ├── attacker.ts       # Test executor (security + QA + API + exploratory)
-│   └── orchestrator.ts   # Recon + Attack + Report coordination
-└── reporters/
-    ├── report-generator.ts  # Markdown + HTML reports with remediation
-    └── sarif-generator.ts   # SARIF 2.1.0 for CI
-
-demo-app/                 # VulnShop — deliberately vulnerable target
-├── server.js             # Express app with 20+ vulnerability types
-├── DOCS.md               # Product documentation (fed to SENTINEL)
-└── views/                # EJS templates
+sentinel/
+├── src/                      # Core engine (TypeScript)
+│   ├── index.ts              # MCP server — 5 tools
+│   ├── types.ts              # Shared types (16 attack categories)
+│   ├── core/
+│   │   ├── recon.ts          # Browser crawler + auth + storage inspection
+│   │   ├── attacker.ts       # Test executor (security + a11y + UX + QA)
+│   │   └── orchestrator.ts   # Pipeline coordination
+│   ├── reporters/
+│   │   ├── report-generator.ts  # HTML + Markdown reports
+│   │   └── sarif-generator.ts   # SARIF 2.1.0 for CI
+│   └── memory.ts             # URL-scoped persistent knowledge base
+│
+├── web/                      # Web Dashboard (Next.js 15)
+│   ├── app/page.tsx          # Landing page + scan orchestration
+│   ├── app/api/scan/route.ts # SSE streaming API
+│   ├── lib/github-llm.ts     # GitHub Models API client
+│   ├── lib/scan-engine.ts    # Scan pipeline for web
+│   └── components/           # Dashboard UI components
+│
+├── demo-app/                 # VulnShop — intentionally vulnerable target
+│   ├── server.js             # Express + sql.js with 20+ vuln types
+│   ├── DOCS.md               # Product docs (fed to SENTINEL)
+│   └── views/                # EJS templates
+│
+└── PRESENTATION.html         # Hackathon presentation deck
 ```
-
----
-
-## VulnShop Demo App
-
-VulnShop ships with SENTINEL as a deliberately vulnerable target. It includes:
-
-**Web vulnerabilities:** SQL injection, reflected XSS, stored XSS, auth bypass, path traversal, wildcard CORS, missing CSRF, insecure cookies, browser storage exposure
-
-**API vulnerabilities:** IDOR on user/order endpoints, mass assignment, API SQL injection, SSRF via preview endpoint, open redirect, information disclosure (debug endpoint, password/API key exposure), header injection
-
-**14+ distinct vulnerability types** across web pages and JSON APIs — designed to showcase SENTINEL finding real issues in under 5 minutes.
 
 ---
 
