@@ -159,7 +159,6 @@
     <a href="#brain">Knowledge</a>
     <a href="#features">Features</a>
     <a href="#demo">Demo App</a>
-    <a href="#enterprise">Enterprise</a>
     <a href="#compare">Why Nemesis</a>
   </div>
 </nav>
@@ -182,7 +181,7 @@
     <div class="stat-card fade-in"><div class="value">4-in-1</div><div class="label">Security + QA + Validation + Exploration</div></div>
     <div class="stat-card fade-in"><div class="value">5</div><div class="label">Login Methods Supported</div></div>
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Rules</div></div>
-    <div class="stat-card fade-in"><div class="value">66</div><div class="label">Tests Run on Enterprise App</div></div>
+    <div class="stat-card fade-in"><div class="value">14</div><div class="label">Issues Found in Demo</div></div>
   </div>
 </section>
 
@@ -464,98 +463,10 @@
   </div>
 </section>
 
-<!-- ENTERPRISE LIVE APP -->
-<section id="enterprise">
-  <div class="section-header fade-in">
-    <div class="number">05 / Real-World Proof</div>
-    <h2>Tested on a Live Enterprise Application</h2>
-    <p>We pointed NEMESIS at <strong>Hyland Project Titan</strong> &mdash; a real, production-grade enterprise document management system with enterprise SSO login, a complex backend, and active security protections. No special setup. Just a URL, docs, and credentials.</p>
-  </div>
-
-  <div class="badge-row" style="margin-bottom: 2rem;">
-    <span class="tech-badge">Angular 19</span>
-    <span class="tech-badge">OIDC / IDP Auth</span>
-    <span class="tech-badge">Hyland UI Shell</span>
-    <span class="tech-badge">Angular Material</span>
-    <span class="tech-badge">Integration Server</span>
-    <span class="tech-badge">CSRF Protection</span>
-    <span class="tech-badge">Kubernetes</span>
-  </div>
-
-  <div class="two-col">
-    <div>
-      <div class="stats-bar" style="grid-template-columns: 1fr 1fr;">
-        <div class="stat-card fade-in"><div class="value">66</div><div class="label">Total Tests Run</div></div>
-        <div class="stat-card fade-in"><div class="value">3</div><div class="label">Scan Runs</div></div>
-        <div class="stat-card fade-in"><div class="value">19</div><div class="label">Validation Tests</div></div>
-        <div class="stat-card fade-in"><div class="value">~4m</div><div class="label">Per Scan</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="code-block fade-in" style="margin: 0;">
-        <span class="comment">// Enterprise IDP login &mdash; new auth type</span><br>
-        <span class="fn">nemesis_scan</span>({<br>
-        &nbsp;&nbsp;targetUrl: <span class="string">"https://project-titan.pc.k8s.hyland.io"</span>,<br>
-        &nbsp;&nbsp;docPath: <span class="string">"./docs/PROJECT-TITAN.md"</span>,<br>
-        &nbsp;&nbsp;auth: {<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;type: <span class="string">"idp-login"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;loginUrl: <span class="string">"...hyland.io/home"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;loginTrigger: <span class="string">"button[mat-stroked-button]"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;username: <span class="string">"test2"</span>,<br>
-        &nbsp;&nbsp;&nbsp;&nbsp;password: <span class="string">"********"</span><br>
-        &nbsp;&nbsp;}<br>
-        })
-      </div>
-    </div>
-  </div>
-
-  <div class="demo-results fade-in" style="margin-top: 2rem;">
-    <h3>Project Titan &mdash; Real Findings Across 3 Scan Runs</h3>
-    <ul class="vuln-list">
-      <li><span class="severity-badge high">HIGH</span> CORS misconfiguration &mdash; <code>Allow-Credentials: true</code> with broad headers including <code>X-IntegrationServer-Password</code></li>
-      <li><span class="severity-badge medium">MEDIUM</span> <code>idsrv.session</code> cookie missing HttpOnly flag &mdash; accessible to JavaScript</li>
-      <li><span class="severity-badge medium">MEDIUM</span> Shibboleth IDP cookies missing Secure flag &mdash; transmittable over HTTP</li>
-      <li><span class="severity-badge medium">MEDIUM</span> Null byte injection returns 400 error with potential info leak</li>
-      <li><span class="severity-badge pass">PASS</span> XSS via route parameters &mdash; Angular sanitization effective</li>
-      <li><span class="severity-badge pass">PASS</span> SQL injection via API &mdash; properly parameterized queries</li>
-      <li><span class="severity-badge pass">PASS</span> Path traversal &mdash; Angular router blocks filesystem access</li>
-      <li><span class="severity-badge pass">PASS</span> CRLF injection &mdash; properly sanitized</li>
-      <li><span class="severity-badge pass">PASS</span> Double-encoded traversal &mdash; blocked</li>
-      <li><span class="severity-badge pass">PASS</span> Special characters in routes &mdash; graceful handling</li>
-      <li><span class="severity-badge pass">PASS</span> Long string overflow &mdash; no crash</li>
-      <li><span class="severity-badge qa">FUNCTIONAL</span> All 6 module tiles render after IDP login</li>
-      <li><span class="severity-badge qa">FUNCTIONAL</span> Documents, Folders, Tasks, Workflow, Capture modules load</li>
-      <li><span class="severity-badge qa">FUNCTIONAL</span> Create Document / Create Folder menus accessible</li>
-      <li><span class="severity-badge qa">FUNCTIONAL</span> Shell navigation, toolbar, profile menu working</li>
-      <li><span class="severity-badge qa">FUNCTIONAL</span> Logout flow correctly clears session</li>
-      <li><span class="severity-badge explore">EXPLORE</span> Invalid document/folder IDs handled gracefully</li>
-      <li><span class="severity-badge explore">EXPLORE</span> Deep nested invalid routes show proper 404</li>
-    </ul>
-  </div>
-
-  <div class="features" style="margin-top: 2rem;">
-    <div class="feature-card fade-in">
-      <span class="tag enterprise">Enterprise Login</span>
-      <h3>Handles SSO Automatically</h3>
-      <p>NEMESIS navigated to the app, clicked the Login button, got redirected to the external identity provider, filled in credentials, handled the consent screen, and waited for the redirect back. Fully automated &mdash; no manual login needed.</p>
-    </div>
-    <div class="feature-card fade-in">
-      <span class="tag enterprise">Doc-Driven Testing</span>
-      <h3>Reads Your Docs, Tests Your Features</h3>
-      <p>We gave NEMESIS a 400-line product document. It read the doc, understood the app's pages, features, and user flows, then generated targeted tests for specific features like Create Document, Create Folder, and Create Task &mdash; all from the documentation alone.</p>
-    </div>
-    <div class="feature-card fade-in">
-      <span class="tag enterprise">Thorough Validation</span>
-      <h3>19 Input Validation Tests on a Hardened App</h3>
-      <p>Even against an enterprise app with active security protections, NEMESIS ran 19 dedicated validation tests: trying malicious scripts, database attacks, file access tricks, and more. It confirmed what's protected and flagged what isn't.</p>
-    </div>
-  </div>
-</section>
-
 <!-- COMPARISON -->
 <section id="compare">
   <div class="section-header fade-in">
-    <div class="number">06 / Why Nemesis</div>
+    <div class="number">05 / Why Nemesis</div>
     <h2>How NEMESIS Compares</h2>
     <p>Traditional tools run the same generic checks on every app. NEMESIS reads your documentation, understands your app, and creates tests tailored to what you actually built. Here's how that stacks up.</p>
   </div>
@@ -613,8 +524,8 @@
 
 <!-- CTA -->
 <section class="cta">
-  <h2><span class="gradient-text">Tested on a Demo. Proven on Enterprise.</span></h2>
-  <p>From a sample app to a production enterprise system with SSO &mdash; NEMESIS handles it all with one prompt.</p>
+  <h2><span class="gradient-text">One Prompt. Full Security &amp; QA Report.</span></h2>
+  <p>Give it a URL, your docs, and credentials. NEMESIS does the rest.</p>
   <div class="cmd" style="font-size: 0.9rem;">"Here's my app URL, my docs, and my login. Test everything."</div>
   <p style="margin-top: 2rem; font-size: 0.85rem;">
     Open Source (MIT) &bull; No Setup Required &bull; Real Browser Testing &bull; Per-App Memory &bull; 5 Login Methods &bull; Zero Hardcoded Rules
