@@ -16,9 +16,9 @@ export function generateSarifReport(report: NemesisReport): string {
       {
         tool: {
           driver: {
-            name: 'NEMESIS',
+            name: 'SENTINEL',
             version: '3.0.0',
-            informationUri: 'https://github.com/nemesis-security/nemesis',
+            informationUri: 'https://github.com/sentinel-ai/sentinel',
             semanticVersion: '3.0.0',
             rules,
           },
@@ -43,7 +43,7 @@ function buildRules(vulns: AttackResult[]) {
   const rules: object[] = [];
 
   for (const v of vulns) {
-    const ruleId = `NEMESIS/${v.attack.category}`;
+    const ruleId = `SENTINEL/${v.attack.category}`;
     if (seen.has(ruleId)) continue;
     seen.add(ruleId);
 
@@ -65,7 +65,7 @@ function buildRules(vulns: AttackResult[]) {
 
 function toSarifResult(r: AttackResult) {
   return {
-    ruleId: `NEMESIS/${r.attack.category}`,
+    ruleId: `SENTINEL/${r.attack.category}`,
     level: severityToLevel(r.attack.severity),
     message: {
       text: `${r.attack.name}: ${r.evidence}`,
@@ -116,8 +116,14 @@ function categoryName(cat: string): string {
     csrf: 'Cross-Site Request Forgery',
     storage: 'Browser Storage Exposure',
     dos: 'Denial of Service',
+    ssrf: 'Server-Side Request Forgery',
+    idor: 'Insecure Direct Object Reference',
+    'info-leak': 'Information Disclosure',
+    redirect: 'Open Redirect',
     functional: 'Functional Test Failure',
     exploratory: 'Exploratory Test Finding',
+    accessibility: 'Accessibility Violation (WCAG)',
+    ux: 'UX / Usability Issue',
   };
   return names[cat] || cat;
 }
@@ -133,6 +139,12 @@ function categoryDescription(cat: string): string {
     csrf: 'Application does not protect state-changing operations with CSRF tokens',
     storage: 'Sensitive data (tokens, credentials, PII) exposed in browser localStorage or sessionStorage',
     dos: 'Application is vulnerable to resource exhaustion or denial of service',
+    ssrf: 'Application can be tricked into making requests to arbitrary internal or external URLs',
+    idor: 'Application exposes resources via predictable IDs without authorization checks',
+    'info-leak': 'Application exposes sensitive information such as credentials, API keys, or internal configuration',
+    redirect: 'Application redirects users to arbitrary URLs without validation',
+    accessibility: 'Application has WCAG accessibility violations such as missing alt text, labels, or heading hierarchy',
+    ux: 'Application has usability issues such as broken images, dead links, or slow page loads',
     functional: 'Application feature does not behave as expected per documentation',
     exploratory: 'Unexpected behavior discovered during edge-case exploration',
   };

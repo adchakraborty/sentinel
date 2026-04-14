@@ -76,6 +76,16 @@ export class Attacker {
         return this.executeCsrfCheck(attack, pageUrl);
       case 'storage':
         return this.executeStorageCheck(attack, pageUrl);
+      case 'ssrf':
+      case 'redirect':
+        return this.executeSsrfOrRedirectCheck(attack, pageUrl);
+      case 'idor':
+      case 'info-leak':
+        return this.executeApiCheck(attack, pageUrl);
+      case 'accessibility':
+        return this.executeAccessibilityCheck(attack, pageUrl);
+      case 'ux':
+        return this.executeUxCheck(attack, pageUrl);
       case 'functional':
       case 'exploratory':
         return this.executeFunctionalTest(attack, pageUrl);
@@ -797,6 +807,339 @@ export class Attacker {
       screenshot,
       duration: Date.now() - start,
       reproductionSteps: steps,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private async executeSsrfOrRedirectCheck(attack: Attack, pageUrl: string): Promise<AttackResult> {
+    const start = Date.now();
+    const steps: string[] = [];
+    let evidence = '';
+    let success = false;
+    let screenshot: string | undefined;
+
+    const page = await this.context.newPage();
+    try {
+      for (const payload of attack.payloads.slice(0, 5)) {
+        const testUrl = attack.target.url || pageUrl;
+        const fullUrl = testUrl.includes('?')
+          ? testUrl.replace(/([?&]url=)[^&]*/, `$1${encodeURIComponent(payload)}`)
+          : `${testUrl}${testUrl.includes('?') ? '&' : '?'}url=${encodeURIComponent(payload)}`;
+
+        steps.push(`Request: ${fullUrl}`);
+
+        try {
+          const response = await page.goto(fullUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+          const status = response?.status() || 0;
+          const finalUrl = page.url();
+          const bodyText = await page.evaluate(() => document.body?.innerText?.substring(0, 3000) || '');
+
+          if (attack.category === 'redirect') {
+            const payloadDomain = (() => { try { return new URL(payload).hostname; } catch { return payload; } })();
+            if (finalUrl.includes(payloadDomain) && payloadDomain !== new URL(pageUrl).hostname) {
+              success = true;
+              evidence = `Open redirect: navigated to ${finalUrl} via payload ${payload}`;
+              screenshot = await this.takeScreenshot(page, attack.id, 'redirect');
+              steps.push(`VULNERABILITY CONFIRMED: Redirected to external domain`);
+              break;
+            }
+          }
+
+          if (attack.category === 'ssrf') {
+            for (const indicator of attack.successIndicators) {
+              if (bodyText.toLowerCase().includes(indicator.toLowerCase())) {
+                success = true;
+                evidence = `SSRF: server fetched ${payload} — found "${indicator}" in response`;
+                screenshot = await this.takeScreenshot(page, attack.id, 'ssrf');
+                steps.push(`VULNERABILITY CONFIRMED: Server-side request succeeded`);
+                break;
+              }
+            }
+            if (success) break;
+          }
+        } catch { /* timeout or nav error */ }
+      }
+    } finally {
+      await page.close();
+    }
+
+    return {
+      attack, pageUrl, success,
+      evidence: evidence || `${attack.category === 'ssrf' ? 'SSRF' : 'Open redirect'} not confirmed`,
+      screenshot, duration: Date.now() - start, reproductionSteps: steps,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private async executeApiCheck(attack: Attack, pageUrl: string): Promise<AttackResult> {
+    const start = Date.now();
+    const steps: string[] = [];
+    let evidence = '';
+    let success = false;
+    let screenshot: string | undefined;
+
+    const page = await this.context.newPage();
+    try {
+      for (const payload of attack.payloads.slice(0, 5)) {
+        const testUrl = payload.startsWith('http') ? payload : (attack.target.url || pageUrl);
+        steps.push(`Request: ${testUrl}`);
+
+        try {
+          const response = await page.goto(testUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+          const status = response?.status() || 0;
+          const bodyText = await page.evaluate(() => document.body?.innerText?.substring(0, 5000) || '');
+          const bodyLower = bodyText.toLowerCase();
+
+          for (const indicator of attack.successIndicators) {
+            if (bodyLower.includes(indicator.toLowerCase())) {
+              success = true;
+              evidence = `${attack.category.toUpperCase()}: "${indicator}" found at ${testUrl} (status ${status})`;
+              screenshot = await this.takeScreenshot(page, attack.id, attack.category);
+              steps.push(`VULNERABILITY CONFIRMED: "${indicator}" detected`);
+              break;
+            }
+          }
+          if (success) break;
+
+          if (attack.category === 'info-leak' && status === 200 && bodyText.length > 100) {
+            const sensitivePatterns = [/password/i, /api[_-]?key/i, /secret/i, /token/i, /credential/i, /private/i];
+            for (const pattern of sensitivePatterns) {
+              if (pattern.test(bodyText)) {
+                success = true;
+                evidence = `Information leak: sensitive data pattern "${pattern.source}" found at ${testUrl}`;
+                screenshot = await this.takeScreenshot(page, attack.id, 'info-leak');
+                steps.push(`VULNERABILITY CONFIRMED: Sensitive data exposed`);
+                break;
+              }
+            }
+            if (success) break;
+          }
+        } catch { /* timeout */ }
+      }
+    } finally {
+      await page.close();
+    }
+
+    return {
+      attack, pageUrl, success,
+      evidence: evidence || 'No issues detected',
+      screenshot, duration: Date.now() - start, reproductionSteps: steps,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private async executeAccessibilityCheck(attack: Attack, pageUrl: string): Promise<AttackResult> {
+    const start = Date.now();
+    const steps: string[] = [];
+    let evidence = '';
+    let success = false;
+    let screenshot: string | undefined;
+
+    const page = await this.context.newPage();
+    try {
+      const targetUrl = attack.target.url || pageUrl;
+      steps.push(`Navigate to ${targetUrl}`);
+      await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+      await page.waitForTimeout(1000);
+
+      const a11yResults = await page.evaluate(() => {
+        const issues: Array<{ type: string; element: string; detail: string }> = [];
+
+        document.querySelectorAll('img').forEach((img) => {
+          if (!img.alt && !img.getAttribute('role')) {
+            issues.push({ type: 'missing-alt', element: img.outerHTML.substring(0, 120), detail: 'Image missing alt text' });
+          }
+        });
+
+        document.querySelectorAll('input, textarea, select').forEach((el) => {
+          const input = el as HTMLInputElement;
+          const id = input.id;
+          const hasLabel = id ? !!document.querySelector(`label[for="${id}"]`) : false;
+          const hasAriaLabel = !!input.getAttribute('aria-label') || !!input.getAttribute('aria-labelledby');
+          const hasTitle = !!input.title;
+          if (!hasLabel && !hasAriaLabel && !hasTitle && input.type !== 'hidden' && input.type !== 'submit') {
+            issues.push({ type: 'missing-label', element: `<${el.tagName.toLowerCase()} name="${input.name}" type="${input.type}">`, detail: 'Form input missing associated label or aria-label' });
+          }
+        });
+
+        document.querySelectorAll('button, [role="button"]').forEach((btn) => {
+          const text = btn.textContent?.trim();
+          const ariaLabel = btn.getAttribute('aria-label');
+          if (!text && !ariaLabel) {
+            issues.push({ type: 'empty-button', element: btn.outerHTML.substring(0, 120), detail: 'Button has no accessible name' });
+          }
+        });
+
+        const headings = Array.from(document.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+        let prevLevel = 0;
+        for (const h of headings) {
+          const level = parseInt(h.tagName[1]);
+          if (prevLevel > 0 && level > prevLevel + 1) {
+            issues.push({ type: 'heading-skip', element: `<${h.tagName.toLowerCase()}>`, detail: `Heading level skipped from h${prevLevel} to h${level}` });
+          }
+          prevLevel = level;
+        }
+
+        const hasH1 = headings.some((h) => h.tagName === 'H1');
+        if (!hasH1 && headings.length > 0) {
+          issues.push({ type: 'no-h1', element: 'document', detail: 'Page has headings but no h1 element' });
+        }
+
+        const hasSkipLink = !!document.querySelector('a[href="#main"], a[href="#content"], .skip-link, .skip-to-content');
+        if (!hasSkipLink) {
+          issues.push({ type: 'no-skip-link', element: 'document', detail: 'No skip-to-content navigation link found' });
+        }
+
+        document.querySelectorAll('a[href]').forEach((a) => {
+          const text = a.textContent?.trim();
+          const ariaLabel = a.getAttribute('aria-label');
+          if (!text && !ariaLabel) {
+            const img = a.querySelector('img');
+            if (!img || !img.alt) {
+              issues.push({ type: 'empty-link', element: a.outerHTML.substring(0, 120), detail: 'Link has no accessible text' });
+            }
+          }
+        });
+
+        const htmlLang = document.documentElement.lang;
+        if (!htmlLang) {
+          issues.push({ type: 'no-lang', element: '<html>', detail: 'HTML element missing lang attribute' });
+        }
+
+        return issues;
+      });
+
+      steps.push(`Found ${a11yResults.length} accessibility issues`);
+
+      for (const indicator of attack.successIndicators) {
+        const indicatorLower = indicator.toLowerCase();
+        const matching = a11yResults.filter((r) =>
+          r.type.toLowerCase().includes(indicatorLower) ||
+          r.detail.toLowerCase().includes(indicatorLower),
+        );
+        if (matching.length > 0) {
+          success = true;
+          evidence = `Accessibility: ${matching.length} "${indicator}" issues found. ${matching.slice(0, 3).map((m) => m.detail).join('; ')}`;
+          screenshot = await this.takeScreenshot(page, attack.id, 'a11y');
+          steps.push(`ISSUE FOUND: ${evidence}`);
+          break;
+        }
+      }
+
+      if (!success && a11yResults.length > 0) {
+        success = true;
+        const summary = a11yResults.slice(0, 5).map((r) => `${r.type}: ${r.detail}`).join('; ');
+        evidence = `${a11yResults.length} accessibility violations found: ${summary}`;
+        screenshot = await this.takeScreenshot(page, attack.id, 'a11y-auto');
+        steps.push(`ISSUE FOUND: ${evidence}`);
+      }
+    } finally {
+      await page.close();
+    }
+
+    return {
+      attack, pageUrl, success,
+      evidence: evidence || 'No accessibility issues detected',
+      screenshot, duration: Date.now() - start, reproductionSteps: steps,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private async executeUxCheck(attack: Attack, pageUrl: string): Promise<AttackResult> {
+    const start = Date.now();
+    const steps: string[] = [];
+    let evidence = '';
+    let success = false;
+    let screenshot: string | undefined;
+
+    const page = await this.context.newPage();
+    try {
+      const targetUrl = attack.target.url || pageUrl;
+      steps.push(`Navigate to ${targetUrl}`);
+
+      const navStart = Date.now();
+      await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+      const loadTime = Date.now() - navStart;
+      steps.push(`Page load time: ${loadTime}ms`);
+
+      const uxResults = await page.evaluate(() => {
+        const issues: Array<{ type: string; detail: string }> = [];
+
+        const brokenImages = document.querySelectorAll('img');
+        brokenImages.forEach((img) => {
+          if (!img.complete || img.naturalWidth === 0) {
+            issues.push({ type: 'broken-image', detail: `Broken image: ${img.src?.substring(0, 100)}` });
+          }
+        });
+
+        document.querySelectorAll('a[href]').forEach((a) => {
+          const href = (a as HTMLAnchorElement).href;
+          if (!href || href === '#' || href === 'javascript:void(0)') {
+            issues.push({ type: 'dead-link', detail: `Non-functional link: "${a.textContent?.trim()?.substring(0, 50)}"` });
+          }
+        });
+
+        document.querySelectorAll('form').forEach((form, i) => {
+          const inputs = form.querySelectorAll('input:not([type="hidden"]):not([type="submit"]), textarea, select');
+          inputs.forEach((input) => {
+            const el = input as HTMLInputElement;
+            if (!el.placeholder && !el.getAttribute('aria-label')) {
+              const id = el.id;
+              const hasLabel = id ? !!document.querySelector(`label[for="${id}"]`) : false;
+              if (!hasLabel) {
+                issues.push({ type: 'unlabeled-input', detail: `Form ${i + 1}: input "${el.name || el.type}" has no label or placeholder` });
+              }
+            }
+          });
+        });
+
+        const viewport = { w: window.innerWidth, h: window.innerHeight };
+        document.querySelectorAll('*').forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.right > viewport.w + 10 && rect.width > 0) {
+            issues.push({ type: 'overflow', detail: `Element overflows viewport: <${el.tagName.toLowerCase()}>` });
+          }
+        });
+
+        return issues;
+      });
+
+      if (loadTime > 5000) {
+        uxResults.push({ type: 'slow-load', detail: `Page took ${loadTime}ms to load (> 5s threshold)` });
+      }
+
+      steps.push(`Found ${uxResults.length} UX issues`);
+
+      for (const indicator of attack.successIndicators) {
+        const indicatorLower = indicator.toLowerCase();
+        const matching = uxResults.filter((r) =>
+          r.type.toLowerCase().includes(indicatorLower) ||
+          r.detail.toLowerCase().includes(indicatorLower),
+        );
+        if (matching.length > 0) {
+          success = true;
+          evidence = `UX: ${matching.length} "${indicator}" issues. ${matching.slice(0, 3).map((m) => m.detail).join('; ')}`;
+          screenshot = await this.takeScreenshot(page, attack.id, 'ux');
+          steps.push(`ISSUE FOUND: ${evidence}`);
+          break;
+        }
+      }
+
+      if (!success && uxResults.length > 0) {
+        success = true;
+        const summary = uxResults.slice(0, 5).map((r) => `${r.type}: ${r.detail}`).join('; ');
+        evidence = `${uxResults.length} UX issues found: ${summary}`;
+        screenshot = await this.takeScreenshot(page, attack.id, 'ux-auto');
+        steps.push(`ISSUE FOUND: ${evidence}`);
+      }
+    } finally {
+      await page.close();
+    }
+
+    return {
+      attack, pageUrl, success,
+      evidence: evidence || 'No UX issues detected',
+      screenshot, duration: Date.now() - start, reproductionSteps: steps,
       timestamp: new Date().toISOString(),
     };
   }

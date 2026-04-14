@@ -5,7 +5,7 @@ import { PageMap, FormInfo, InputInfo, LinkInfo, CookieInfo, StorageInfo, Nemesi
 
 /**
  * Reconnaissance module — crawls the target app and maps every page,
- * form, input, link, and cookie. This is the "eyes" of NEMESIS.
+ * form, input, link, and cookie. This is the "eyes" of SENTINEL.
  */
 export class Recon {
   private browser: Browser | null = null;

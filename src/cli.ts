@@ -15,7 +15,7 @@ if (args.includes('--help') || args.includes('-h') || args.length === 0) {
 
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
-║                     NEMESIS v3.0                         ║
+║                     SENTINEL v3.0                         ║
 ║        AI Red Team + QA — LLM-Powered Testing            ║
 ╚══════════════════════════════════════════════════════════╝
 
@@ -26,25 +26,25 @@ Step 1: Launch the demo app
   npx tsx src/cli.ts --demo
 
 Step 2: In Cursor/VSCode chat, run the scan with docs:
-  "Call nemesis_scan with:
+  "Call sentinel_scan with:
    - targetUrl: http://localhost:<port shown above>
    - docPath: ${docsPath}
    - exampleData: {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Hello world"}
    - headed: true
    Then generate security attacks, functional tests, and exploratory tests.
-   Call nemesis_attack with your plans."
+   Call sentinel_attack with your plans."
 
-Step 3: View reports in ./nemesis-results/
+Step 3: View reports in ./sentinel-results/
 
 SCANNING YOUR OWN APP
 ═════════════════════
 
-  "Call nemesis_scan with:
+  "Call sentinel_scan with:
    - targetUrl: http://localhost:3000
    - docPath: ./path/to/your/DOCS.md
    - auth: {type: 'form-login', loginUrl: 'http://localhost:3000/login', username: 'admin', password: 'secret'}
    - exampleData: {"searchQuery": "test item", "formField": "sample value"}
-   Then generate tests and call nemesis_attack."
+   Then generate tests and call sentinel_attack."
 
 MCP SETUP
 ═════════
@@ -53,7 +53,7 @@ Add to your mcp.json (user-level or workspace):
 
   {
     "servers": {
-      "nemesis": {
+      "sentinel": {
         "type": "stdio",
         "command": "node",
         "args": ["${mcpPath}"]
@@ -64,11 +64,11 @@ Add to your mcp.json (user-level or workspace):
 MCP TOOLS
 ═════════
 
-  nemesis_scan       Full pipeline: crawl + read docs + load knowledge (recommended)
-  nemesis_recon      Crawl only (if you want manual control)
-  nemesis_attack     Execute LLM-generated test plans
-  nemesis_learn      Store app knowledge from documentation
-  nemesis_knowledge  Query what NEMESIS has learned
+  sentinel_scan       Full pipeline: crawl + read docs + load knowledge (recommended)
+  sentinel_recon      Crawl only (if you want manual control)
+  sentinel_attack     Execute LLM-generated test plans
+  sentinel_learn      Store app knowledge from documentation
+  sentinel_knowledge  Query what SENTINEL has learned
 
 AUTH TYPES
 ══════════
@@ -87,7 +87,7 @@ AUTH TYPES
 const demo = args.includes('--demo');
 
 if (!demo) {
-  console.error('Error: Use --demo to launch the demo app, or use NEMESIS via MCP in Cursor/VSCode.');
+  console.error('Error: Use --demo to launch the demo app, or use SENTINEL via MCP in Cursor/VSCode.');
   process.exit(1);
 }
 
@@ -107,11 +107,11 @@ async function main() {
 
 NOW IN CURSOR/VSCODE CHAT, SAY:
 
-  "Call nemesis_scan with targetUrl '${url}',
+  "Call sentinel_scan with targetUrl '${url}',
    docPath '${docsPath}',
    exampleData {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product"},
    headed true.
-   Then generate security + functional + exploratory tests and call nemesis_attack."
+   Then generate security + functional + exploratory tests and call sentinel_attack."
 
 Press Ctrl+C to stop.
 `);

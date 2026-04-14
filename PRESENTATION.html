@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEMESIS — AI Red Team + QA</title>
+  <title>SENTINEL — AI Security, Accessibility & QA</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -171,11 +171,6 @@
     .ai-role p { color: var(--muted); font-size: 0.82rem; }
     .ai-role .role-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; background: rgba(168,85,247,0.15); color: var(--purple); margin-bottom: 0.5rem; }
 
-    .titan-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
-    .titan-header .titan-badge { background: linear-gradient(135deg, var(--blue), var(--purple)); color: #fff; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.05em; }
-    .titan-header .titan-meta { color: var(--muted); font-size: 0.9rem; }
-    .titan-header .titan-meta strong { color: var(--text); }
-
     .finding-card { background: var(--surface); border-radius: 12px; padding: 1.5rem; border-left: 4px solid; margin-bottom: 1rem; }
     .finding-card.critical { border-color: var(--red); }
     .finding-card.high { border-color: var(--orange); }
@@ -192,14 +187,14 @@
 <body>
 
 <nav>
-  <span class="brand">NEMESIS</span>
+  <span class="brand">SENTINEL</span>
   <div class="links">
     <a href="#hero">Home</a>
     <a href="#how">How It Works</a>
     <a href="#arch">Architecture</a>
     <a href="#brain">Knowledge</a>
     <a href="#features">Features</a>
-    <a href="#titan">Enterprise</a>
+    <a href="#dashboard">Dashboard</a>
     <a href="#demo">Demo App</a>
     <a href="#compare">vs. Rapid7/AppScan</a>
   </div>
@@ -207,23 +202,23 @@
 
 <!-- HERO -->
 <section id="hero" class="hero">
-  <h1>NEMESIS</h1>
+  <h1>SENTINEL</h1>
   <p class="tagline">AI-Powered Security &amp; QA Testing &mdash; <strong>Give it a URL. It does the rest.</strong></p>
   <div class="one-liner">
     <span class="prompt">You:</span> "Here's my app, my docs, and my login. Test everything."
   </div>
   <p style="color:var(--muted); max-width:700px; margin:0 auto;">
-    NEMESIS reads your product documentation, logs into your app (even through enterprise SSO),
+    SENTINEL reads your product documentation, logs into your app (even through enterprise SSO),
     explores every page, and then designs and runs security tests, functional checks, and edge-case exploration &mdash;
     all in a real browser. It learns from every run, so it gets smarter over time. No setup. No scripting. No hardcoded rules.
   </p>
 
   <div class="stats-bar">
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Setup Required</div></div>
-    <div class="stat-card fade-in"><div class="value">4-in-1</div><div class="label">Security + QA + Validation + Exploration</div></div>
+    <div class="stat-card fade-in"><div class="value">16</div><div class="label">Attack Categories</div></div>
     <div class="stat-card fade-in"><div class="value">5</div><div class="label">Login Methods Supported</div></div>
     <div class="stat-card fade-in"><div class="value">0</div><div class="label">Hardcoded Rules</div></div>
-    <div class="stat-card fade-in"><div class="value">23</div><div class="label">Issues Found (Demo + Enterprise)</div></div>
+    <div class="stat-card fade-in"><div class="value">4</div><div class="label">Report Formats (HTML, MD, JSON, SARIF)</div></div>
   </div>
 </section>
 
@@ -232,7 +227,7 @@
   <div class="section-header fade-in">
     <div class="number">01 / How It Works</div>
     <h2>From One Prompt to a Full Security &amp; QA Report</h2>
-    <p>You give NEMESIS a URL, your product docs, and login credentials. It reads everything, logs in like a real user, explores the app, designs tests, runs them, and delivers a report &mdash; all automatically.</p>
+    <p>You give SENTINEL a URL, your product docs, and login credentials. It reads everything, logs in like a real user, explores the app, designs tests, runs them, and delivers a report &mdash; all automatically.</p>
   </div>
 
   <!-- Visual flow: 5 steps, plain language -->
@@ -240,11 +235,11 @@
     <div class="pipe-step fade-in" style="border-color: var(--cyan);">
       <div class="step-num" style="color: var(--cyan);">STEP 1</div>
       <h3>You Provide the Basics</h3>
-      <p>Point NEMESIS at your app: the URL, your product documentation, login credentials, and sample data (e.g. a search term or a test user name). That's all you need.</p>
+      <p>Point SENTINEL at your app: the URL, your product documentation, login credentials, and sample data (e.g. a search term or a test user name). That's all you need.</p>
     </div>
     <div class="pipe-step fade-in" style="border-color: var(--purple);">
       <div class="step-num" style="color: var(--purple);">STEP 2</div>
-      <h3>NEMESIS Reads &amp; Explores</h3>
+      <h3>SENTINEL Reads &amp; Explores</h3>
       <p>It reads your docs to understand the app. Then it opens a real browser, logs in (even through enterprise SSO), and crawls every page &mdash; mapping forms, buttons, menus, and routes.</p>
     </div>
     <div class="pipe-step fade-in" style="border-color: var(--orange);">
@@ -260,7 +255,7 @@
     <div class="pipe-step fade-in" style="border-color: var(--green);">
       <div class="step-num" style="color: var(--green);">STEP 5</div>
       <h3>Report &amp; Remember</h3>
-      <p>You get a clear report with every finding, severity, and screenshot proof. NEMESIS remembers what worked &mdash; the next scan starts smarter.</p>
+      <p>You get a clear report with every finding, severity, and screenshot proof. SENTINEL remembers what worked &mdash; the next scan starts smarter.</p>
     </div>
   </div>
 
@@ -284,32 +279,32 @@
       <div class="feature-card fade-in">
         <span class="tag" style="background: rgba(6,182,212,0.15); color: var(--cyan);">Step 1</span>
         <h3>You Say What to Test</h3>
-        <p>In plain English, you tell NEMESIS: <em>"Here's my app URL, here's the documentation, here are the login credentials, and here's some example data."</em> One prompt. No configuration files, no setup wizards, no scripting.</p>
+        <p>In plain English, you tell SENTINEL: <em>"Here's my app URL, here's the documentation, here are the login credentials, and here's some example data."</em> One prompt. No configuration files, no setup wizards, no scripting.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag" style="background: rgba(168,85,247,0.15); color: var(--purple);">Step 2</span>
         <h3>It Understands Your App</h3>
-        <p>NEMESIS reads your product documentation to learn what the app does &mdash; its pages, features, user flows, and business rules. Then it opens a real browser, logs in (handling SSO, multi-factor, and consent screens), and maps every page, form, and button it finds.</p>
+        <p>SENTINEL reads your product documentation to learn what the app does &mdash; its pages, features, user flows, and business rules. Then it opens a real browser, logs in (handling SSO, multi-factor, and consent screens), and maps every page, form, and button it finds.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag" style="background: rgba(249,115,22,0.15); color: var(--orange);">Step 3</span>
         <h3>AI Creates a Custom Test Plan</h3>
-        <p>Unlike traditional scanners that run the same generic checks on every app, NEMESIS builds a test plan <strong>specific to your application</strong>. It knows your routes, your forms, your data model &mdash; so it tests what matters. Security attacks, functional smoke tests, input validation, and edge cases are all generated fresh.</p>
+        <p>Unlike traditional scanners that run the same generic checks on every app, SENTINEL builds a test plan <strong>specific to your application</strong>. It knows your routes, your forms, your data model &mdash; so it tests what matters. Security attacks, functional smoke tests, input validation, and edge cases are all generated fresh.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag ai">Step 4</span>
         <h3>Real Browser, Real Testing</h3>
-        <p>Tests run in a real Chromium browser &mdash; not a proxy or a packet sniffer. NEMESIS clicks buttons, fills out forms, submits data, navigates between pages, and tries malicious inputs. Every action is captured with a screenshot so you can see exactly what happened.</p>
+        <p>Tests run in a real Chromium browser &mdash; not a proxy or a packet sniffer. SENTINEL clicks buttons, fills out forms, submits data, navigates between pages, and tries malicious inputs. Every action is captured with a screenshot so you can see exactly what happened.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag" style="background: rgba(34,197,94,0.15); color: var(--green);">Step 5</span>
         <h3>Clear Reports, Growing Intelligence</h3>
-        <p>Results come back as a prioritized list: critical issues at the top, passing checks at the bottom. Reports are available in HTML, Markdown, and formats that plug into your CI/CD pipeline. Every successful finding is saved &mdash; the next time you scan, NEMESIS already knows what worked and starts from a smarter baseline.</p>
+        <p>Results come back as a prioritized list: critical issues at the top, passing checks at the bottom. Reports are available in HTML, Markdown, and formats that plug into your CI/CD pipeline. Every successful finding is saved &mdash; the next time you scan, SENTINEL already knows what worked and starts from a smarter baseline.</p>
       </div>
       <div class="feature-card fade-in">
         <span class="tag brain">The Key Difference</span>
         <h3>No Hardcoded Patterns</h3>
-        <p>Traditional security scanners ship with a static database of thousands of known attack patterns and run them all blindly. NEMESIS ships with <strong>zero</strong>. The AI generates every test, every payload, and every detection rule on the fly &mdash; tailored to the specific app it's testing. This means it can find issues that cookie-cutter scanners miss.</p>
+        <p>Traditional security scanners ship with a static database of thousands of known attack patterns and run them all blindly. SENTINEL ships with <strong>zero</strong>. The AI generates every test, every payload, and every detection rule on the fly &mdash; tailored to the specific app it's testing. This means it can find issues that cookie-cutter scanners miss.</p>
       </div>
     </div>
   </div>
@@ -317,7 +312,7 @@
   <!-- Brief Tech Flow -->
   <div style="margin-top: 3rem;" class="fade-in">
     <h3 style="margin-bottom: 0.5rem; font-size: 1.3rem;">Brief Tech Flow</h3>
-    <p style="color: var(--muted); margin-bottom: 1.5rem;">The 10-step pipeline from a single <code style="color: var(--green);">nemesis_scan</code> call to a full report.</p>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">The 10-step pipeline from a single <code style="color: var(--green);">sentinel_scan</code> call to a full report.</p>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;" class="fade-in">
@@ -344,7 +339,7 @@
     <div class="pipe-step" style="border-color: var(--orange); padding: 1rem;">
       <div class="step-num" style="color: var(--orange);">5</div>
       <h3 style="font-size: 0.85rem;">Load Knowledge</h3>
-      <p style="font-size: 0.72rem;">Past payloads from nemesis-knowledge.json</p>
+      <p style="font-size: 0.72rem;">Past payloads from sentinel-knowledge.json</p>
     </div>
   </div>
   <div style="text-align: center; color: var(--red); font-size: 1.5rem; margin: 0.25rem 0;">&#8595;</div>
@@ -377,7 +372,7 @@
   </div>
 
   <div style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(239,68,68,0.06)); border: 1px solid rgba(168,85,247,0.25); border-radius: 12px; padding: 1.25rem;" class="fade-in">
-    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In NEMESIS, all recon, docs, and history feed an LLM that <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
+    <p style="color: var(--muted); font-size: 0.9rem; margin: 0;"><strong style="color: var(--purple);">Step 6 is the key.</strong> In Rapid7/AppScan, steps 1&ndash;5 feed a static rule engine. In SENTINEL, all recon, docs, and history feed an LLM that <em>reasons</em> about what to test. The AI knows this app uses Integration Server with CSRF tokens, so it tests CSRF bypass. It read that <code>/folder/:folderId</code> is a route, so it tests IDOR. A generic scanner would never reach these.</p>
   </div>
 
   <!-- Simple analogy box for executives -->
@@ -388,7 +383,7 @@
         <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--text);">Traditional scanners</strong> are like a locksmith who tries the same 10,000 keys on every door. Most don't fit. It's slow, noisy, and misses custom locks.</p>
       </div>
       <div>
-        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--red);">NEMESIS</strong> is like hiring a security expert who reads the building blueprints first, understands how each door works, and then picks only the right tools for each lock. Faster, smarter, and more thorough.</p>
+        <p style="color: var(--muted); font-size: 0.95rem; margin-bottom: 0.5rem;"><strong style="color: var(--red);">SENTINEL</strong> is like hiring a security expert who reads the building blueprints first, understands how each door works, and then picks only the right tools for each lock. Faster, smarter, and more thorough.</p>
       </div>
     </div>
   </div>
@@ -398,8 +393,8 @@
 <section id="arch">
   <div class="section-header fade-in">
     <div class="number">02 / Architecture</div>
-    <h2>How NEMESIS Is Built &mdash; And Where AI Lives</h2>
-    <p>NEMESIS is an MCP (Model Context Protocol) server that runs inside your IDE. The AI model is the brain &mdash; it reads docs, analyzes recon data, generates every test, and decides what to attack. The server provides the hands: a real browser, authentication, crawling, and evidence capture.</p>
+    <h2>How SENTINEL Is Built &mdash; And Where AI Lives</h2>
+    <p>SENTINEL is an MCP (Model Context Protocol) server that runs inside your IDE. The AI model is the brain &mdash; it reads docs, analyzes recon data, generates every test, and decides what to attack. The server provides the hands: a real browser, authentication, crawling, and evidence capture.</p>
   </div>
 
   <!-- Layered architecture diagram -->
@@ -417,11 +412,11 @@
     <div class="arch-layer">
       <div class="arch-layer-label" style="color: var(--red);">MCP Protocol<br><span style="font-weight:400; font-size:0.7rem; color:var(--muted);">The Interface</span></div>
       <div class="arch-layer-content">
-        <div class="arch-chip mcp"><span class="chip-icon">&#128640;</span> nemesis_scan</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#128065;</span> nemesis_recon</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#9876;</span> nemesis_attack</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#128218;</span> nemesis_learn</div>
-        <div class="arch-chip mcp"><span class="chip-icon">&#129504;</span> nemesis_knowledge</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128640;</span> sentinel_scan</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128065;</span> sentinel_recon</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#9876;</span> sentinel_attack</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#128218;</span> sentinel_learn</div>
+        <div class="arch-chip mcp"><span class="chip-icon">&#129504;</span> sentinel_knowledge</div>
       </div>
     </div>
     <div class="arch-layer">
@@ -497,7 +492,7 @@
     <div class="arch-flow fade-in">
       <div class="arch-node" style="border-color: var(--cyan);">You: URL + Docs + Creds</div>
       <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">nemesis_scan</span></div>
+      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">sentinel_scan</span></div>
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Auth + Crawl</span></div>
       <div class="arch-arrow">&rarr;</div>
@@ -505,7 +500,7 @@
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node highlight" style="border-color: var(--purple);">LLM Generates<br><span style="font-size:0.7rem; color:var(--muted);">Test Plans + Payloads</span></div>
       <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">nemesis_attack</span></div>
+      <div class="arch-node highlight" style="border-color: var(--red);">MCP Server<br><span style="font-size:0.7rem; color:var(--muted);">sentinel_attack</span></div>
       <div class="arch-arrow">&rarr;</div>
       <div class="arch-node" style="border-color: var(--cyan);">Playwright<br><span style="font-size:0.7rem; color:var(--muted);">Execute + Screenshot</span></div>
       <div class="arch-arrow">&rarr;</div>
@@ -532,8 +527,8 @@
 <section id="brain">
   <div class="section-header fade-in">
     <div class="number">03 / It Gets Smarter Over Time</div>
-    <h2>NEMESIS Remembers What Works</h2>
-    <p>Every time NEMESIS tests an app, it saves what it learned. The next scan starts from a smarter baseline &mdash; it knows your app's structure, what tests found issues before, and what passed. Each app has its own separate memory.</p>
+    <h2>SENTINEL Remembers What Works</h2>
+    <p>Every time SENTINEL tests an app, it saves what it learned. The next scan starts from a smarter baseline &mdash; it knows your app's structure, what tests found issues before, and what passed. Each app has its own separate memory.</p>
   </div>
 
   <div class="knowledge-flow fade-in">
@@ -563,7 +558,7 @@
     <div class="feature-card fade-in">
       <span class="tag brain">How It Works</span>
       <h3>One Prompt Is All You Need</h3>
-      <p>You provide the URL, your product documentation, login credentials, and some example data. NEMESIS reads the docs to understand the app, logs in, explores every page, and brings all that context to the AI for test planning.</p>
+      <p>You provide the URL, your product documentation, login credentials, and some example data. SENTINEL reads the docs to understand the app, logs in, explores every page, and brings all that context to the AI for test planning.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag brain">Per-App Memory</span>
@@ -573,14 +568,14 @@
     <div class="feature-card fade-in">
       <span class="tag brain">Continuous Improvement</span>
       <h3>Smarter With Every Scan</h3>
-      <p>Found a vulnerability on Monday? NEMESIS remembers the exact test that found it. On Tuesday, it starts with that knowledge and builds on it. Close the tool, reopen it next week &mdash; the memory persists.</p>
+      <p>Found a vulnerability on Monday? SENTINEL remembers the exact test that found it. On Tuesday, it starts with that knowledge and builds on it. Close the tool, reopen it next week &mdash; the memory persists.</p>
     </div>
   </div>
 
-  <!-- nemesis-knowledge.json deep-dive -->
+  <!-- sentinel-knowledge.json deep-dive -->
   <div style="margin-top: 3rem;" class="fade-in">
-    <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">Inside <code style="color: var(--red); font-family: 'JetBrains Mono', monospace;">nemesis-knowledge.json</code></h3>
-    <p style="color: var(--muted); margin-bottom: 1.5rem;">This local JSON file is NEMESIS's long-term memory. Every scan writes to it. Every future scan reads from it. Think of it as the AI's personal pentester notebook.</p>
+    <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">Inside <code style="color: var(--red); font-family: 'JetBrains Mono', monospace;">sentinel-knowledge.json</code></h3>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">This local JSON file is SENTINEL's long-term memory. Every scan writes to it. Every future scan reads from it. Think of it as the AI's personal pentester notebook.</p>
   </div>
 
   <div class="arch-diagram fade-in" style="grid-template-columns: 180px 1fr;">
@@ -650,40 +645,60 @@
 <section id="features">
   <div class="section-header fade-in">
     <div class="number">04 / What It Tests</div>
-    <h2>Four Types of Testing, One Tool</h2>
-    <p>Most tools do one thing. NEMESIS replaces your security scanner, your QA tester, your input validation suite, and your exploratory tester &mdash; all in a single run.</p>
+    <h2>Six Types of Testing, One Tool</h2>
+    <p>Most tools do one thing. SENTINEL replaces your security scanner, your QA tester, your input validation suite, your accessibility auditor, your UX checker, and your exploratory tester &mdash; all in a single run.</p>
   </div>
 
   <div class="features">
     <div class="feature-card fade-in">
       <span class="tag security">Security Testing</span>
       <h3>Can a Hacker Break In?</h3>
-      <p>NEMESIS tries to hack your app the way a real attacker would: SQL injection, cross-site scripting, bypassing login, accessing files it shouldn't, and more. Every attempt is documented with screenshot evidence.</p>
+      <p>SENTINEL tries to hack your app the way a real attacker would: SQL injection, cross-site scripting, bypassing login, accessing files it shouldn't, and more. Every attempt is documented with screenshot evidence.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag qa">Functional Testing</span>
       <h3>Does the App Actually Work?</h3>
-      <p>Does search return the right results? Does login work with valid credentials? Do dialogs open and display the correct fields? NEMESIS tests your app's features like a QA engineer would.</p>
+      <p>Does search return the right results? Does login work with valid credentials? Do dialogs open and display the correct fields? SENTINEL tests your app's features like a QA engineer would.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag ai">Input Validation</span>
       <h3>What Happens With Bad Input?</h3>
-      <p>Special characters, extremely long text, empty fields, foreign language characters. NEMESIS tests every input field to make sure your app handles unexpected data gracefully instead of crashing or leaking information.</p>
+      <p>Special characters, extremely long text, empty fields, foreign language characters. SENTINEL tests every input field to make sure your app handles unexpected data gracefully instead of crashing or leaking information.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag ai">Exploratory Testing</span>
       <h3>What Did Nobody Think to Test?</h3>
-      <p>NEMESIS explores like a curious user: trying invalid URLs, clicking things in unexpected order, entering boundary values. It finds the edge cases that scripted tests miss because nobody thought to write a test for them.</p>
+      <p>SENTINEL explores like a curious user: trying invalid URLs, clicking things in unexpected order, entering boundary values. It finds the edge cases that scripted tests miss because nobody thought to write a test for them.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag enterprise">Enterprise Login Support</span>
       <h3>Works With Your SSO</h3>
-      <p>NEMESIS handles enterprise single sign-on automatically: it clicks the login button, gets redirected to your identity provider, fills in credentials, handles consent screens, and waits for the redirect back. Works with Hyland, Okta, Azure AD, and more.</p>
+      <p>SENTINEL handles enterprise single sign-on automatically: it clicks the login button, gets redirected to your identity provider, fills in credentials, handles consent screens, and waits for the redirect back. Works with Hyland, Okta, Azure AD, and more.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag security">API Security</span>
+      <h3>Tests Your APIs Too</h3>
+      <p>SENTINEL doesn't just test web pages &mdash; it probes your JSON APIs for SSRF, IDOR, mass assignment, information disclosure, and insecure direct object references. It reads your API docs and generates targeted API-specific attacks.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag ci">Pipeline-Ready Reports</span>
       <h3>Results You Can Act On</h3>
-      <p>Get results as a visual HTML report, a Markdown summary, or in SARIF format that plugs directly into GitHub's Security tab. Run NEMESIS in your CI/CD pipeline and see findings as alerts alongside your code.</p>
+      <p>Get results as a visual HTML report, a Markdown summary, or in SARIF format that plugs directly into GitHub's Security tab. Every finding includes CWE references and remediation recommendations.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(168,85,247,0.15); color: var(--purple);">Accessibility</span>
+      <h3>WCAG Compliance Checks</h3>
+      <p>SENTINEL audits your app for accessibility violations: missing alt text, unlabeled form inputs, broken heading hierarchy, missing skip-to-content links, and missing lang attributes. Catches issues that block screen readers and keyboard users.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(6,182,212,0.15); color: var(--cyan);">UX Testing</span>
+      <h3>Usability &amp; Quality Checks</h3>
+      <p>Broken images, dead links, slow page loads, unlabeled inputs, and content overflow. SENTINEL checks the user experience basics that manual QA often misses, ensuring your app works well for real users.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--red);">Web Dashboard</span>
+      <h3>Beautiful Real-Time UI</h3>
+      <p>No IDE required. Run SENTINEL from a standalone web dashboard &mdash; enter a URL, watch the scan in real-time with live progress, and get an interactive results dashboard with severity cards, risk gauge, category breakdown, and downloadable reports.</p>
     </div>
   </div>
 
@@ -714,119 +729,78 @@
   </div>
 
   <div style="margin-top: 3rem;">
-    <h3 style="margin-bottom: 1rem;">Test Categories</h3>
+    <h3 style="margin-bottom: 1rem;">16 Attack Categories</h3>
     <div class="attack-grid">
       <div class="attack-item critical"><h4>SQL Injection <span class="severity-badge critical">Critical</span></h4><p>DB-specific payloads tailored to the tech stack</p></div>
       <div class="attack-item high"><h4>Cross-Site Scripting <span class="severity-badge high">High</span></h4><p>Reflected and stored XSS with DOM verification</p></div>
       <div class="attack-item critical"><h4>Auth Bypass <span class="severity-badge critical">Critical</span></h4><p>Unauthenticated access + credential brute-force</p></div>
       <div class="attack-item critical"><h4>Path Traversal <span class="severity-badge critical">Critical</span></h4><p>Directory traversal via URL params and file inputs</p></div>
+      <div class="attack-item critical"><h4>SSRF <span class="severity-badge critical">Critical</span></h4><p>Server-side request forgery via URL proxy endpoints</p></div>
+      <div class="attack-item high"><h4>IDOR <span class="severity-badge high">High</span></h4><p>Insecure direct object references on API endpoints</p></div>
+      <div class="attack-item high"><h4>Info Disclosure <span class="severity-badge high">High</span></h4><p>Debug endpoints, leaked credentials, verbose errors</p></div>
+      <div class="attack-item medium"><h4>Open Redirect <span class="severity-badge medium">Medium</span></h4><p>Unvalidated redirects to external domains</p></div>
       <div class="attack-item high"><h4>CORS / CSRF <span class="severity-badge high">High</span></h4><p>Wildcard origins, missing CSRF tokens, cookie issues</p></div>
+      <div class="attack-item medium"><h4>Storage Exposure <span class="severity-badge medium">Medium</span></h4><p>Tokens, API keys, credentials in browser storage</p></div>
       <div class="attack-item medium"><h4>Input Validation <span class="severity-badge medium">Medium</span></h4><p>Null bytes, CRLF, unicode, long strings, special chars</p></div>
       <div class="attack-item qa"><h4>Functional Tests <span class="severity-badge qa">QA</span></h4><p>Navigation, dialogs, create operations, search, logout</p></div>
       <div class="attack-item explore"><h4>Exploratory Tests <span class="severity-badge explore">Explore</span></h4><p>Edge cases, invalid IDs, deep routes, boundary values</p></div>
+      <div class="attack-item medium"><h4>DoS / ReDoS <span class="severity-badge medium">Medium</span></h4><p>Resource exhaustion, catastrophic regex backtracking</p></div>
+      <div class="attack-item explore"><h4>Accessibility (WCAG) <span class="severity-badge explore">A11Y</span></h4><p>Missing alt text, labels, heading hierarchy, skip links, contrast</p></div>
+      <div class="attack-item qa"><h4>UX / Usability <span class="severity-badge qa">UX</span></h4><p>Broken images, dead links, slow loads, unlabeled inputs</p></div>
     </div>
   </div>
 </section>
 
-<!-- ENTERPRISE: PROJECT TITAN -->
-<section id="titan">
+<!-- WEB DASHBOARD -->
+<section id="dashboard">
   <div class="section-header fade-in">
-    <div class="number">05 / Enterprise App Results</div>
-    <h2>Project Titan &mdash; Real Enterprise App, Real Findings</h2>
-    <p>NEMESIS scanned a production Hyland enterprise document management system &mdash; Angular 19, OIDC authentication through an external Identity Provider, Integration Server backend, CSRF protection. Here's what it found.</p>
+    <div class="number">05 / Web Dashboard</div>
+    <h2>A Beautiful Web UI &mdash; No IDE Required</h2>
+    <p>SENTINEL now ships with a standalone Next.js web dashboard. Enter a URL, watch the scan in real-time, and get an interactive results page with downloadable reports. Powered by GitHub Models API.</p>
   </div>
 
-  <div class="titan-header fade-in">
-    <div class="titan-badge">PROJECT TITAN</div>
-    <div class="titan-meta">
-      <strong>Angular 19</strong> &bull; OIDC/IDP Auth &bull; Integration Server API &bull; 6 Modules &bull; CSRF Protected
+  <div class="features">
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(239,68,68,0.15); color: var(--red);">Real-Time</span>
+      <h3>Live Scan Progress</h3>
+      <p>Watch every phase of the scan as it happens: reconnaissance, AI planning, attack execution, and findings appear in real-time via Server-Sent Events. No page refreshes, no waiting.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(168,85,247,0.15); color: var(--purple);">AI-Powered</span>
+      <h3>GitHub Models API</h3>
+      <p>The web dashboard uses GitHub's Models API (GPT-4o) to generate attack plans. Set your GITHUB_TOKEN and the AI handles everything &mdash; no IDE, no MCP server, no configuration.</p>
+    </div>
+    <div class="feature-card fade-in">
+      <span class="tag" style="background: rgba(34,197,94,0.15); color: var(--green);">Interactive</span>
+      <h3>Rich Results Dashboard</h3>
+      <p>Severity cards with animated counters, risk gauge, expandable finding cards with evidence and remediation, category breakdown chart, and one-click report downloads in HTML, Markdown, SARIF, and JSON.</p>
     </div>
   </div>
 
-  <div class="stats-bar">
-    <div class="stat-card fade-in"><div class="value">30</div><div class="label">Tests Executed</div></div>
-    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">9</div><div class="label">Issues Found</div></div>
-    <div class="stat-card fade-in"><div class="value">4</div><div class="label">High Severity</div></div>
-    <div class="stat-card fade-in"><div class="value">282s</div><div class="label">Scan Duration</div></div>
-    <div class="stat-card fade-in"><div class="value">21</div><div class="label">Tests Passed</div></div>
-  </div>
-
-  <!-- How it authenticated -->
-  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin: 2rem 0;" class="fade-in">
-    <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem;">How NEMESIS Got In</h3>
-    <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem;">Titan uses enterprise OIDC authentication with an external Hyland Identity Provider. NEMESIS handled the entire flow automatically:</p>
-    <div class="arch-flow" style="justify-content: flex-start;">
-      <div class="arch-node" style="font-size: 0.8rem;">Navigate to /home</div>
-      <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--cyan);">Click Login button</div>
-      <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--yellow);">Redirect to IDP</div>
-      <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--orange);">Fill IDP credentials</div>
-      <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--green);">Redirect back to /home</div>
-      <div class="arch-arrow">&rarr;</div>
-      <div class="arch-node" style="font-size: 0.8rem; border-color: var(--green);">Authenticated &check;</div>
+  <div style="margin-top: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;" class="fade-in">
+    <h3 style="margin-bottom: 1rem;">Dashboard Features</h3>
+    <div class="pass-grid">
+      <div class="pass-item"><span class="pass-icon">&check;</span> URL input with auth config</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Real-time SSE progress stream</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Animated severity counters</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Risk score gauge (0&ndash;100)</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Expandable finding cards</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Category breakdown chart</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Evidence + reproduction steps</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> CWE + remediation per finding</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> HTML/MD/SARIF/JSON downloads</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> Dark theme, responsive design</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> GitHub Models API (GPT-4o)</div>
+      <div class="pass-item"><span class="pass-icon">&check;</span> 16 attack categories</div>
     </div>
   </div>
 
-  <!-- Findings -->
-  <h3 style="margin-bottom: 1rem; font-size: 1.2rem;" class="fade-in">Vulnerabilities Discovered</h3>
-
-  <div class="finding-card critical fade-in">
-    <h4><span class="severity-badge critical">CRITICAL</span> CORS Reflects Arbitrary Origins with Credentials</h4>
-    <p>The server reflects any <code>Origin</code> header in <code>Access-Control-Allow-Origin</code> while setting <code>Access-Control-Allow-Credentials: true</code>. A malicious website can make authenticated cross-origin requests and read responses &mdash; enabling full session hijacking.</p>
-    <div class="evidence">ACAO: https://evil.com, ACAC: true &mdash; confirmed on both /home and /integrationserver/v2/connection</div>
-  </div>
-
-  <div class="finding-card critical fade-in">
-    <h4><span class="severity-badge critical">CRITICAL</span> CORS on API Endpoint with Credentials</h4>
-    <p>Same origin reflection confirmed on the Integration Server backend API. An attacker's site can call the API with the victim's cookies and read the response, including CSRF tokens and session data.</p>
-    <div class="evidence">fetch("https://project-titan.../v2/connection", {credentials: "include"}) &rarr; response readable from evil.com</div>
-  </div>
-
-  <div class="finding-card high fade-in">
-    <h4><span class="severity-badge high">HIGH</span> CSRF Token Stored in localStorage</h4>
-    <p>The CSRF token (<code>X-IntegrationServer-titan-CSRFToken</code>) is stored in <code>localStorage</code>, making it readable by any JavaScript on the page. Combined with the CORS misconfiguration, an attacker could read this token cross-origin.</p>
-    <div class="evidence">localStorage["X-IntegrationServer-titan-CSRFToken"] = "tDyQUraSqT1b9XC19K3EbSYCEU8z-IcRywb-6IaOYps"</div>
-  </div>
-
-  <div class="finding-card medium fade-in">
-    <h4><span class="severity-badge medium">MEDIUM</span> Username &amp; User ID Exposed in localStorage</h4>
-    <p>The authenticated username (<code>test2</code>) and internal user ID (<code>321Z539_000JN6Y7Z000004</code>) are stored in <code>localStorage</code>, leaking user identity to any script running on the page.</p>
-    <div class="evidence">localStorage["X-IntegrationServer-titan-Username"] = "test2" &bull; localStorage["Ti-titan-UserId"] = "321Z539_000JN6Y7Z000004"</div>
-  </div>
-
-  <!-- What passed -->
-  <h3 style="margin: 2rem 0 1rem; font-size: 1.2rem;" class="fade-in">What Passed (21 Tests)</h3>
-  <div class="pass-grid fade-in">
-    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /documents</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /workflow</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /tasks</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /folders</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Auth bypass on /capture</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> CSRF enforcement on API</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Path traversal blocked</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> XSS via URL fragments</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> XSS via route params</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> SQL injection via routes</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Null byte injection</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Long string handling</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Special chars in URLs</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Unknown route handling</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Documents module loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Folders module loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Tasks module loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Workflow module loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Capture module loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Capture &amp; Indexing loads</div>
-    <div class="pass-item"><span class="pass-icon">&check;</span> Logout flow works</div>
-  </div>
-
-  <!-- Key takeaway -->
-  <div style="margin-top: 2.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem;" class="fade-in">
-    <h3 style="margin-bottom: 0.75rem;">Key Takeaway</h3>
-    <p style="color: var(--muted); font-size: 0.95rem;">NEMESIS found <strong style="color: var(--red);">2 critical CORS misconfigurations</strong> in a production enterprise app &mdash; the kind of vulnerability that enables full account takeover from a malicious website. It also identified sensitive data exposure in browser storage. All of this with <strong style="color: var(--text);">zero configuration, zero scripting, and one prompt</strong>. The AI read the product documentation, understood the OIDC auth flow, authenticated through the external IDP, and designed 27 targeted tests in under 5 minutes.</p>
+  <div class="code-block fade-in" style="margin-top: 2rem;">
+    <span class="comment"># Quick start</span><br>
+    <span class="fn">$</span> cd web &amp;&amp; npm install<br>
+    <span class="fn">$</span> echo <span class="string">"GITHUB_TOKEN=ghp_your_token"</span> &gt; .env.local<br>
+    <span class="fn">$</span> npm run dev<br>
+    <span class="output">&rarr; Dashboard ready at http://localhost:3000</span>
   </div>
 </section>
 
@@ -835,52 +809,72 @@
   <div class="section-header fade-in">
     <div class="number">06 / See It In Action</div>
     <h2>VulnShop &mdash; A Built-In Demo App</h2>
-    <p>NEMESIS ships with VulnShop, a deliberately vulnerable demo app so you can see it work immediately. One command launches the app, one prompt runs the full scan.</p>
+    <p>SENTINEL ships with VulnShop, a deliberately vulnerable demo app so you can see it work immediately. One command launches the app, one prompt runs the full scan.</p>
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card fade-in"><div class="value">5</div><div class="label">Pages Scanned</div></div>
-    <div class="stat-card fade-in"><div class="value">20+</div><div class="label">Tests Executed</div></div>
-    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">14</div><div class="label">Issues Found</div></div>
-    <div class="stat-card fade-in"><div class="value">8</div><div class="label">Payloads Learned</div></div>
+    <div class="stat-card fade-in"><div class="value">5+</div><div class="label">Pages Scanned</div></div>
+    <div class="stat-card fade-in"><div class="value">30+</div><div class="label">Tests Executed</div></div>
+    <div class="stat-card fade-in"><div class="value" style="-webkit-text-fill-color: var(--red);">20+</div><div class="label">Issues Found</div></div>
+    <div class="stat-card fade-in"><div class="value">16</div><div class="label">Attack Categories</div></div>
   </div>
 
   <div class="demo-results fade-in">
-    <h3>VulnShop Findings (Security + QA)</h3>
+    <h3>VulnShop Findings (Security + API + QA)</h3>
     <ul class="vuln-list">
       <li><span class="severity-badge critical">CRITICAL</span> SQL Injection on search &mdash; <code>' OR 1=1 --</code></li>
+      <li><span class="severity-badge critical">CRITICAL</span> SQL Injection on API &mdash; <code>/api/products?category=' UNION SELECT</code></li>
       <li><span class="severity-badge critical">CRITICAL</span> Auth bypass on /admin &mdash; no authentication required</li>
-      <li><span class="severity-badge critical">CRITICAL</span> Path traversal &mdash; <code>../../etc/passwd</code></li>
+      <li><span class="severity-badge critical">CRITICAL</span> Path traversal &mdash; <code>../../package.json</code></li>
+      <li><span class="severity-badge critical">CRITICAL</span> SSRF via /api/preview &mdash; server fetches internal URLs</li>
+      <li><span class="severity-badge high">HIGH</span> IDOR &mdash; /api/users exposes passwords and API keys</li>
+      <li><span class="severity-badge high">HIGH</span> IDOR &mdash; /api/orders/:id accessible without auth</li>
+      <li><span class="severity-badge high">HIGH</span> Info leak &mdash; /api/debug exposes server environment</li>
       <li><span class="severity-badge high">HIGH</span> Reflected XSS on search &mdash; <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></li>
       <li><span class="severity-badge high">HIGH</span> Stored XSS on feedback form</li>
       <li><span class="severity-badge high">HIGH</span> Wildcard CORS &mdash; <code>Access-Control-Allow-Origin: *</code></li>
       <li><span class="severity-badge high">HIGH</span> Missing CSRF token on feedback form</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Open redirect via /redirect endpoint</li>
       <li><span class="severity-badge medium">MEDIUM</span> Session cookie without Secure flag</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Sensitive data in localStorage (JWT, API keys, credentials)</li>
+      <li><span class="severity-badge medium">MEDIUM</span> Header injection via /api/export filename</li>
       <li><span class="severity-badge qa">FUNCTIONAL</span> Search returns correct results for valid queries</li>
       <li><span class="severity-badge qa">FUNCTIONAL</span> Login redirects to admin on success</li>
-      <li><span class="severity-badge explore">EXPLORE</span> Empty search returns all products</li>
+      <li><span class="severity-badge explore">EXPLORE</span> 404 handler leaks all available routes</li>
+      <li><span class="severity-badge explore">A11Y</span> Images missing alt text (WCAG 1.1.1)</li>
+      <li><span class="severity-badge explore">A11Y</span> Form inputs missing associated labels</li>
+      <li><span class="severity-badge explore">A11Y</span> No skip-to-content navigation link</li>
+      <li><span class="severity-badge qa">UX</span> Broken images (404) on product page</li>
+      <li><span class="severity-badge qa">UX</span> Dead links with empty href attributes</li>
     </ul>
   </div>
 
-  <div class="code-block fade-in">
-    <span class="comment"># Launch the demo</span><br>
-    <span class="fn">$</span> npx tsx src/cli.ts --demo<br>
-    <span class="output">&rarr; VulnShop running at http://localhost:3001</span><br><br>
-    <span class="comment"># In Cursor chat &mdash; one prompt does everything</span><br>
-    <span class="string">"Call nemesis_scan with targetUrl http://localhost:3001,<br>
-    &nbsp;&nbsp;docPath ./demo-app/DOCS.md,<br>
-    &nbsp;&nbsp;exampleData {searchQuery: Widget, feedbackName: Tester},<br>
-    &nbsp;&nbsp;headed true. Then generate tests and call nemesis_attack."</span><br><br>
-    <span class="output">&rarr; <span class="vuln">14 issues found</span> | 8 payloads saved to knowledge</span>
+  <div class="two-col fade-in" style="margin-top: 2rem;">
+    <div class="code-block">
+      <span class="comment"># Option 1: Web Dashboard</span><br>
+      <span class="fn">$</span> cd web &amp;&amp; npm run dev<br>
+      <span class="output">&rarr; Dashboard at http://localhost:3000</span><br><br>
+      <span class="comment"># Open browser, enter URL, click "Start Scan"</span><br>
+      <span class="comment"># Real-time results stream to the dashboard</span><br>
+      <span class="output">&rarr; <span class="vuln">24 issues found</span> across 16 categories</span>
+    </div>
+    <div class="code-block">
+      <span class="comment"># Option 2: MCP Server (IDE)</span><br>
+      <span class="fn">$</span> npx tsx src/cli.ts --demo<br>
+      <span class="output">&rarr; VulnShop at http://localhost:3001</span><br><br>
+      <span class="string">"Call sentinel_scan with targetUrl http://localhost:3001,<br>
+      &nbsp;&nbsp;docPath ./demo-app/DOCS.md, headed true.<br>
+      &nbsp;&nbsp;Then generate tests and call sentinel_attack."</span>
+    </div>
   </div>
 </section>
 
 <!-- COMPARISON -->
 <section id="compare">
   <div class="section-header fade-in">
-    <div class="number">07 / How Nemesis Is Different</div>
-    <h2>NEMESIS vs. Traditional DAST</h2>
-    <p>Tools like <strong style="color:var(--text);">Rapid7 InsightAppSec</strong>, <strong style="color:var(--text);">HCL AppScan</strong>, Burp Suite, and OWASP ZAP are established DAST scanners. They work by firing thousands of pre-built payloads at every input and matching responses against known vulnerability signatures. NEMESIS takes a fundamentally different approach.</p>
+    <div class="number">07 / How Sentinel Is Different</div>
+    <h2>SENTINEL vs. Traditional DAST</h2>
+    <p>Tools like <strong style="color:var(--text);">Rapid7 InsightAppSec</strong>, <strong style="color:var(--text);">HCL AppScan</strong>, Burp Suite, and OWASP ZAP are established DAST scanners. They work by firing thousands of pre-built payloads at every input and matching responses against known vulnerability signatures. SENTINEL takes a fundamentally different approach.</p>
   </div>
 
   <!-- The core difference callout -->
@@ -891,7 +885,7 @@
         <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--text);">Rapid7 / AppScan / Burp / ZAP</strong> ship with a database of thousands of known attack signatures. They crawl your app, fire every payload at every input, and check if the response matches a known vulnerability fingerprint. They don't <em>understand</em> your app &mdash; they just pattern-match.</p>
       </div>
       <div>
-        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--red);">NEMESIS</strong> ships with <strong>zero</strong> hardcoded signatures. Instead, an LLM reads your product documentation, studies the recon data, understands your app's business logic, and then <em>designs bespoke attack plans</em> from scratch. It thinks like a penetration tester, not a signature scanner.</p>
+        <p style="color: var(--muted); font-size: 0.95rem;"><strong style="color: var(--red);">SENTINEL</strong> ships with <strong>zero</strong> hardcoded signatures. Instead, an LLM reads your product documentation, studies the recon data, understands your app's business logic, and then <em>designs bespoke attack plans</em> from scratch. It thinks like a penetration tester, not a signature scanner.</p>
       </div>
     </div>
   </div>
@@ -900,7 +894,7 @@
     <thead>
       <tr>
         <th>Capability</th>
-        <th style="color:var(--red);">NEMESIS</th>
+        <th style="color:var(--red);">SENTINEL</th>
         <th>Rapid7 InsightAppSec</th>
         <th>HCL AppScan</th>
         <th>Burp Suite / ZAP</th>
@@ -908,8 +902,11 @@
     </thead>
     <tbody>
       <tr><td>Attack generation</td><td class="highlight">AI generates per-app</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td><td class="cross">Pre-built signature DB</td></tr>
+      <tr><td>Attack categories</td><td class="highlight">16 (incl. SSRF, IDOR, a11y, UX)</td><td>OWASP Top 10</td><td>OWASP Top 10</td><td>OWASP Top 10</td></tr>
       <tr><td>Reads product docs</td><td class="highlight">docPath param</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
       <tr><td>Business logic testing</td><td class="highlight">AI-driven (IDOR, privilege esc.)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>API security testing</td><td class="highlight">SSRF, IDOR, info-leak, mass assignment</td><td>Limited</td><td>Limited</td><td>Manual</td></tr>
+      <tr><td>Remediation guidance</td><td class="highlight">Per-finding with CWE references</td><td class="check">Generic</td><td class="check">Generic</td><td>Manual</td></tr>
       <tr><td>Learning across scans</td><td class="highlight">Knowledge base persists</td><td class="cross">Each scan independent</td><td class="cross">Each scan independent</td><td class="cross">Session only</td></tr>
       <tr><td>Browser storage audit</td><td class="highlight">localStorage, sessionStorage, IndexedDB</td><td>Cookies only</td><td>Cookies only</td><td>Cookies only</td></tr>
       <tr><td>IDP / OAuth / OIDC auth</td><td class="highlight">Native (idp-login)</td><td>Manual macro recording</td><td>Manual macro recording</td><td>Manual macro recording</td></tr>
@@ -917,6 +914,9 @@
       <tr><td>False positive rate</td><td class="highlight">Low (AI validates context)</td><td class="cross">High (signature matching)</td><td class="cross">High (signature matching)</td><td class="cross">Moderate to high</td></tr>
       <tr><td>Functional + QA testing</td><td class="highlight">Built-in (same run)</td><td class="cross">Security only</td><td class="cross">Security only</td><td class="cross">Security only</td></tr>
       <tr><td>Exploratory testing</td><td class="highlight">Built-in</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>Accessibility (WCAG)</td><td class="highlight">Built-in (a11y category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>UX / Usability testing</td><td class="highlight">Built-in (ux category)</td><td class="cross">No</td><td class="cross">No</td><td class="cross">No</td></tr>
+      <tr><td>Web dashboard</td><td class="highlight">Standalone Next.js UI</td><td class="check">Web console</td><td class="check">Standalone app</td><td>Plugin</td></tr>
       <tr><td>Payloads per scan</td><td class="highlight">30&ndash;50 (precision-targeted)</td><td>10,000+ (brute-force)</td><td>10,000+ (brute-force)</td><td>Thousands</td></tr>
       <tr><td>Scan duration</td><td class="highlight">~5 minutes</td><td class="cross">2&ndash;8 hours typical</td><td class="cross">1&ndash;6 hours typical</td><td>30 min&ndash;hours</td></tr>
       <tr><td>Real browser execution</td><td class="check">Chromium (Playwright)</td><td>Headless engine</td><td>Headless engine</td><td>Proxy-based</td></tr>
@@ -943,7 +943,7 @@
       </ol>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--red); border-radius: 16px; padding: 1.5rem;">
-      <h4 style="color: var(--red); margin-bottom: 1rem;">NEMESIS Workflow</h4>
+      <h4 style="color: var(--red); margin-bottom: 1rem;">SENTINEL Workflow</h4>
       <ol style="padding-left: 1.25rem; color: var(--text); font-size: 0.9rem; line-height: 2;">
         <li>One call: URL + docs + credentials</li>
         <li>AI authenticates (even IDP/OAuth)</li>
@@ -960,17 +960,17 @@
     <div class="feature-card fade-in">
       <span class="tag ai">Key Advantage</span>
       <h3>Tests Are Custom, Not Generic</h3>
-      <p>Rapid7 and AppScan ship with a static database of thousands of known attack patterns and run them all blindly. NEMESIS generates every test on the fly, tailored to your specific app. It tests what matters, not everything in a database.</p>
+      <p>Rapid7 and AppScan ship with a static database of thousands of known attack patterns and run them all blindly. SENTINEL generates every test on the fly, tailored to your specific app. It tests what matters, not everything in a database.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag brain">Key Advantage</span>
       <h3>Gets Smarter Over Time</h3>
-      <p>Each scan builds on the last. Successful tests are remembered. Knowledge persists across sessions. Rapid7 and AppScan start from zero every time &mdash; NEMESIS picks up right where it left off.</p>
+      <p>Each scan builds on the last. Successful tests are remembered. Knowledge persists across sessions. Rapid7 and AppScan start from zero every time &mdash; SENTINEL picks up right where it left off.</p>
     </div>
     <div class="feature-card fade-in">
       <span class="tag qa">Key Advantage</span>
       <h3>Replaces Four Tools With One</h3>
-      <p>No DAST tool &mdash; not Rapid7, not AppScan, not Burp &mdash; does security testing, functional QA, input validation, and exploratory testing in one run. NEMESIS covers all four, reducing tool sprawl and giving you a single source of truth.</p>
+      <p>No DAST tool &mdash; not Rapid7, not AppScan, not Burp &mdash; does security testing, functional QA, input validation, and exploratory testing in one run. SENTINEL covers all four, reducing tool sprawl and giving you a single source of truth.</p>
     </div>
   </div>
 </section>
@@ -978,10 +978,10 @@
 <!-- CTA -->
 <section class="cta">
   <h2><span class="gradient-text">One Prompt. Full Security &amp; QA Report.</span></h2>
-  <p>Give it a URL, your docs, and credentials. NEMESIS does the rest.</p>
+  <p>Give it a URL, your docs, and credentials. SENTINEL does the rest.</p>
   <div class="cmd" style="font-size: 0.9rem;">"Here's my app URL, my docs, and my login. Test everything."</div>
   <p style="margin-top: 2rem; font-size: 0.85rem;">
-    Open Source (MIT) &bull; No Setup Required &bull; Real Browser Testing &bull; Per-App Memory &bull; 5 Login Methods &bull; Zero Hardcoded Rules
+    Open Source (MIT) &bull; 16 Attack Categories &bull; Web Dashboard &bull; Real Browser Testing &bull; Per-App Memory &bull; Accessibility &amp; UX Testing &bull; API Security &bull; Remediation Guidance &bull; Zero Hardcoded Rules
   </p>
 </section>
 

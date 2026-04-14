@@ -20,13 +20,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const server = new McpServer({
-  name: 'nemesis',
-  version: '3.0.0',
+  name: 'sentinel',
+  version: '3.2.0',
 });
 
 const CATEGORY_ENUM = z.enum([
   'injection', 'xss', 'auth', 'traversal', 'validation',
   'dos', 'cors', 'csrf', 'storage', 'functional', 'exploratory',
+  'ssrf', 'idor', 'info-leak', 'redirect', 'accessibility', 'ux',
 ]);
 
 const AUTH_SCHEMA = z.object({
@@ -56,7 +57,7 @@ let kb: KnowledgeBase = loadKnowledge();
 
 /**
  * Run recon and assemble the MCP response content.
- * Shared by both nemesis_recon and nemesis_scan to avoid duplication.
+ * Shared by both sentinel_recon and sentinel_scan to avoid duplication.
  */
 async function runReconAndBuildResponse(opts: {
   targetUrl: string;
@@ -77,9 +78,9 @@ async function runReconAndBuildResponse(opts: {
       try {
         const resolvedPath = path.resolve(opts.docPath);
         activeDocContent = fs.readFileSync(resolvedPath, 'utf-8');
-        console.error(`[nemesis] Read documentation: ${resolvedPath} (${activeDocContent.length} chars)`);
+        console.error(`[sentinel] Read documentation: ${resolvedPath} (${activeDocContent.length} chars)`);
       } catch (e) {
-        console.error(`[nemesis] Could not read doc at ${opts.docPath}: ${e instanceof Error ? e.message : e}`);
+        console.error(`[sentinel] Could not read doc at ${opts.docPath}: ${e instanceof Error ? e.message : e}`);
       }
     }
 
@@ -90,8 +91,8 @@ async function runReconAndBuildResponse(opts: {
       maxPages: opts.maxPages || 10,
       headless: !opts.headed,
       timeout: 15000,
-      screenshotDir: './nemesis-results/screenshots',
-      outputDir: './nemesis-results',
+      screenshotDir: './sentinel-results/screenshots',
+      outputDir: './sentinel-results',
       auth: opts.auth || undefined,
     };
 
@@ -119,7 +120,7 @@ async function runReconAndBuildResponse(opts: {
     const content: Array<{ type: 'text'; text: string }> = [];
 
     const instructions = [
-      `# NEMESIS Scan — ${opts.targetUrl}`,
+      `# SENTINEL Scan — ${opts.targetUrl}`,
       ``,
       `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
       opts.auth ? `**Auth:** ${opts.auth.type}${opts.auth.username ? ` as ${opts.auth.username}` : ''}` : '',
@@ -133,7 +134,7 @@ async function runReconAndBuildResponse(opts: {
       `   - **Security attacks**: SQLi, XSS, auth bypass, path traversal, CORS, CSRF, browser storage vulnerabilities`,
       `   - **Functional tests**: Use the example data to verify features work correctly`,
       `   - **Exploratory tests**: Edge cases, boundary values, random inputs`,
-      `4. Call **nemesis_attack** with your plans`,
+      `4. Call **sentinel_attack** with your plans`,
     ];
     content.push({ type: 'text' as const, text: instructions.filter(Boolean).join('\n') });
 
@@ -172,28 +173,28 @@ async function runReconAndBuildResponse(opts: {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TOOL 1: nemesis_recon
+// TOOL 1: sentinel_recon
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
-  'nemesis_recon',
+  'sentinel_recon',
   `Crawl a web application and map its attack surface. Returns pages, forms, inputs, cookies, browser storage (localStorage, sessionStorage, IndexedDB), headers, links, plus any knowledge from past runs for this specific URL.
 
 Supports authentication: pass auth credentials and the browser will log in before crawling.
-Supports documentation: pass a docPath and NEMESIS reads the file, returning its content for YOU to analyze.
+Supports documentation: pass a docPath and SENTINEL reads the file, returning its content for YOU to analyze.
 Supports example data: pass exampleData with sample inputs for functional testing.
 
 After calling this, YOU (the LLM) must:
 1. Read the documentation content (if provided) and understand the app
 2. Analyze the recon data using your security AND QA expertise — including browser storage for sensitive data exposure
 3. Use the example data for functional tests, your security knowledge for attacks
-4. Call nemesis_attack with your plans`,
+4. Call sentinel_attack with your plans`,
   {
     targetUrl: z.string().optional().describe('URL to crawl. Omit if using demo mode.'),
     maxPages: z.number().optional().describe('Max pages to crawl (default: 10)'),
     demo: z.boolean().optional().describe('Launch built-in VulnShop demo app'),
     headed: z.boolean().optional().describe('Show browser visibly'),
     auth: AUTH_SCHEMA,
-    docPath: z.string().optional().describe('Path to a documentation file (markdown, text, etc). NEMESIS reads it and returns the content for YOU to analyze.'),
+    docPath: z.string().optional().describe('Path to a documentation file (markdown, text, etc). SENTINEL reads it and returns the content for YOU to analyze.'),
     exampleData: z.record(z.string()).optional().describe('Example data for functional testing, e.g. {"searchQuery": "Widget", "feedbackName": "John", "feedbackMessage": "Great product"}'),
   },
   async ({ targetUrl, maxPages, demo, headed, auth, docPath, exampleData }) => {
@@ -212,13 +213,13 @@ After calling this, YOU (the LLM) must:
 );
 
 // ═══════════════════════════════════════════════════════════════════════
-// TOOL 2: nemesis_attack
+// TOOL 2: sentinel_attack
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
-  'nemesis_attack',
-  `Execute test plans against the target crawled by nemesis_recon. YOU provide all plans — security attacks, functional tests, exploratory tests. NEMESIS executes them in Chromium and captures evidence.
+  'sentinel_attack',
+  `Execute test plans against the target crawled by sentinel_recon. YOU provide all plans — security attacks, functional tests, exploratory tests. SENTINEL executes them in Chromium and captures evidence.
 
-Categories: injection, xss, auth, traversal, validation, cors, csrf, storage, functional, exploratory
+Categories: injection, xss, auth, traversal, validation, cors, csrf, storage, ssrf, idor, info-leak, redirect, accessibility, ux, functional, exploratory
 
 The "storage" category checks browser storage (localStorage, sessionStorage) for sensitive data like tokens, credentials, API keys, PII, or excessive data exposure. Use target type "storage" for these checks.
 
@@ -246,7 +247,7 @@ After results come back, effective payloads and scan records are saved to the kn
   async ({ plans }) => {
     if (!activeRecon || !activeConfig) {
       return {
-        content: [{ type: 'text' as const, text: 'Error: Call nemesis_recon first.' }],
+        content: [{ type: 'text' as const, text: 'Error: Call sentinel_recon first.' }],
       };
     }
 
@@ -283,7 +284,7 @@ After results come back, effective payloads and scan records are saved to the kn
       }
 
       const summary = [
-        `# NEMESIS Test Run Complete`,
+        `# SENTINEL Test Run Complete`,
         ``,
         `**Target:** ${report.target}`,
         `**Duration:** ${(report.duration / 1000).toFixed(1)}s`,
@@ -312,9 +313,9 @@ After results come back, effective payloads and scan records are saved to the kn
       }
 
       summary.push(``, `## Reports`, ``);
-      summary.push(`- Markdown: ${activeConfig.outputDir}/NEMESIS-REPORT.md`);
-      summary.push(`- HTML: ${activeConfig.outputDir}/NEMESIS-REPORT.html`);
-      summary.push(`- SARIF: ${activeConfig.outputDir}/nemesis-results.sarif`);
+      summary.push(`- Markdown: ${activeConfig.outputDir}/SENTINEL-REPORT.md`);
+      summary.push(`- HTML: ${activeConfig.outputDir}/SENTINEL-REPORT.html`);
+      summary.push(`- SARIF: ${activeConfig.outputDir}/sentinel-results.sarif`);
       summary.push(``, `_${newPayloads.length} effective payloads saved to knowledge base for ${appKey}._`);
 
       return {
@@ -349,11 +350,11 @@ After results come back, effective payloads and scan records are saved to the kn
 );
 
 // ═══════════════════════════════════════════════════════════════════════
-// TOOL 3: nemesis_learn
+// TOOL 3: sentinel_learn
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
-  'nemesis_learn',
-  `Store application knowledge in the NEMESIS knowledge base, scoped to a specific URL. Call this after reading documentation. Knowledge persists across sessions and makes future scans smarter.
+  'sentinel_learn',
+  `Store application knowledge in the SENTINEL knowledge base, scoped to a specific URL. Call this after reading documentation. Knowledge persists across sessions and makes future scans smarter.
 
 You can store: app profile (tech stack, routes), auth config, example data, and test plans.`,
   {
@@ -432,11 +433,11 @@ You can store: app profile (tech stack, routes), auth config, example data, and 
 );
 
 // ═══════════════════════════════════════════════════════════════════════
-// TOOL 4: nemesis_knowledge
+// TOOL 4: sentinel_knowledge
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
-  'nemesis_knowledge',
-  `Query the NEMESIS knowledge base. Optionally scope to a specific URL to see only that app's knowledge.`,
+  'sentinel_knowledge',
+  `Query the SENTINEL knowledge base. Optionally scope to a specific URL to see only that app's knowledge.`,
   {
     url: z.string().optional().describe('Filter knowledge to this URL only'),
   },
@@ -480,22 +481,22 @@ server.tool(
 );
 
 // ═══════════════════════════════════════════════════════════════════════
-// TOOL 5: nemesis_scan (unified convenience tool)
+// TOOL 5: sentinel_scan (unified convenience tool)
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
-  'nemesis_scan',
+  'sentinel_scan',
   `Full scan pipeline in one call: crawl the target, return recon data (including browser storage: localStorage, sessionStorage, IndexedDB) + documentation + example data + past knowledge. This is the recommended entry point.
 
 After this returns, YOU must:
 1. Read the documentation (if provided)
 2. Analyze the recon data — including browser storage entries for sensitive data exposure (tokens, credentials, PII, API keys)
-3. Generate security attacks + functional tests + exploratory tests + browser storage vulnerability checks
-4. Call nemesis_attack with your plans
+3. Generate security attacks (injection, xss, auth, traversal, cors, csrf, storage, ssrf, idor, info-leak, redirect, accessibility, ux) + functional tests + exploratory tests
+4. Call sentinel_attack with your plans
 
-This tool combines nemesis_recon + doc reading + knowledge lookup into one step.`,
+This tool combines sentinel_recon + doc reading + knowledge lookup into one step.`,
   {
     targetUrl: z.string().describe('URL to scan (e.g., http://localhost:3000)'),
-    docPath: z.string().optional().describe('Path to documentation file (markdown, text). NEMESIS reads it and returns content for YOU.'),
+    docPath: z.string().optional().describe('Path to documentation file (markdown, text). SENTINEL reads it and returns content for YOU.'),
     auth: AUTH_SCHEMA,
     exampleData: z.record(z.string()).optional().describe('Example data for functional testing, e.g. {"searchQuery": "Widget", "username": "admin", "password": "admin"}'),
     maxPages: z.number().optional().describe('Max pages to crawl (default: 10)'),
@@ -514,12 +515,12 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error('NEMESIS MCP server error:', e);
+  console.error('SENTINEL MCP server error:', e);
   process.exit(1);
 });
 
 async function cleanup() {
-  console.error('[nemesis] Shutting down...');
+  console.error('[sentinel] Shutting down...');
   if (activeRecon) { await activeRecon.close().catch(() => {}); activeRecon = null; }
   if (demoLaunched) { await stopDemoApp(); demoLaunched = false; }
   process.exit(0);

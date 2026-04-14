@@ -26,7 +26,7 @@ export interface NemesisConfig {
   };
 }
 
-export type AttackCategory = 'injection' | 'xss' | 'auth' | 'traversal' | 'validation' | 'dos' | 'cors' | 'csrf' | 'storage' | 'functional' | 'exploratory';
+export type AttackCategory = 'injection' | 'xss' | 'auth' | 'traversal' | 'validation' | 'dos' | 'cors' | 'csrf' | 'storage' | 'functional' | 'exploratory' | 'ssrf' | 'idor' | 'info-leak' | 'redirect' | 'accessibility' | 'ux';
 
 export interface PageMap {
   url: string;

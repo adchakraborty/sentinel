@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,8 @@
     .card h3 { margin-bottom: 0.5rem; }
     .card p { color: #64748b; }
     .warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin: 1rem 0; color: #991b1b; }
+    .low-contrast { color: #d0d0d0; background: #e8e8e8; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+    .fake-btn { display: inline-block; padding: 0.5rem 1rem; background: #3b82f6; color: #fff; border-radius: 6px; cursor: pointer; margin: 0.5rem 0; }
   </style>
 </head>
 <body>
@@ -34,29 +36,74 @@
     <div class="warning">
       This application is <strong>intentionally vulnerable</strong>. It exists solely as a target for NEMESIS security scanning demos.
     </div>
+    <h2 style="margin: 1.5rem 0 0.5rem; font-size: 1.2rem; color: #64748b;">Web Pages</h2>
     <div class="card">
-      <h3>Product Search</h3>
+      <h3><a href="/search?q=" style="color: #2563eb;">Product Search</a></h3>
       <p>Search our catalog — try SQL injection and XSS payloads.</p>
     </div>
     <div class="card">
-      <h3>User Login</h3>
+      <h3><a href="/login" style="color: #2563eb;">User Login</a></h3>
       <p>Authenticate with weak credentials. No rate limiting.</p>
     </div>
     <div class="card">
-      <h3>Admin Dashboard</h3>
+      <h3><a href="/admin" style="color: #2563eb;">Admin Dashboard</a></h3>
       <p>Access the admin panel — no authentication required.</p>
     </div>
     <div class="card">
-      <h3>File Viewer</h3>
+      <h3><a href="/file?name=readme.txt" style="color: #2563eb;">File Viewer</a></h3>
       <p>Read files from the server — path traversal enabled.</p>
     </div>
     <div class="card">
-      <h3>Feedback Form</h3>
-      <p>Submit feedback — no CSRF protection, no input validation.</p>
+      <h3><a href="/feedback" style="color: #2563eb;">Feedback Form</a></h3>
+      <p>Submit feedback — no CSRF protection, stored XSS, no input validation.</p>
     </div>
+    <h2 style="margin: 1.5rem 0 0.5rem; font-size: 1.2rem; color: #64748b;">API Endpoints</h2>
+    <div class="card">
+      <h3><a href="/api/users" style="color: #2563eb;">GET /api/users</a></h3>
+      <p>Returns all users including passwords and API keys. No auth required.</p>
+    </div>
+    <div class="card">
+      <h3><a href="/api/products" style="color: #2563eb;">GET /api/products</a></h3>
+      <p>Product listing with SQL injection via <code>category</code> and <code>sort</code> params.</p>
+    </div>
+    <div class="card">
+      <h3><a href="/api/orders/1" style="color: #2563eb;">GET /api/orders/:id</a></h3>
+      <p>IDOR — view any user's order without authentication.</p>
+    </div>
+    <div class="card">
+      <h3><a href="/api/preview?url=http://localhost:<%= process.env.PORT || 3001 %>/api/debug" style="color: #2563eb;">GET /api/preview</a></h3>
+      <p>SSRF — server fetches any URL you provide.</p>
+    </div>
+    <div class="card">
+      <h3><a href="/api/debug" style="color: #2563eb;">GET /api/debug</a></h3>
+      <p>Debug endpoint leaks server environment, memory, and database schema.</p>
+    </div>
+    <div class="card">
+      <h3><a href="/redirect?url=https://evil.com" style="color: #2563eb;">GET /redirect</a></h3>
+      <p>Open redirect — redirects to any URL without validation.</p>
+    </div>
+    <h2 style="margin: 1.5rem 0 0.5rem; font-size: 1.2rem; color: #64748b;">Client-Side</h2>
     <div class="card">
       <h3>Browser Storage</h3>
       <p>Sensitive data stored in localStorage and sessionStorage — tokens, API keys, and credentials in the clear.</p>
+    </div>
+
+    <h4 style="margin: 1.5rem 0 0.5rem; font-size: 1.2rem; color: #64748b;">Accessibility & UX Test Surface</h4>
+    <div class="card">
+      <img src="/images/promo-banner.jpg">
+      <img src="/images/sale-icon.png">
+      <p class="low-contrast">This text has very low contrast and is hard to read.</p>
+      <form>
+        <input type="text" name="newsletter_email" placeholder="">
+        <input type="text" name="phone">
+        <input type="password" name="secret_code">
+        <button type="button"></button>
+      </form>
+      <div class="fake-btn" onclick="alert('clicked')">Click Me</div>
+      <a href="#">Empty link</a>
+      <a href="javascript:void(0)"></a>
+      <a href="#"></a>
+      <img src="/images/nonexistent-product.png">
     </div>
   </div>
   <script>

@@ -108,10 +108,10 @@ export async function runAttacks(
     timeToFirstBreach,
   };
 
-  const mdPath = path.join(config.outputDir, 'NEMESIS-REPORT.md');
-  const htmlPath = path.join(config.outputDir, 'NEMESIS-REPORT.html');
-  const jsonPath = path.join(config.outputDir, 'nemesis-results.json');
-  const sarifPath = path.join(config.outputDir, 'nemesis-results.sarif');
+  const mdPath = path.join(config.outputDir, 'SENTINEL-REPORT.md');
+  const htmlPath = path.join(config.outputDir, 'SENTINEL-REPORT.html');
+  const jsonPath = path.join(config.outputDir, 'sentinel-results.json');
+  const sarifPath = path.join(config.outputDir, 'sentinel-results.sarif');
 
   fs.writeFileSync(mdPath, generateMarkdownReport(report), 'utf-8');
   fs.writeFileSync(htmlPath, generateHtmlReport(report), 'utf-8');

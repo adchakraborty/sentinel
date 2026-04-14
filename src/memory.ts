@@ -1,11 +1,11 @@
 /**
- * Persistent scan knowledge for NEMESIS (`./nemesis-knowledge.json` by default).
- * Path: env `NEMESIS_KNOWLEDGE_PATH`, else `./nemesis-knowledge.json` under `process.cwd()`.
+ * Persistent scan knowledge for SENTINEL (`./sentinel-knowledge.json` by default).
+ * Path: env `SENTINEL_KNOWLEDGE_PATH`, else `./sentinel-knowledge.json` under `process.cwd()`.
  */
 import { mkdirSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 
-const DEFAULT_KNOWLEDGE_RELATIVE_PATH = './nemesis-knowledge.json';
+const DEFAULT_KNOWLEDGE_RELATIVE_PATH = './sentinel-knowledge.json';
 
 export interface TestStep {
   action: string;
@@ -78,7 +78,7 @@ export interface KnowledgeBase {
 }
 
 function resolvedKnowledgePath(): string {
-  const fromEnv = process.env.NEMESIS_KNOWLEDGE_PATH?.trim();
+  const fromEnv = process.env.SENTINEL_KNOWLEDGE_PATH?.trim();
   return resolve(process.cwd(), fromEnv || DEFAULT_KNOWLEDGE_RELATIVE_PATH);
 }
 
@@ -231,7 +231,7 @@ function normalizeKnowledgeBase(raw: unknown): KnowledgeBase {
 
 /**
  * Load the knowledge base from disk, or return an empty structure if missing or invalid.
- * Uses `NEMESIS_KNOWLEDGE_PATH` or `./nemesis-knowledge.json` under `process.cwd()`.
+ * Uses `SENTINEL_KNOWLEDGE_PATH` or `./sentinel-knowledge.json` under `process.cwd()`.
  */
 export function loadKnowledge(): KnowledgeBase {
   const filePath = resolvedKnowledgePath();
@@ -269,7 +269,7 @@ export function saveKnowledge(kb: KnowledgeBase): void {
   const filePath = resolvedKnowledgePath();
   const dir = dirname(filePath);
   mkdirSync(dir, { recursive: true });
-  const tmpPath = join(dir, `.nemesis-knowledge-${Date.now()}.tmp`);
+  const tmpPath = join(dir, `.sentinel-knowledge-${Date.now()}.tmp`);
   writeFileSync(tmpPath, `${JSON.stringify(kb, null, 2)}\n`, 'utf8');
   renameSync(tmpPath, filePath);
 }
@@ -356,7 +356,7 @@ function summarizeList<T>(items: T[], label: string, max: number, format: (item:
  * Compact, human-readable overview for LLM context.
  */
 export function getKnowledgeSummary(kb: KnowledgeBase): string {
-  const parts: string[] = ['NEMESIS knowledge base summary', ''];
+  const parts: string[] = ['SENTINEL knowledge base summary', ''];
 
   const recentScans = [...kb.scanHistory].sort((a, b) => b.timestamp.localeCompare(a.timestamp)).slice(0, 5);
 

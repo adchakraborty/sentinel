@@ -40,3 +40,10 @@ coverage/
 # Playwright
 playwright-report/
 test-results/
+
+# Video maker (large media files)
+video-maker/
+
+# Demo narration / scripts (not core)
+DEMO-NARRATION.txt
+HEYGEN-SCRIPT.txt

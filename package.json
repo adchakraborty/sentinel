@@ -1,11 +1,11 @@
 {
-  "name": "nemesis",
-  "version": "3.0.0",
-  "description": "AI Red Team — LLM-powered security testing, QA, and knowledge-driven scanning via MCP",
+  "name": "sentinel",
+  "version": "3.2.0",
+  "description": "SENTINEL — AI-powered security testing, accessibility auditing, UX checks, and QA via MCP + Web Dashboard",
   "type": "module",
   "bin": {
-    "nemesis": "dist/cli.js",
-    "nemesis-mcp-server": "dist/index.js"
+    "sentinel": "dist/cli.js",
+    "sentinel-mcp-server": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",

@@ -21,7 +21,13 @@ Call nemesis_scan with:
   exampleData: {"searchQuery": "Widget", "feedbackName": "Tester", "feedbackMessage": "Great product"}
   headed: true
 
-Then generate security attacks, functional tests, and exploratory tests.
+Then generate a comprehensive test suite covering:
+- Security: SQL injection, XSS, auth bypass, path traversal, CORS, CSRF
+- API Security: IDOR on /api/users and /api/orders, SSRF via /api/preview, info leak via /api/debug, open redirect via /redirect
+- Browser Storage: tokens, API keys, credentials in localStorage/sessionStorage
+- Functional: search works, login works, feedback saves
+- Exploratory: edge cases, invalid inputs, boundary values
+
 Call nemesis_attack with your plans.
 ```
 
