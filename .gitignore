@@ -4,13 +4,20 @@ node_modules/
 # Build output
 dist/
 
-# Nemesis scan results (generated)
+# Sentinel scan results (generated)
+sentinel-results/
 nemesis-results/
+sentinel-knowledge.json
 nemesis-knowledge.json
+
+# Next.js build output
+web/.next/
+web/out/
 
 # Environment & secrets
 .env
 .env.*
+!.env.local.example
 
 # OS files
 Thumbs.db
