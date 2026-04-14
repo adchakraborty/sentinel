@@ -87,9 +87,8 @@ export async function chatCompletion(
 
 /**
  * Fix invalid escape sequences that LLMs commonly produce inside JSON strings.
- * Handles: bare \' , unescaped control chars, and invalid \x sequences.
  */
-function sanitizeLlmJson(raw: string): string {
+function fixEscapes(raw: string): string {
   let result = '';
   let inString = false;
   let i = 0;
@@ -116,21 +115,9 @@ function sanitizeLlmJson(raw: string): string {
       continue;
     }
 
-    if (inString && ch === '\n') {
-      result += '\\n';
-      i++;
-      continue;
-    }
-    if (inString && ch === '\r') {
-      result += '\\r';
-      i++;
-      continue;
-    }
-    if (inString && ch === '\t') {
-      result += '\\t';
-      i++;
-      continue;
-    }
+    if (inString && ch === '\n') { result += '\\n'; i++; continue; }
+    if (inString && ch === '\r') { result += '\\r'; i++; continue; }
+    if (inString && ch === '\t') { result += '\\t'; i++; continue; }
 
     result += ch;
     i++;
@@ -139,12 +126,56 @@ function sanitizeLlmJson(raw: string): string {
   return result;
 }
 
-export async function generateAttackPlans(systemPrompt: string, userPrompt: string): Promise<unknown[]> {
-  const raw = await chatCompletion([
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: userPrompt },
-  ], { temperature: 0.4, maxTokens: 8192 });
+/**
+ * Repair structurally broken JSON from LLM output:
+ * - Remove trailing commas before ] or }
+ * - Close unclosed brackets/braces/strings (truncated output)
+ * - Strip JS-style comments
+ */
+function repairJson(raw: string): string {
+  let s = raw;
 
+  s = s.replace(/\/\/[^\n]*/g, '');
+  s = s.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  s = s.replace(/,\s*([\]}])/g, '$1');
+
+  s = fixEscapes(s);
+
+  try {
+    JSON.parse(s);
+    return s;
+  } catch { /* continue repairing */ }
+
+  let openBrackets = 0;
+  let openBraces = 0;
+  let inStr = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === '"' && (i === 0 || s[i - 1] !== '\\')) { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '[') openBrackets++;
+    else if (c === ']') openBrackets--;
+    else if (c === '{') openBraces++;
+    else if (c === '}') openBraces--;
+  }
+
+  if (inStr) s += '"';
+
+  s = s.replace(/,\s*([\]}])/g, '$1');
+
+  while (openBraces > 0) { s += '}'; openBraces--; }
+  while (openBrackets > 0) { s += ']'; openBrackets--; }
+
+  s = s.replace(/,\s*([\]}])/g, '$1');
+
+  return s;
+}
+
+/**
+ * Try multiple strategies to parse LLM JSON output.
+ */
+function parseLlmJson(raw: string): unknown[] {
   let jsonStr = raw;
   const fenceMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (fenceMatch) {
@@ -153,24 +184,54 @@ export async function generateAttackPlans(systemPrompt: string, userPrompt: stri
 
   const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
   if (!arrayMatch) {
-    throw new Error(`LLM response did not contain a JSON array. Response preview: ${raw.substring(0, 200)}`);
+    const partialArray = jsonStr.match(/\[[\s\S]*/);
+    if (partialArray) {
+      jsonStr = partialArray[0];
+    } else {
+      throw new Error(`LLM response did not contain a JSON array. Response preview: ${raw.substring(0, 200)}`);
+    }
+  } else {
+    jsonStr = arrayMatch[0];
   }
 
-  let plans: unknown;
-  try {
-    plans = JSON.parse(arrayMatch[0]);
-  } catch {
+  const attempts: Array<{ name: string; fn: () => unknown }> = [
+    { name: 'direct', fn: () => JSON.parse(jsonStr) },
+    { name: 'fix-escapes', fn: () => JSON.parse(fixEscapes(jsonStr)) },
+    { name: 'repair', fn: () => JSON.parse(repairJson(jsonStr)) },
+    {
+      name: 'aggressive-repair',
+      fn: () => {
+        let s = jsonStr;
+        s = s.replace(/[\x00-\x1f]/g, (m) => {
+          if (m === '\n') return '\\n';
+          if (m === '\r') return '\\r';
+          if (m === '\t') return '\\t';
+          return '';
+        });
+        return JSON.parse(repairJson(s));
+      },
+    },
+  ];
+
+  let lastErr: Error | null = null;
+  for (const attempt of attempts) {
     try {
-      const sanitized = sanitizeLlmJson(arrayMatch[0]);
-      plans = JSON.parse(sanitized);
-    } catch (parseErr) {
-      throw new Error(`Failed to parse LLM JSON: ${parseErr instanceof Error ? parseErr.message : 'Unknown parse error'}`);
+      const result = attempt.fn();
+      if (Array.isArray(result)) return result;
+      if (result && typeof result === 'object') return [result];
+    } catch (e) {
+      lastErr = e instanceof Error ? e : new Error(String(e));
     }
   }
 
-  if (!Array.isArray(plans)) {
-    throw new Error('Parsed response is not an array');
-  }
+  throw new Error(`Failed to parse LLM JSON: ${lastErr?.message || 'Unknown parse error'}`);
+}
 
-  return plans;
+export async function generateAttackPlans(systemPrompt: string, userPrompt: string): Promise<unknown[]> {
+  const raw = await chatCompletion([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ], { temperature: 0.4, maxTokens: 16384 });
+
+  return parseLlmJson(raw);
 }
