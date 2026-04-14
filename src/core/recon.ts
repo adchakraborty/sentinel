@@ -1,7 +1,7 @@
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import * as path from 'path';
 import * as fs from 'fs';
-import { PageMap, FormInfo, InputInfo, LinkInfo, CookieInfo, NemesisConfig } from '../types.js';
+import { PageMap, FormInfo, InputInfo, LinkInfo, CookieInfo, StorageInfo, NemesisConfig } from '../types.js';
 
 /**
  * Reconnaissance module — crawls the target app and maps every page,
@@ -305,6 +305,7 @@ export class Recon {
       const inputs = await this.extractStandaloneInputs(page);
       const links = await this.extractLinks(page, url);
       const cookies = await this.extractCookies();
+      const storage = await this.extractStorage(page);
       const htmlSnippet = await page.evaluate(() => document.body?.innerHTML?.substring(0, 5000) || '');
 
       const screenshotName = `recon-${sanitizeFilename(url)}.png`;
@@ -318,6 +319,7 @@ export class Recon {
         inputs,
         links,
         cookies,
+        storage,
         headers,
         screenshot: screenshotPath,
         htmlSnippet,
@@ -403,6 +405,49 @@ export class Recon {
       secure: c.secure,
       sameSite: c.sameSite,
     }));
+  }
+
+  private async extractStorage(page: Page): Promise<StorageInfo> {
+    try {
+      const webStorage = await page.evaluate(() => {
+        const readStore = (store: Storage) => {
+          const entries: Array<{ key: string; value: string; size: number }> = [];
+          for (let i = 0; i < store.length; i++) {
+            const key = store.key(i);
+            if (!key) continue;
+            const value = store.getItem(key) || '';
+            entries.push({
+              key,
+              value: value.substring(0, 200),
+              size: value.length,
+            });
+          }
+          return entries;
+        };
+
+        return {
+          localStorage: readStore(localStorage),
+          sessionStorage: readStore(sessionStorage),
+        };
+      });
+
+      let indexedDBDatabases: string[] = [];
+      try {
+        indexedDBDatabases = await page.evaluate(async () => {
+          if (typeof indexedDB === 'undefined' || !indexedDB.databases) return [];
+          const dbs = await indexedDB.databases();
+          return dbs.map((db) => db.name || '(unnamed)');
+        });
+      } catch { /* indexedDB.databases() may not be supported */ }
+
+      return {
+        localStorage: webStorage.localStorage,
+        sessionStorage: webStorage.sessionStorage,
+        indexedDBDatabases,
+      };
+    } catch {
+      return { localStorage: [], sessionStorage: [], indexedDBDatabases: [] };
+    }
   }
 }
 

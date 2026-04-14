@@ -72,6 +72,7 @@ Then generate security attacks, functional tests, and exploratory tests covering
 - Logout flow
 - CORS configuration audit
 - Cookie security flags audit
+- Browser storage audit (localStorage, sessionStorage for sensitive data like tokens, credentials, API keys)
 Then call nemesis_attack with your plans.
 ```
 
@@ -158,6 +159,7 @@ FUNCTIONAL TESTS:
 SECURITY TESTS:
 - CORS configuration: check if Access-Control-Allow-Origin reflects arbitrary origins with credentials
 - Cookie security: idsrv.session missing HttpOnly, shib cookies missing Secure flag
+- Browser storage: check localStorage and sessionStorage for tokens, credentials, API keys, PII, or other sensitive data
 - XSS via document and folder route parameters
 - SQL injection via document and folder route parameters
 - Path traversal via document and folder route parameters

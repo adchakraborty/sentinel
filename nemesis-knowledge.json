@@ -102,6 +102,76 @@
         "[medium] Null byte injection in document ID: Page returned error status 400",
         "[low] Non-existent deep nested route: Found \"not found\" on page (status 200)"
       ]
+    },
+    {
+      "id": "scan-1775583921831",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T17:45:21.831Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 26,
+      "vulnerabilitiesFound": 7,
+      "findings": [
+        "[high] CORS origin reflection with credentials: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[high] CSRF token enforcement on API: Verify that the Integration Server API rejects requests without a valid CSRF token",
+        "[critical] Unauthenticated access to protected routes: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[medium] Logout completeness verification: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[low] Logout flow: Found \"login\" on page (status 200)",
+        "[low] Unknown route handling: Found \"not found\" on page (status 200)",
+        "[high] CORS with null origin: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon"
+      ]
+    },
+    {
+      "id": "scan-1775585055262",
+      "appId": "docs.hyland.com",
+      "timestamp": "2026-04-07T18:04:15.262Z",
+      "pagesScanned": 10,
+      "attacksExecuted": 17,
+      "vulnerabilitiesFound": 11,
+      "findings": [
+        "[high] CORS origin reflection check: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[low] CSRF protection on cookie consent: Test if the OneTrust cookie consent mechanism can be manipulated via cross-origin requests",
+        "[low] Products page loads correctly: Found \"Product Documentation\" on page (status 200)",
+        "[low] Product navigation links work: Found \"Integration Server\" on page (status 200)",
+        "[low] Industries page accessible: Found \"Industries\" on page (status 200)",
+        "[low] French localization page loads: Found \"Produits\" on page (status 200)",
+        "[low] German localization page loads: Found \"Produkte\" on page (status 200)",
+        "[low] HSTS header present and configured: Found \"Hyland\" on page (status 200)",
+        "[low] Non-existent product page handling: Found \"error\" on page (status 403)",
+        "[medium] Special characters in URL path: Found \"error\" on page (status 400)",
+        "[low] Titan product page accessible: Found \"Titan\" on page (status 200)"
+      ]
+    },
+    {
+      "id": "scan-1775585335521",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T18:08:55.521Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 23,
+      "vulnerabilitiesFound": 6,
+      "findings": [
+        "[high] CORS origin reflection with credentials: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[high] CORS on static assets: Wildcard CORS header (Access-Control-Allow-Origin: *) detected during recon",
+        "[high] CSRF token enforcement on Integration Server API: Test if the Integration Server API rejects state-changing requests without a valid CSRF token — past",
+        "[medium] Logout completeness - session teardown: Sensitive page accessible without authentication (status 200). Content indicators found.",
+        "[low] Unknown route shows error page: Found \"not found\" on page (status 200)",
+        "[medium] Null byte injection in URL: Page returned error status 400"
+      ]
+    },
+    {
+      "id": "scan-1775586131182",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "timestamp": "2026-04-07T18:22:11.182Z",
+      "pagesScanned": 2,
+      "attacksExecuted": 27,
+      "vulnerabilitiesFound": 6,
+      "findings": [
+        "[high] CSRF token exposed in localStorage: Sensitive data found in localStorage: key=\"X-IntegrationServer-titan-CSRFToken\" (Matches sensitive p",
+        "[medium] Username exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[medium] User ID exposed in localStorage: Sensitive data detected in browser storage: localStorage[\"HyThemeClassName\"] — Matches sensitive pat",
+        "[critical] CORS allows credentials with broad origin: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
+        "[critical] CORS on API endpoint with credentials: CORS origin \"https://evil.com\" reflected with credentials enabled (ACAO: https://evil.com, ACAC: tru",
+        "[medium] Logout flow works correctly: Found \"login\" on page (status 200)"
+      ]
     }
   ],
   "effectivePayloads": [
@@ -384,6 +454,246 @@
       "successIndicator": "error",
       "appId": "project-titan.pc.k8s.hyland.io",
       "discoveredAt": "2026-04-07T17:27:35.050Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "no-csrf-header",
+      "category": "csrf",
+      "targetType": "direct-url",
+      "successIndicator": "403",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/documents",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/nonexistent-route-12345",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "Origin: null",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "null",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T17:45:21.832Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "OptanonConsent=isGpcEnabled=0",
+      "category": "csrf",
+      "targetType": "direct-url",
+      "successIndicator": "403",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Products.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Product Documentation",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Integration_Server.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Integration Server",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Industries.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Industries",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/fr/Products.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Produits",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/de/Products.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Produkte",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Products.htm",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "Hyland",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Nonexistent_Product_12345.htm",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Products%00.htm",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "https://docs.hyland.com/Portal_Public/Products/en/Titan.htm",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "Titan",
+      "appId": "docs.hyland.com",
+      "discoveredAt": "2026-04-07T18:04:15.264Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "no-csrf-header",
+      "category": "csrf",
+      "targetType": "direct-url",
+      "successIndicator": "403",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "auth",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/nonexistent-route-12345",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "error",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/documents/view/valid-id%00.html",
+      "category": "exploratory",
+      "targetType": "direct-url",
+      "successIndicator": "alert",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:08:55.522Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-CSRFToken",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "CSRFToken",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "X-IntegrationServer-titan-Username",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "test2",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "Ti-titan-UserId",
+      "category": "storage",
+      "targetType": "storage",
+      "successIndicator": "321Z539",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "Origin: https://evil.com",
+      "category": "cors",
+      "targetType": "header",
+      "successIndicator": "evil.com",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
+    },
+    {
+      "payload": "https://project-titan.pc.k8s.hyland.io/logout",
+      "category": "functional",
+      "targetType": "direct-url",
+      "successIndicator": "login",
+      "appId": "project-titan.pc.k8s.hyland.io",
+      "discoveredAt": "2026-04-07T18:22:11.184Z"
     }
   ],
   "testPlans": []

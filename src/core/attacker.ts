@@ -74,6 +74,8 @@ export class Attacker {
         return this.executeCorsCheck(attack, pageUrl);
       case 'csrf':
         return this.executeCsrfCheck(attack, pageUrl);
+      case 'storage':
+        return this.executeStorageCheck(attack, pageUrl);
       case 'functional':
       case 'exploratory':
         return this.executeFunctionalTest(attack, pageUrl);
@@ -659,6 +661,169 @@ export class Attacker {
       pageUrl,
       success,
       evidence: evidence || 'CSRF protection appears to be in place',
+      duration: Date.now() - start,
+      reproductionSteps: steps,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private async executeStorageCheck(attack: Attack, pageUrl: string): Promise<AttackResult> {
+    const start = Date.now();
+    const steps: string[] = [];
+    let evidence = '';
+    let success = false;
+    let screenshot: string | undefined;
+
+    const page = await this.context.newPage();
+    try {
+      const targetUrl = attack.target.url || pageUrl;
+      steps.push(`Navigate to ${targetUrl}`);
+      await page.goto(targetUrl, { waitUntil: 'networkidle', timeout: this.config.timeout });
+      await page.waitForTimeout(1000);
+
+      const storageData = await page.evaluate(() => {
+        const sensitivePatterns = [
+          /token/i, /auth/i, /session/i, /password/i, /passwd/i, /secret/i,
+          /api[_-]?key/i, /access[_-]?key/i, /private[_-]?key/i, /credential/i,
+          /jwt/i, /bearer/i, /oauth/i, /refresh/i, /csrf/i, /xsrf/i,
+          /credit.?card/i, /ssn/i, /social.?security/i, /pin/i,
+          /^eyJ/,
+        ];
+
+        const checkStore = (store: Storage, storeName: string) => {
+          const findings: Array<{ store: string; key: string; value: string; reason: string }> = [];
+          for (let i = 0; i < store.length; i++) {
+            const key = store.key(i);
+            if (!key) continue;
+            const value = store.getItem(key) || '';
+
+            for (const pattern of sensitivePatterns) {
+              if (pattern.test(key) || pattern.test(value)) {
+                findings.push({
+                  store: storeName,
+                  key,
+                  value: value.substring(0, 100),
+                  reason: `Matches sensitive pattern: ${pattern.source}`,
+                });
+                break;
+              }
+            }
+          }
+          return findings;
+        };
+
+        const lsFindings = checkStore(localStorage, 'localStorage');
+        const ssFindings = checkStore(sessionStorage, 'sessionStorage');
+
+        const lsSize = (() => {
+          let total = 0;
+          for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i) || '';
+            total += k.length + (localStorage.getItem(k) || '').length;
+          }
+          return total;
+        })();
+
+        const ssSize = (() => {
+          let total = 0;
+          for (let i = 0; i < sessionStorage.length; i++) {
+            const k = sessionStorage.key(i) || '';
+            total += k.length + (sessionStorage.getItem(k) || '').length;
+          }
+          return total;
+        })();
+
+        return {
+          findings: [...lsFindings, ...ssFindings],
+          localStorageCount: localStorage.length,
+          sessionStorageCount: sessionStorage.length,
+          localStorageSize: lsSize,
+          sessionStorageSize: ssSize,
+        };
+      });
+
+      steps.push(`localStorage: ${storageData.localStorageCount} entries (${storageData.localStorageSize} bytes)`);
+      steps.push(`sessionStorage: ${storageData.sessionStorageCount} entries (${storageData.sessionStorageSize} bytes)`);
+
+      if (storageData.findings.length > 0) {
+        for (const finding of storageData.findings) {
+          steps.push(`Sensitive data in ${finding.store}: key="${finding.key}" — ${finding.reason}`);
+        }
+      }
+
+      for (const indicator of attack.successIndicators) {
+        const indicatorLower = indicator.toLowerCase();
+
+        for (const finding of storageData.findings) {
+          if (
+            finding.key.toLowerCase().includes(indicatorLower) ||
+            finding.value.toLowerCase().includes(indicatorLower) ||
+            finding.reason.toLowerCase().includes(indicatorLower)
+          ) {
+            success = true;
+            evidence = `Sensitive data found in ${finding.store}: key="${finding.key}" (${finding.reason}), value preview: "${finding.value}"`;
+            screenshot = await this.takeScreenshot(page, attack.id, 'storage-vuln');
+            steps.push(`VULNERABILITY CONFIRMED: ${evidence}`);
+            break;
+          }
+        }
+        if (success) break;
+
+        if (indicatorLower === 'sensitive_data_in_storage' && storageData.findings.length > 0) {
+          success = true;
+          const summaries = storageData.findings.slice(0, 5).map(
+            (f) => `${f.store}["${f.key}"] — ${f.reason}`,
+          );
+          evidence = `${storageData.findings.length} sensitive storage entries found: ${summaries.join('; ')}`;
+          screenshot = await this.takeScreenshot(page, attack.id, 'storage-sensitive');
+          steps.push(`VULNERABILITY CONFIRMED: ${evidence}`);
+          break;
+        }
+
+        if (indicatorLower === 'unencrypted_token' || indicatorLower === 'plaintext_token') {
+          const tokenFindings = storageData.findings.filter(
+            (f) => /token|jwt|bearer|oauth|session/i.test(f.key) || /^eyJ/.test(f.value),
+          );
+          if (tokenFindings.length > 0) {
+            success = true;
+            evidence = `Unencrypted auth token in browser storage: ${tokenFindings[0].store}["${tokenFindings[0].key}"] = "${tokenFindings[0].value}"`;
+            screenshot = await this.takeScreenshot(page, attack.id, 'storage-token');
+            steps.push(`VULNERABILITY CONFIRMED: ${evidence}`);
+            break;
+          }
+        }
+
+        if (indicatorLower === 'excessive_storage') {
+          const totalSize = storageData.localStorageSize + storageData.sessionStorageSize;
+          if (totalSize > 100_000) {
+            success = true;
+            evidence = `Excessive browser storage usage: ${(totalSize / 1024).toFixed(1)} KB total (localStorage: ${(storageData.localStorageSize / 1024).toFixed(1)} KB, sessionStorage: ${(storageData.sessionStorageSize / 1024).toFixed(1)} KB)`;
+            screenshot = await this.takeScreenshot(page, attack.id, 'storage-excessive');
+            steps.push(`ISSUE FOUND: ${evidence}`);
+            break;
+          }
+        }
+      }
+
+      if (!success && storageData.findings.length > 0) {
+        success = true;
+        const summaries = storageData.findings.slice(0, 5).map(
+          (f) => `${f.store}["${f.key}"] — ${f.reason}`,
+        );
+        evidence = `Sensitive data detected in browser storage: ${summaries.join('; ')}`;
+        screenshot = await this.takeScreenshot(page, attack.id, 'storage-auto');
+        steps.push(`VULNERABILITY CONFIRMED: ${evidence}`);
+      }
+    } finally {
+      await page.close();
+    }
+
+    return {
+      attack,
+      pageUrl,
+      success,
+      evidence: evidence || 'No sensitive data detected in browser storage',
+      screenshot,
       duration: Date.now() - start,
       reproductionSteps: steps,
       timestamp: new Date().toISOString(),

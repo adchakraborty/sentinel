@@ -26,7 +26,7 @@ export interface NemesisConfig {
   };
 }
 
-export type AttackCategory = 'injection' | 'xss' | 'auth' | 'traversal' | 'validation' | 'dos' | 'cors' | 'csrf' | 'functional' | 'exploratory';
+export type AttackCategory = 'injection' | 'xss' | 'auth' | 'traversal' | 'validation' | 'dos' | 'cors' | 'csrf' | 'storage' | 'functional' | 'exploratory';
 
 export interface PageMap {
   url: string;
@@ -35,6 +35,7 @@ export interface PageMap {
   links: LinkInfo[];
   inputs: InputInfo[];
   cookies: CookieInfo[];
+  storage: StorageInfo;
   headers: Record<string, string>;
   screenshot?: string;
   htmlSnippet: string;
@@ -70,6 +71,18 @@ export interface CookieInfo {
   sameSite: string;
 }
 
+export interface StorageEntry {
+  key: string;
+  value: string;
+  size: number;
+}
+
+export interface StorageInfo {
+  localStorage: StorageEntry[];
+  sessionStorage: StorageEntry[];
+  indexedDBDatabases: string[];
+}
+
 export interface AttackPlan {
   pageUrl: string;
   attacks: Attack[];
@@ -87,7 +100,7 @@ export interface Attack {
 }
 
 export interface AttackTarget {
-  type: 'form' | 'url-param' | 'header' | 'cookie' | 'direct-url';
+  type: 'form' | 'url-param' | 'header' | 'cookie' | 'direct-url' | 'storage';
   selector?: string;
   inputName?: string;
   url?: string;

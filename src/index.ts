@@ -26,7 +26,7 @@ const server = new McpServer({
 
 const CATEGORY_ENUM = z.enum([
   'injection', 'xss', 'auth', 'traversal', 'validation',
-  'dos', 'cors', 'csrf', 'functional', 'exploratory',
+  'dos', 'cors', 'csrf', 'storage', 'functional', 'exploratory',
 ]);
 
 const AUTH_SCHEMA = z.object({
@@ -58,7 +58,7 @@ let kb: KnowledgeBase = loadKnowledge();
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
   'nemesis_recon',
-  `Crawl a web application and map its attack surface. Returns pages, forms, inputs, cookies, headers, links, plus any knowledge from past runs for this specific URL.
+  `Crawl a web application and map its attack surface. Returns pages, forms, inputs, cookies, browser storage (localStorage, sessionStorage, IndexedDB), headers, links, plus any knowledge from past runs for this specific URL.
 
 Supports authentication: pass auth credentials and the browser will log in before crawling.
 Supports documentation: pass a docPath and NEMESIS reads the file, returning its content for YOU to analyze.
@@ -66,7 +66,7 @@ Supports example data: pass exampleData with sample inputs for functional testin
 
 After calling this, YOU (the LLM) must:
 1. Read the documentation content (if provided) and understand the app
-2. Analyze the recon data using your security AND QA expertise
+2. Analyze the recon data using your security AND QA expertise — including browser storage for sensitive data exposure
 3. Use the example data for functional tests, your security knowledge for attacks
 4. Call nemesis_attack with your plans`,
   {
@@ -133,6 +133,7 @@ After calling this, YOU (the LLM) must:
         placeholder: i.placeholder, label: i.label,
       })),
       cookies: p.cookies,
+      storage: p.storage,
       headers: p.headers,
       internalLinks: p.links.filter((l) => l.isInternal).map((l) => ({ href: l.href, text: l.text })),
     }));
@@ -148,13 +149,13 @@ After calling this, YOU (the LLM) must:
       `# NEMESIS Recon Complete`,
       ``,
       `**Target:** ${actualUrl}`,
-      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)}`,
+      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
       auth ? `**Auth:** ${auth.type}${auth.username ? ` as ${auth.username}` : ''}` : '',
       ``,
       `## What To Do Next`,
       ``,
       `Analyze the recon data and generate test plans. You can create:`,
-      `- **Security attacks** (injection, xss, auth, traversal, cors, csrf)`,
+      `- **Security attacks** (injection, xss, auth, traversal, cors, csrf, storage)`,
       `- **Functional tests** (does search work? does login accept valid creds? does form save data?)`,
       `- **Exploratory tests** (random inputs, edge cases, boundary values)`,
       ``,
@@ -214,7 +215,9 @@ server.tool(
   'nemesis_attack',
   `Execute test plans against the target crawled by nemesis_recon. YOU provide all plans — security attacks, functional tests, exploratory tests. NEMESIS executes them in Chromium and captures evidence.
 
-Categories: injection, xss, auth, traversal, validation, cors, csrf, functional, exploratory
+Categories: injection, xss, auth, traversal, validation, cors, csrf, storage, functional, exploratory
+
+The "storage" category checks browser storage (localStorage, sessionStorage) for sensitive data like tokens, credentials, API keys, PII, or excessive data exposure. Use target type "storage" for these checks.
 
 After results come back, effective payloads and scan records are saved to the knowledge base (scoped to this URL) for future runs.`,
   {
@@ -226,7 +229,7 @@ After results come back, effective payloads and scan records are saved to the kn
         name: z.string().describe('Human-readable test name'),
         description: z.string().describe('What this test checks and why'),
         target: z.object({
-          type: z.enum(['form', 'url-param', 'header', 'cookie', 'direct-url']),
+          type: z.enum(['form', 'url-param', 'header', 'cookie', 'direct-url', 'storage']),
           selector: z.string().optional().describe('CSS selector for form input'),
           inputName: z.string().optional(),
           url: z.string().optional(),
@@ -477,12 +480,12 @@ server.tool(
 // ═══════════════════════════════════════════════════════════════════════
 server.tool(
   'nemesis_scan',
-  `Full scan pipeline in one call: crawl the target, return recon data + documentation + example data + past knowledge. This is the recommended entry point.
+  `Full scan pipeline in one call: crawl the target, return recon data (including browser storage: localStorage, sessionStorage, IndexedDB) + documentation + example data + past knowledge. This is the recommended entry point.
 
 After this returns, YOU must:
 1. Read the documentation (if provided)
-2. Analyze the recon data
-3. Generate security attacks + functional tests + exploratory tests
+2. Analyze the recon data — including browser storage entries for sensitive data exposure (tokens, credentials, PII, API keys)
+3. Generate security attacks + functional tests + exploratory tests + browser storage vulnerability checks
 4. Call nemesis_attack with your plans
 
 This tool combines nemesis_recon + doc reading + knowledge lookup into one step.`,
@@ -534,6 +537,7 @@ This tool combines nemesis_recon + doc reading + knowledge lookup into one step.
       })),
       standaloneInputs: p.inputs.map((i) => ({ name: i.name, type: i.type, selector: i.selector, placeholder: i.placeholder, label: i.label })),
       cookies: p.cookies,
+      storage: p.storage,
       headers: p.headers,
       internalLinks: p.links.filter((l) => l.isInternal).map((l) => ({ href: l.href, text: l.text })),
     }));
@@ -546,16 +550,16 @@ This tool combines nemesis_recon + doc reading + knowledge lookup into one step.
     const instructions = [
       `# NEMESIS Scan — ${actualUrl}`,
       ``,
-      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)}`,
+      `**Pages:** ${pages.length} | **Forms:** ${pages.reduce((s, p) => s + p.forms.length, 0)} | **Inputs:** ${pages.reduce((s, p) => s + p.inputs.length + p.forms.reduce((fs, f) => fs + f.inputs.length, 0), 0)} | **Storage entries:** ${pages.reduce((s, p) => s + p.storage.localStorage.length + p.storage.sessionStorage.length, 0)}`,
       auth ? `**Auth:** ${auth.type}${auth.username ? ` as ${auth.username}` : ''}` : '',
       docPath ? `**Docs:** ${docPath}` : '',
       ``,
       `## Your Task`,
       ``,
       `1. Read the documentation below (if provided)`,
-      `2. Analyze the recon data — every form, input, cookie, header`,
+      `2. Analyze the recon data — every form, input, cookie, header, and browser storage entry`,
       `3. Generate test plans:`,
-      `   - **Security attacks**: SQLi, XSS, auth bypass, path traversal, CORS, CSRF`,
+      `   - **Security attacks**: SQLi, XSS, auth bypass, path traversal, CORS, CSRF, browser storage vulnerabilities`,
       `   - **Functional tests**: Use the example data to verify features work correctly`,
       `   - **Exploratory tests**: Edge cases, boundary values, random inputs`,
       `4. Call **nemesis_attack** with your plans`,

@@ -43,5 +43,15 @@
       </form>
     </div>
   </div>
+  <script>
+    // VULN: Store login attempts and credentials in sessionStorage
+    document.querySelector('form').addEventListener('submit', function() {
+      sessionStorage.setItem('last_login_attempt', JSON.stringify({
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        timestamp: new Date().toISOString()
+      }));
+    });
+  </script>
 </body>
 </html>
